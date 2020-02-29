@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/mikack.dart' as mikack;
 import 'package:mikack_mobile/main.dart' show primaryColor;
+import '../pages/detail.dart';
 
 class LibrariesFragment extends StatelessWidget {
   final _platforms = mikack.platforms();
 
-  List<Widget> _buildPlatformList() {
+  List<Widget> _buildPlatformList(BuildContext context) {
     return _platforms
         .map((p) => Card(
               margin: EdgeInsets.only(bottom: 0.5),
@@ -24,7 +25,8 @@ class LibrariesFragment extends StatelessWidget {
                       borderRadius:
                           BorderRadiusDirectional.all(Radius.circular(5))),
                   child: Text('详细'),
-                  onPressed: () {},
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => DetailPage(p))),
                 ),
                 onTap: () {},
               ),
@@ -48,7 +50,7 @@ class LibrariesFragment extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(bottom: 10),
             child: Column(
-              children: _buildPlatformList(),
+              children: _buildPlatformList(context),
             ),
           ),
         ],

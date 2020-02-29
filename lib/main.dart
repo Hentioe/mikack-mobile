@@ -33,7 +33,7 @@ class MyHomePage extends StatefulWidget {
 
   final drawerItems = [
     DrawerItem('我的书架', Icons.class_, Text('')),
-    DrawerItem('书架更新', Icons.history, Text('')),
+    DrawerItem('书架更新', Icons.fiber_new, Text('')),
     DrawerItem('图书仓库', Icons.store, LibrariesFragment()),
     DrawerItem('浏览历史', Icons.history, Text('')),
   ];
