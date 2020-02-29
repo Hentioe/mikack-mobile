@@ -3,8 +3,8 @@ import 'package:mikack/mikack.dart' as mikack;
 
 void main() => runApp(MyApp());
 
-const _primaryColor = Colors.deepOrange;
-const _secondaryColor = Colors.deepOrangeAccent;
+const primaryColor = Colors.deepOrange;
+const secondaryColor = Colors.deepOrangeAccent;
 
 class MyApp extends StatelessWidget {
   @override
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       title: 'Mikack Mobile',
       theme: ThemeData(
         // This is the theme
-        primarySwatch: _primaryColor,
+        primarySwatch: primaryColor,
       ),
       home: MyHomePage(title: '我的书架'),
     );
@@ -29,25 +29,21 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  var _platforms = mikack.platforms();
+const headerLogoSize = 65.0;
 
+class _MyHomePageState extends State<MyHomePage> {
   final _header = DrawerHeader(
-    decoration: BoxDecoration(color: _secondaryColor),
-    child: const Text(
-      'MIKACK',
-      style: TextStyle(color: Colors.white, fontSize: 22),
+    decoration: BoxDecoration(color: secondaryColor),
+    child: Row(
+      children: [
+        Image.asset(
+          'images/logo.png',
+          width: headerLogoSize,
+          height: headerLogoSize,
+        )
+      ],
     ),
   );
-
-  List<Widget> _buildListViewChild() {
-    List<Widget> list = [_header];
-    list.addAll(_platforms.map((p) => ListTile(
-          leading: Icon(Icons.folder_open),
-          title: Text(p.name),
-        )));
-    return list;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,13 +51,38 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Text("Hello Mikack!"),
-      ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: _buildListViewChild(),
+          children: [
+            _header,
+            ListTile(
+              leading: Icon(Icons.book),
+              title: Text('我的书架'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.history),
+              title: Text('书架更新'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.rss_feed),
+              title: Text('平台列表'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.history),
+              title: Text('浏览历史'),
+              onTap: () {},
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('设置'),
+              onTap: () {},
+            ),
+          ],
         ),
       ),
     );
