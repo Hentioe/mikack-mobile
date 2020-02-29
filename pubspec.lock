@@ -57,10 +57,10 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.3"
-  cupertino_icons:
-    dependency: "direct main"
+  ffi:
+    dependency: transitive
     description:
-      name: cupertino_icons
+      name: ffi
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.3"
@@ -95,6 +95,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.8"
+  mikack:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "8417d9f5d3c22d4e2662919865dfeb9ac03d9c9d"
+      url: "git@github.com:Hentioe/mikack-dart.git"
+    source: git
+    version: "0.0.0"
   path:
     dependency: transitive
     description:
@@ -192,4 +201,4 @@ packages:
     source: hosted
     version: "3.5.0"
 sdks:
-  dart: ">=2.4.0 <3.0.0"
+  dart: ">=2.7.0 <3.0.0"
