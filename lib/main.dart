@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mikack/mikack.dart' as mikack;
+import 'fragments/libraries.dart';
 
 void main() => runApp(MyApp());
 
@@ -15,15 +15,28 @@ class MyApp extends StatelessWidget {
         // This is the theme
         primarySwatch: primaryColor,
       ),
-      home: MyHomePage(title: '我的书架'),
+      home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class DrawerItem {
+  String title;
+  IconData iconData;
+  Widget fragment;
 
-  final String title;
+  DrawerItem(this.title, this.iconData, this.fragment);
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key key}) : super(key: key);
+
+  final drawerItems = [
+    DrawerItem('我的书架', Icons.class_, Text('')),
+    DrawerItem('书架更新', Icons.history, Text('')),
+    DrawerItem('图书仓库', Icons.store, LibrariesFragment()),
+    DrawerItem('浏览历史', Icons.history, Text('')),
+  ];
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -32,6 +45,7 @@ class MyHomePage extends StatefulWidget {
 const headerLogoSize = 65.0;
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _selectedDrawerIndex = 0;
   final _header = DrawerHeader(
     decoration: BoxDecoration(color: secondaryColor),
     child: Row(
@@ -45,36 +59,35 @@ class _MyHomePageState extends State<MyHomePage> {
     ),
   );
 
+  _onSelectItem(int index) {
+    setState(() => _selectedDrawerIndex = index);
+    Navigator.of(context).pop(); // 关闭抽屉
+  }
+
   @override
   Widget build(BuildContext context) {
+    var drawerOptions = <Widget>[];
+    for (var i = 0; i < widget.drawerItems.length; i++) {
+      var d = widget.drawerItems[i];
+      drawerOptions.add(new ListTile(
+        leading: new Icon(d.iconData),
+        title: new Text(d.title),
+        selected: i == _selectedDrawerIndex,
+        onTap: () => _onSelectItem(i),
+      ));
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.drawerItems[_selectedDrawerIndex].title),
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             _header,
-            ListTile(
-              leading: Icon(Icons.book),
-              title: Text('我的书架'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: Icon(Icons.history),
-              title: Text('书架更新'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: Icon(Icons.rss_feed),
-              title: Text('平台列表'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: Icon(Icons.history),
-              title: Text('浏览历史'),
-              onTap: () {},
+            Column(
+              children: drawerOptions,
             ),
             Divider(),
             ListTile(
@@ -85,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+      body: widget.drawerItems[_selectedDrawerIndex].fragment,
     );
   }
 }
