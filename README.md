@@ -1,16 +1,16 @@
-# mikack_mobile
+# mikack-mobile
 
-Mikack Mobile Client
+Mikack 手机客户端
 
-## Getting Started
+## 基本说明
 
-This project is a starting point for a Flutter application.
+本项目是用 Flutter 框架构建的主要面向移动设备的 Mikack GUI 客户端。
 
-A few resources to get you started if this is your first Flutter project:
+## 当前状态
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+本项目在未来很长时间内可能都不支持 IOS，但应该不是永久性的。
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 存在的问题
+
+- mikack-ffi 无法在 ARM 架构编译成功  
+  暂时性的仅支持 x86 架构的 Android，基础开发阶段结束会集中精力攻克编译问题。
