@@ -20,7 +20,7 @@ class MetaRow extends StatelessWidget {
   }
 }
 
-const coverBlurSigma = 4.5;
+const coverBlurSigma = 3.5;
 
 class InfoTab extends StatelessWidget {
   InfoTab(this.platform, this.comic);
@@ -47,7 +47,7 @@ class InfoTab extends StatelessWidget {
                   filter: ImageFilter.blur(
                       sigmaX: coverBlurSigma, sigmaY: coverBlurSigma),
                   child: Container(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withOpacity(0.4),
                   ),
                 ),
               ),

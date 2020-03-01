@@ -6,7 +6,7 @@ import '../widgets/comics_view.dart';
 import 'comic.dart';
 
 const listCoverSize = 50.0;
-const listCoverRadius = listCoverSize / 2;
+const listCoverRadius = 4.0;
 
 class IndexesView extends StatelessWidget {
   IndexesView(
@@ -51,6 +51,11 @@ class IndexesView extends StatelessWidget {
     );
   }
 
+  Widget _buildViewMode(BuildContext context) => ComicsView(comics,
+      inStackItemBuilders: gridViewInStackItemBuilders,
+      onTap: (comic) => _openComicPage(context, comic),
+      scrollController: scrollController);
+
   final gridViewInStackItemBuilders = [
     (comic) => Positioned(
           right: 0,
@@ -63,10 +68,6 @@ class IndexesView extends StatelessWidget {
               onPressed: () => _handleFavorite(comic)),
         ),
   ];
-
-  Widget _buildViewMode(BuildContext context) => ComicsView(comics,
-      onTap: (comic) => _openComicPage(context, comic),
-      inStackItemBuilders: gridViewInStackItemBuilders);
 
   Widget _buildLoading() {
     return Center(

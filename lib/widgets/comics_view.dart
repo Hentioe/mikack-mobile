@@ -3,12 +3,13 @@ import 'package:mikack/models.dart' as models;
 
 class ComicsView extends StatelessWidget {
   ComicsView(this.comics,
-      {this.onTap, this.onLongPress, this.inStackItemBuilders = const []});
+      {this.onTap, this.onLongPress, this.inStackItemBuilders = const [], this.scrollController});
 
   final List<models.Comic> comics;
   final Function(models.Comic) onTap;
   final Function(models.Comic) onLongPress;
   final List<Widget Function(models.Comic)> inStackItemBuilders;
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +38,7 @@ class ComicsView extends StatelessWidget {
                             begin: Alignment.bottomCenter,
                             end: Alignment.topCenter,
                             colors: [
-                          Color.fromARGB(180, 0, 0, 0),
+                          Color.fromARGB(120, 0, 0, 0),
                           Colors.transparent,
                         ])),
                     child: Center(
@@ -62,6 +63,6 @@ class ComicsView extends StatelessWidget {
               ],
             ),
           );
-        }));
+        }), controller: scrollController);
   }
 }
