@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
-import 'package:mikack/src/models.dart' as models;
+import 'package:mikack/models.dart' as models;
 import '../widgets/comics_view.dart';
 import 'comic.dart';
 

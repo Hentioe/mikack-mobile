@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mikack/src/models.dart' as models;
+import 'package:mikack/models.dart' as models;
 import '../widgets/comics_view.dart';
 
 class BooksView extends StatelessWidget {

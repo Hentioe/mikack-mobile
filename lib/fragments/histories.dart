@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mikack/src/models.dart' as models;
 
 class HistoriesView extends StatelessWidget {
   @override

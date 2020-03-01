@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:mikack/src/models.dart' as models;
+import 'package:mikack/models.dart' as models;
 
 class MetaRow extends StatelessWidget {
   MetaRow(this.name, this.value);

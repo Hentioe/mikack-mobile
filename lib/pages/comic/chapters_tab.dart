@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mikack/src/models.dart' as models;
+import 'package:mikack/models.dart' as models;
 
 class ChaptersTab extends StatelessWidget {
   ChaptersTab(this.platform, this.comic);
