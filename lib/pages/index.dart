@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart';
 import 'package:mikack/src/models.dart' as models;
+import 'comic.dart';
 
 const listCoverSize = 50.0;
 const listCoverRadius = listCoverSize / 2;
 
 class ComicsView extends StatelessWidget {
-  ComicsView(this.isViewList, this.comics, this.scrollController);
+  ComicsView(
+      this.platform, this.isViewList, this.comics, this.scrollController);
 
+  final models.Platform platform;
   final bool isViewList;
   final List<models.Comic> comics;
   final ScrollController scrollController;
@@ -17,7 +19,10 @@ class ComicsView extends StatelessWidget {
   void _handleFavorite(models.Comic comic) {}
 
   // 打开阅读页面
-  void _openReaddingPage(models.Comic comic, BuildContext context) {}
+  void _openComicPage(BuildContext context, models.Comic comic) {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => ComicPage(platform, comic)));
+  }
 
   Widget _buildViewList(BuildContext context) {
     var children = comics
@@ -35,7 +40,7 @@ class ComicsView extends StatelessWidget {
               trailing: IconButton(
                   icon: Icon(Icons.favorite_border),
                   onPressed: () => _handleFavorite(c)),
-              onTap: () => _openReaddingPage(c, context),
+              onTap: () => _openComicPage(context, c),
             ))
         .toList();
     return ListView(
@@ -53,7 +58,10 @@ class ComicsView extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image.network(comics[index].cover, fit: BoxFit.cover),
+                Image.network(
+                  comics[index].cover,
+                  fit: BoxFit.cover,
+                ),
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -77,6 +85,12 @@ class ComicsView extends StatelessWidget {
                     ),
                   ),
                 ),
+                Positioned.fill(
+                    child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                      onTap: () => _openComicPage(context, comics[index])),
+                ))
               ],
             ),
           );
@@ -177,7 +191,7 @@ class _MainViewState extends State<MainView> {
           ),
         ],
       ),
-      body: ComicsView(_isViewList, _comics, scrollController),
+      body: ComicsView(widget.platform, _isViewList, _comics, scrollController),
     );
   }
 }
