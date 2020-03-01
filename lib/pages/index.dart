@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
 import 'package:mikack/src/models.dart' as models;
+import '../widgets/comics_view.dart';
 import 'comic.dart';
 
 const listCoverSize = 50.0;
 const listCoverRadius = listCoverSize / 2;
 
-class ComicsView extends StatelessWidget {
-  ComicsView(
+class IndexesView extends StatelessWidget {
+  IndexesView(
       this.platform, this.isViewList, this.comics, this.scrollController);
 
   final models.Platform platform;
@@ -16,7 +18,7 @@ class ComicsView extends StatelessWidget {
   final ScrollController scrollController;
 
   // 处理收藏按钮点击
-  void _handleFavorite(models.Comic comic) {}
+  static void _handleFavorite(models.Comic comic) {}
 
   // 打开阅读页面
   void _openComicPage(BuildContext context, models.Comic comic) {
@@ -49,53 +51,22 @@ class ComicsView extends StatelessWidget {
     );
   }
 
-  Widget _buildViewMode(BuildContext context) {
-    return GridView.count(
-        crossAxisCount: 2,
-        controller: scrollController,
-        children: List.generate(comics.length, (index) {
-          return Card(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.network(
-                  comics[index].cover,
-                  fit: BoxFit.cover,
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding:
-                        EdgeInsets.only(left: 5, top: 20, right: 5, bottom: 5),
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                          Color.fromARGB(180, 0, 0, 0),
-                          Colors.transparent,
-                        ])),
-                    child: Center(
-                      child: Text(comics[index].title,
-                          style: TextStyle(color: Colors.white),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis),
-                    ),
-                  ),
-                ),
-                Positioned.fill(
-                    child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                      onTap: () => _openComicPage(context, comics[index])),
-                ))
-              ],
-            ),
-          );
-        }));
-  }
+  final gridViewInStackItemBuilders = [
+    (comic) => Positioned(
+          right: 0,
+          top: 0,
+          child: IconButton(
+              icon: Icon(
+                Icons.favorite_border,
+                color: Colors.white,
+              ),
+              onPressed: () => _handleFavorite(comic)),
+        ),
+  ];
+
+  Widget _buildViewMode(BuildContext context) => ComicsView(comics,
+      onTap: (comic) => _openComicPage(context, comic),
+      inStackItemBuilders: gridViewInStackItemBuilders);
 
   Widget _buildLoading() {
     return Center(
@@ -191,7 +162,8 @@ class _MainViewState extends State<MainView> {
           ),
         ],
       ),
-      body: ComicsView(widget.platform, _isViewList, _comics, scrollController),
+      body:
+          IndexesView(widget.platform, _isViewList, _comics, scrollController),
     );
   }
 }

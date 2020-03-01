@@ -45,7 +45,7 @@ class _MainPageState extends State<_MainPage>
         ),
         title: Text(widget.comic.title),
         bottom: TabBar(
-          tabs: [
+          tabs: const [
             Tab(text: '信息'),
             Tab(text: '章节'),
           ],

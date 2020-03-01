@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:mikack/src/models.dart' as models;
 
@@ -13,11 +14,13 @@ class MetaRow extends StatelessWidget {
       children: [
         Text('$name ',
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        Text(value.toString(), style: TextStyle(color: Colors.grey[700])),
+        Text(value.toString(), style: TextStyle(color: Colors.grey[800])),
       ],
     );
   }
 }
+
+const coverBlurSigma = 4.5;
 
 class InfoTab extends StatelessWidget {
   InfoTab(this.platform, this.comic);
@@ -31,24 +34,39 @@ class InfoTab extends StatelessWidget {
       children: [
         Stack(
           children: [
+            // 背景图
             Container(
               width: double.infinity,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: NetworkImage(comic.cover), fit: BoxFit.fitWidth),
+              ),
               height: 200,
-              child: Image.network(comic.cover, fit: BoxFit.fitWidth),
+              child: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(
+                      sigmaX: coverBlurSigma, sigmaY: coverBlurSigma),
+                  child: Container(
+                    color: Colors.white.withOpacity(0.3),
+                  ),
+                ),
+              ),
             ),
+            // 表面内容
             Container(
                 width: double.infinity,
                 height: 200,
                 padding: EdgeInsets.all(20),
-                color: Color.fromARGB(170, 255, 255, 255),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // 左图
                     Image.network(
                       comic.cover,
                       width: 100,
                     ),
                     SizedBox(width: 20),
+                    // 文字
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,6 +75,8 @@ class InfoTab extends StatelessWidget {
                             comic.title,
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                            overflow: TextOverflow.fade,
                           ),
                           SizedBox(height: 10),
                           MetaRow(

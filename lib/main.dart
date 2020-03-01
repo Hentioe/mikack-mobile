@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'fragments/libraries.dart';
+import 'fragments/bookshelf.dart';
+import 'fragments/books_update.dart';
+import 'fragments/histories.dart';
 
 void main() => runApp(MyApp());
 
@@ -32,10 +35,10 @@ class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
 
   final drawerItems = [
-    DrawerItem('我的书架', Icons.class_, Text('')),
-    DrawerItem('书架更新', Icons.fiber_new, Text('')),
+    DrawerItem('我的书架', Icons.class_, BookshelfFragment()),
+    DrawerItem('书架更新', Icons.fiber_new, BooksUpdateFragment()),
     DrawerItem('图书仓库', Icons.store, LibrariesFragment()),
-    DrawerItem('浏览历史', Icons.history, Text('')),
+    DrawerItem('浏览历史', Icons.history, HistoriesView()),
   ];
 
   @override
