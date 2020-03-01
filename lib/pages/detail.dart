@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:mikack/src/models.dart' as models;
 
 class FeatureStatus extends StatelessWidget {

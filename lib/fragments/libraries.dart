@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mikack/mikack.dart' as mikack;
 import 'package:mikack_mobile/main.dart' show primaryColor;
 import '../pages/detail.dart';
+import '../pages/index.dart';
 
 class LibrariesFragment extends StatelessWidget {
   final _platforms = mikack.platforms();
@@ -28,7 +29,8 @@ class LibrariesFragment extends StatelessWidget {
                   onPressed: () => Navigator.push(context,
                       MaterialPageRoute(builder: (context) => DetailPage(p))),
                 ),
-                onTap: () {},
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => IndexPage(p))),
               ),
             ))
         .toList();
