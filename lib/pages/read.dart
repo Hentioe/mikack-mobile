@@ -154,7 +154,7 @@ class _MainViewState extends State<_MainView> {
     fetchNextPage(flip: true);
   }
 
-  void fetchNextPage({flip = false, preCount = 2}) async {
+  void fetchNextPage({flip = false, preCount = 3}) async {
     if (_currentPage > _chapter.pageCount) return;
     var address = await compute(
         _getNextAddressTask, _pageInterator.asValuePageInaterator());
@@ -186,7 +186,7 @@ class _MainViewState extends State<_MainView> {
 
   void handlePrev(page) {
     var currentCount = _addresses.length;
-    if (page > currentCount) return;
+    if (page <= 1 || page > currentCount) return;
     // 直接修改页码
     if (page <= currentCount) {
       setState(() {
