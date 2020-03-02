@@ -133,7 +133,7 @@ class _MainViewState extends State<_MainView> {
   @override
   void initState() {
     // 创建页面迭代器
-    createPageInterator();
+    createPageInterator(context);
     super.initState();
   }
 
@@ -143,7 +143,7 @@ class _MainViewState extends State<_MainView> {
     super.dispose();
   }
 
-  void createPageInterator() async {
+  void createPageInterator(BuildContext context) async {
     var created = await compute(
         _createPageIteratorTask, Tuple2(widget.platform, widget.chapter));
     setState(() {
@@ -158,6 +158,9 @@ class _MainViewState extends State<_MainView> {
     if (_currentPage > _chapter.pageCount) return;
     var address = await compute(
         _getNextAddressTask, _pageInterator.asValuePageInaterator());
+    // 预下载
+    precacheImage(
+        NetworkImage(address, headers: _chapter.pageHeaders), context);
     setState(() {
       _addresses.add(address);
       if (flip) _currentPage++;
