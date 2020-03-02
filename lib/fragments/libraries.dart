@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/mikack.dart' as mikack;
+import 'package:mikack/models.dart';
 import '../main.dart' show primaryColor;
 import '../pages/detail.dart';
 import '../pages/index.dart';
 
-const defaultPlatformIcon = "https://veemoe.me/favicon.ico";
+Map<String, String> buildHeaders(Platform platform) {
+  return platform != null
+      ? {
+          'Referer':
+              '${platform.isHttps ? 'https' : 'http'}://${platform.domain}'
+        }
+      : null;
+}
 
 class LibrariesFragment extends StatelessWidget {
   final _platforms = mikack.platforms();
@@ -17,19 +25,22 @@ class LibrariesFragment extends StatelessWidget {
                   borderRadius:
                       BorderRadiusDirectional.all(Radius.circular(2))),
               child: ListTile(
-                leading: Image.network(
-                    p.favicon == null ? defaultPlatformIcon : p.favicon,
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.network(
+                    p.favicon == null ? '' : p.favicon,
                     width: 30,
                     height: 30,
-                    fit: BoxFit.fill),
+                    fit: BoxFit.fill,
+                    headers: buildHeaders(p),
+                    filterQuality: FilterQuality.none,
+                  ),
+                ),
                 title: Text(p.name),
-                trailing: MaterialButton(
-                  elevation: 1.5,
-                  color: primaryColor,
-                  textColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadiusDirectional.all(Radius.circular(5))),
+                trailing: OutlineButton(
+                  textColor: Colors.blueAccent,
+                  borderSide: BorderSide(color: Colors.blueAccent),
+                  highlightedBorderColor: Colors.blueAccent,
                   child: Text('详细'),
                   onPressed: () => Navigator.push(context,
                       MaterialPageRoute(builder: (context) => DetailPage(p))),
