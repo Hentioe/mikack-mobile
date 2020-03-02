@@ -115,11 +115,19 @@ class _MainViewState extends State<MainView> {
   var isLoading = false;
   var currentPage = 1;
   var _isSearching = false;
+  var searched = false;
 
   final TextEditingController editingController = TextEditingController();
 
-  void fetchComics() async {
+  void fetchComics({init: false}) async {
     isLoading = true;
+    if (init) {
+      // 清理结果，并重置到第一页
+      currentPage = 1;
+      setState(() {
+        _comics.clear();
+      });
+    }
     var comics = await compute(
         _getComicsTask, {'platform': widget.platform, 'page': currentPage});
     setState(() {
@@ -146,13 +154,16 @@ class _MainViewState extends State<MainView> {
   @override
   void initState() {
     super.initState();
+    // 加载第一页
+    fetchComics();
     // 输入事件（搜索）
     editingController.addListener(() {});
     // 滚动事件（翻页）
     scrollController.addListener(() {
       if (!isLoading &&
           (scrollController.position.maxScrollExtent - 200) <=
-              scrollController.offset) {
+              scrollController.offset &&
+          !_isSearching) {
         currentPage++;
         fetchComics();
       }
@@ -161,7 +172,28 @@ class _MainViewState extends State<MainView> {
 
   // 搜索
   void submitSearch(String keywords) {
+    searched = true;
     searchComics(keywords);
+  }
+
+  // 点击搜索事件
+  void handleSearchBtnClick() {
+    // 关闭搜索框
+    if (_isSearching) {
+      editingController.clear();
+      // 如果搜索过，重置搜索结果
+      var init = false;
+      if (searched) {
+        searched = false;
+        init = true;
+      }
+      fetchComics(init: init); // 重置结果
+    } else {
+      // 打开搜索框
+    }
+    setState(() {
+      _isSearching = !_isSearching;
+    });
   }
 
   @override
@@ -172,7 +204,6 @@ class _MainViewState extends State<MainView> {
 
   @override
   Widget build(BuildContext context) {
-    if (_comics.length == 0) fetchComics();
     var isSearchable = widget.platform.isSearchable;
     return Scaffold(
       appBar: AppBar(
@@ -197,19 +228,8 @@ class _MainViewState extends State<MainView> {
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search,
                 color: Color.fromARGB(isSearchable ? 255 : 155, 255, 255, 255)),
-            onPressed: isSearchable
-                ? () {
-                    // 关闭搜索框
-                    if (_isSearching) {
-                      editingController.clear();
-                    } else {
-                      // 打开搜索框
-                    }
-                    setState(() {
-                      _isSearching = !_isSearching;
-                    });
-                  }
-                : null,
+            // 搜索点击事件
+            onPressed: isSearchable ? handleSearchBtnClick : null,
           ),
           IconButton(
             icon: Icon(_isViewList ? Icons.view_module : Icons.view_list),
