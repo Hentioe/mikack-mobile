@@ -7,13 +7,15 @@ import '../widgets/text_hint.dart';
 
 class PagesView extends StatelessWidget {
   PagesView(this.chapter, this.addresses, this.currentPage, this.handleNext,
-      this.handlePrev);
+      this.handlePrev,
+      {this.scrollController});
 
   final models.Chapter chapter;
   final List<String> addresses;
   final int currentPage;
   final void Function(int) handleNext;
   final void Function(int) handlePrev;
+  final ScrollController scrollController;
 
   bool isLoading() {
     return (addresses == null || addresses.length == 0);
@@ -48,6 +50,7 @@ class PagesView extends StatelessWidget {
         : ListView(
             shrinkWrap: true,
             children: [_buildImageView()],
+            controller: scrollController,
           );
   }
 
@@ -130,6 +133,8 @@ class _MainViewState extends State<_MainView> {
   models.Chapter _chapter;
   models.PageIterator _pageInterator;
 
+  final ScrollController pageScrollController = ScrollController();
+
   @override
   void initState() {
     // 创建页面迭代器
@@ -182,6 +187,7 @@ class _MainViewState extends State<_MainView> {
         _currentPage = page + 1;
       });
     }
+    pageScrollController.jumpTo(0);
   }
 
   void handlePrev(page) {
@@ -193,12 +199,13 @@ class _MainViewState extends State<_MainView> {
         _currentPage = page - 1;
       });
     }
+    pageScrollController.jumpTo(0);
   }
 
   @override
   Widget build(BuildContext context) {
-    return PagesView(
-        _chapter, _addresses, _currentPage, handleNext, handlePrev);
+    return PagesView(_chapter, _addresses, _currentPage, handleNext, handlePrev,
+        scrollController: pageScrollController);
   }
 }
 
