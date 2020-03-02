@@ -35,6 +35,7 @@ class IndexesView extends StatelessWidget {
               leading: ClipRRect(
                 borderRadius: BorderRadius.circular(listCoverRadius),
                 child: Image.network(c.cover,
+                    headers: httpHeaders,
                     fit: BoxFit.cover,
                     height: listCoverSize,
                     width: listCoverSize),

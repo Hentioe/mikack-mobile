@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/mikack.dart' as mikack;
 import 'package:mikack/models.dart';
-import '../main.dart' show primaryColor;
 import '../pages/detail.dart';
 import '../pages/index.dart';
 
