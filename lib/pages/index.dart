@@ -9,13 +9,14 @@ const listCoverSize = 50.0;
 const listCoverRadius = 4.0;
 
 class IndexesView extends StatelessWidget {
-  IndexesView(
-      this.platform, this.isViewList, this.comics, this.scrollController);
+  IndexesView(this.platform, this.isViewList, this.comics,
+      this.scrollController, this.httpHeaders);
 
   final models.Platform platform;
   final bool isViewList;
   final List<models.Comic> comics;
   final ScrollController scrollController;
+  final Map<String, String> httpHeaders;
 
   // 处理收藏按钮点击
   static void _handleFavorite(models.Comic comic) {}
@@ -51,10 +52,13 @@ class IndexesView extends StatelessWidget {
     );
   }
 
-  Widget _buildViewMode(BuildContext context) => ComicsView(comics,
-      inStackItemBuilders: gridViewInStackItemBuilders,
-      onTap: (comic) => _openComicPage(context, comic),
-      scrollController: scrollController);
+  Widget _buildViewMode(BuildContext context) => ComicsView(
+        comics,
+        inStackItemBuilders: gridViewInStackItemBuilders,
+        onTap: (comic) => _openComicPage(context, comic),
+        scrollController: scrollController,
+        httpHeaders: httpHeaders,
+      );
 
   final gridViewInStackItemBuilders = [
     (comic) => Positioned(
@@ -164,7 +168,10 @@ class _MainViewState extends State<MainView> {
         ],
       ),
       body:
-          IndexesView(widget.platform, _isViewList, _comics, scrollController),
+          IndexesView(widget.platform, _isViewList, _comics, scrollController, {
+        'Referer':
+            '${widget.platform.isHttps ? 'https' : 'http'}://${widget.platform.domain}'
+      }),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mikack/models.dart' as models;
 import 'comic/info_tab.dart';
 import 'comic/chapters_tab.dart';
+import './read.dart';
 
 class _MainPage extends StatefulWidget {
   _MainPage(this.platform, this.comic);
@@ -35,8 +36,17 @@ class _MainPageState extends State<_MainPage>
     });
   }
 
+  void openFirstChapter(BuildContext context) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => ReadPage(widget.platform, _comic.chapters[0])));
+  }
+
   @override
   Widget build(BuildContext context) {
+    var showFloatActionBtn =
+        _comic.chapters != null && _comic.chapters.length == 1;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -59,6 +69,11 @@ class _MainPageState extends State<_MainPage>
           ChaptersTab(widget.platform, _comic)
         ],
       ),
+      floatingActionButton: showFloatActionBtn
+          ? FloatingActionButton(
+              child: Icon(Icons.play_arrow),
+              onPressed: () => openFirstChapter(context))
+          : null,
     );
   }
 }

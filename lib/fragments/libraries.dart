@@ -4,6 +4,8 @@ import '../main.dart' show primaryColor;
 import '../pages/detail.dart';
 import '../pages/index.dart';
 
+const defaultPlatformIcon = "https://veemoe.me/favicon.ico";
+
 class LibrariesFragment extends StatelessWidget {
   final _platforms = mikack.platforms();
 
@@ -15,8 +17,11 @@ class LibrariesFragment extends StatelessWidget {
                   borderRadius:
                       BorderRadiusDirectional.all(Radius.circular(2))),
               child: ListTile(
-                leading: Image.network('http://${p.domain}/favicon.ico',
-                    width: 30, height: 30, fit: BoxFit.fill),
+                leading: Image.network(
+                    p.favicon == null ? defaultPlatformIcon : p.favicon,
+                    width: 30,
+                    height: 30,
+                    fit: BoxFit.fill),
                 title: Text(p.name),
                 trailing: MaterialButton(
                   elevation: 1.5,

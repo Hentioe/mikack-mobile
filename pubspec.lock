@@ -100,7 +100,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "1b9896fa3d3b795992c9524ef695a2acdc1c78ed"
+      resolved-ref: "4572142a422ce5f7f47d200ae632a6501f357c65"
       url: "git@github.com:Hentioe/mikack-dart.git"
     source: git
     version: "0.0.0"
@@ -179,6 +179,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.11"
+  tuple:
+    dependency: "direct main"
+    description:
+      name: tuple
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.3"
   typed_data:
     dependency: transitive
     description:

@@ -3,13 +3,18 @@ import 'package:mikack/models.dart' as models;
 
 class ComicsView extends StatelessWidget {
   ComicsView(this.comics,
-      {this.onTap, this.onLongPress, this.inStackItemBuilders = const [], this.scrollController});
+      {this.onTap,
+      this.onLongPress,
+      this.inStackItemBuilders = const [],
+      this.scrollController,
+      this.httpHeaders});
 
   final List<models.Comic> comics;
   final Function(models.Comic) onTap;
   final Function(models.Comic) onLongPress;
   final List<Widget Function(models.Comic)> inStackItemBuilders;
   final ScrollController scrollController;
+  final Map<String, String> httpHeaders;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +29,7 @@ class ComicsView extends StatelessWidget {
                 Image.network(
                   comics[index].cover,
                   fit: BoxFit.cover,
+                  headers: httpHeaders,
                 ),
                 // 文字
                 Positioned(
@@ -63,6 +69,7 @@ class ComicsView extends StatelessWidget {
               ],
             ),
           );
-        }), controller: scrollController);
+        }),
+        controller: scrollController);
   }
 }
