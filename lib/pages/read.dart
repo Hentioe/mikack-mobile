@@ -147,7 +147,7 @@ class _MainViewState extends State<_MainView> {
   }
 
   void fetchNextPage({flip = false, preCount = 3}) async {
-    if (_currentPage > _chapter.pageCount) return;
+    if (_addresses.length >= _chapter.pageCount) return;
     var address = await compute(
         _getNextAddressTask, _pageInterator.asValuePageInaterator());
     // 预下载
@@ -158,7 +158,9 @@ class _MainViewState extends State<_MainView> {
       if (flip) _currentPage++;
       // 预加载
       for (var i = 1; i <= preCount; i++) {
-        if ((_currentPage + i) < _chapter.pageCount) fetchNextPage(preCount: 0);
+        if ((_addresses.length + i) < _chapter.pageCount) {
+          fetchNextPage(preCount: 0);
+        }
       }
     });
   }
@@ -173,6 +175,7 @@ class _MainViewState extends State<_MainView> {
       setState(() {
         _currentPage = page + 1;
       });
+      if ((page + 1) == currentCount) fetchNextPage();
     }
     pageScrollController.jumpTo(0);
   }
