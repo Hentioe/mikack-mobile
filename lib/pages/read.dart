@@ -75,32 +75,33 @@ class PagesView extends StatelessWidget {
   Widget build(BuildContext context) {
     var pageInfo = chapter == null ? '' : '$currentPage/${chapter.pageCount}';
 
-    return Scaffold(
+    return GestureDetector(
+      child: Scaffold(
         backgroundColor: backgroundColor,
-        body: GestureDetector(
-          child: Stack(
-            children: [
-              Positioned.fill(
-                  child: Container(child: Center(child: _buildView()))),
-              Positioned(
-                bottom: 2,
-                left: 0,
-                right: 0,
-                child: Container(
-                  child: Center(
-                    child: OutlineText(
-                      pageInfo,
-                      fontSize: pageInfoFontSize,
-                      textColor: pageInfoTextColor,
-                      outlineColor: pageInfoOutlineColor,
-                    ),
+        body: Stack(
+          children: [
+            Positioned.fill(
+                child: Container(child: Center(child: _buildView()))),
+            Positioned(
+              bottom: 2,
+              left: 0,
+              right: 0,
+              child: Container(
+                child: Center(
+                  child: OutlineText(
+                    pageInfo,
+                    fontSize: pageInfoFontSize,
+                    textColor: pageInfoTextColor,
+                    outlineColor: pageInfoOutlineColor,
                   ),
                 ),
-              )
-            ],
-          ),
-          onTapUp: (detail) => _handleTapUp(detail, context),
-        ));
+              ),
+            )
+          ],
+        ),
+      ),
+      onTapUp: (detail) => _handleTapUp(detail, context),
+    );
   }
 }
 
