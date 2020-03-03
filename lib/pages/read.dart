@@ -156,27 +156,40 @@ class _MainViewState extends State<_MainView> {
     setState(() {
       _addresses.add(address);
       if (flip) _currentPage++;
-      // 预加载
-      for (var i = 1; i <= preCount; i++) {
-        if ((_addresses.length + i) < _chapter.pageCount) {
-          fetchNextPage(preCount: 0);
+    });
+    // 预下载
+    if (preCount > 0) {
+      if (preCaching) {
+        preCaching = false;
+        if (isWaitFlip) {
+          isWaitFlip = false;
+          setState(() => _currentPage++);
         }
       }
-    });
+      fetchNextPage(preCount: --preCount);
+    }
   }
+
+  // 预下载时不继续加载
+  var preCaching = false;
+
+  // 等待翻页（预下载完毕自动翻页）
+  var isWaitFlip = false;
 
   void handleNext(page) async {
     var currentCount = _addresses.length;
-    if (page > currentCount || page == _chapter.pageCount) return;
-    // 加载第一页
-    if (page == currentCount) fetchNextPage(flip: true);
+    if (page == _chapter.pageCount) return;
     // 直接修改页码
     if (page < currentCount) {
       setState(() {
         _currentPage = page + 1;
       });
-      if ((page + 1) == currentCount) fetchNextPage();
     }
+    if (!preCaching && (page + 1) == currentCount) {
+      preCaching = true;
+      fetchNextPage();
+    }
+    if ((page + 1) > currentCount) isWaitFlip = true;
     pageScrollController.jumpTo(0);
   }
 
