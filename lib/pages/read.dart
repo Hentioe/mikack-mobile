@@ -4,6 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:tuple/tuple.dart';
 import 'package:mikack/models.dart' as models;
 import '../widgets/text_hint.dart';
+import '../widgets/outline_text.dart';
+
+const backgroundColor = Color.fromARGB(255, 50, 49, 50);
+const pageInfoTextColor = Color.fromARGB(255, 255, 255, 255);
+const pageInfoOutlineColor = Color.fromARGB(255, 0, 0, 0);
+const pageInfoFontSize = 10.0;
 
 class PagesView extends StatelessWidget {
   PagesView(this.chapter, this.addresses, this.currentPage, this.handleNext,
@@ -65,55 +71,36 @@ class PagesView extends StatelessWidget {
     }
   }
 
-  final pageInfoSize = 10.0;
-
   @override
   Widget build(BuildContext context) {
     var pageInfo = chapter == null ? '' : '$currentPage/${chapter.pageCount}';
 
     return Scaffold(
+        backgroundColor: backgroundColor,
         body: GestureDetector(
-      child: Stack(
-        children: [
-          Positioned.fill(
-              child: Container(
-                  color: Colors.white, child: Center(child: _buildView()))),
-          Positioned(
-            bottom: 2,
-            left: 0,
-            right: 0,
-            child: Container(
-              child: Center(
-                child: Stack(
-                  children: <Widget>[
-                    // Stroked text as border.
-                    Text(
+          child: Stack(
+            children: [
+              Positioned.fill(
+                  child: Container(child: Center(child: _buildView()))),
+              Positioned(
+                bottom: 2,
+                left: 0,
+                right: 0,
+                child: Container(
+                  child: Center(
+                    child: OutlineText(
                       pageInfo,
-                      style: TextStyle(
-                        fontSize: pageInfoSize,
-                        foreground: Paint()
-                          ..style = PaintingStyle.stroke
-                          ..strokeWidth = 1.5
-                          ..color = Colors.black,
-                      ),
+                      fontSize: pageInfoFontSize,
+                      textColor: pageInfoTextColor,
+                      outlineColor: pageInfoOutlineColor,
                     ),
-                    // Solid text as fill.
-                    Text(
-                      pageInfo,
-                      style: TextStyle(
-                        fontSize: pageInfoSize,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          )
-        ],
-      ),
-      onTapUp: (detail) => _handleTapUp(detail, context),
-    ));
+              )
+            ],
+          ),
+          onTapUp: (detail) => _handleTapUp(detail, context),
+        ));
   }
 }
 
