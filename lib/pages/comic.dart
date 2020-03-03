@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:tuple/tuple.dart';
 import 'package:mikack/models.dart' as models;
 import 'comic/info_tab.dart';
 import 'comic/chapters_tab.dart';
@@ -29,8 +30,8 @@ class _MainPageState extends State<_MainPage>
   }
 
   void fetchChapters() async {
-    var comic = await compute(
-        _fetchChaptersTask, {'platform': widget.platform, 'comic': _comic});
+    var comic =
+        await compute(_fetchChaptersTask, Tuple2(widget.platform, _comic));
     setState(() {
       _comic = comic;
     });
@@ -88,9 +89,9 @@ class ComicPage extends StatelessWidget {
   Widget build(BuildContext context) => _MainPage(platform, comic);
 }
 
-models.Comic _fetchChaptersTask(args) {
-  models.Platform platform = args['platform'];
-  models.Comic comic = args['comic'];
+models.Comic _fetchChaptersTask(Tuple2<models.Platform, models.Comic> args) {
+  var platform = args.item1;
+  var comic = args.item2;
 
   platform.fetchChapters(comic);
   return comic;

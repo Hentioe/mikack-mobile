@@ -39,6 +39,11 @@ class DetailPage extends StatelessWidget {
 
   final models.Platform platform;
 
+  // 构建标签视图列表
+  List<Widget> _buildTagViewList() {
+    return platform.tags.map((t) => Tag(t.name)).toList();
+  }
+
   Widget _buildBody() {
     return Container(
       padding: EdgeInsets.only(left: 10, right: 10),
@@ -79,7 +84,7 @@ class DetailPage extends StatelessWidget {
                           Wrap(
                             spacing: 5,
                             alignment: WrapAlignment.center,
-                            children: [Tag('中文'), Tag('NSFW')],
+                            children: _buildTagViewList(),
                           )
                         ],
                       ),
