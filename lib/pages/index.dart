@@ -5,19 +5,22 @@ import 'package:mikack/models.dart' as models;
 import '../widgets/comics_view.dart';
 import 'comic.dart';
 import 'package:tuple/tuple.dart';
+import '../fragments/libraries.dart' show buildHeaders;
 
 const listCoverSize = 50.0;
 const listCoverRadius = 4.0;
 
 class IndexesView extends StatelessWidget {
   IndexesView(this.platform, this.isViewList, this.comics,
-      this.scrollController, this.httpHeaders);
+      this.scrollController, this.httpHeaders,
+      {this.isFetchingNext = false});
 
   final models.Platform platform;
   final bool isViewList;
   final List<models.Comic> comics;
   final ScrollController scrollController;
   final Map<String, String> httpHeaders;
+  final bool isFetchingNext;
 
   // 处理收藏按钮点击
   static void _handleFavorite(models.Comic comic) {}
@@ -28,6 +31,7 @@ class IndexesView extends StatelessWidget {
         MaterialPageRoute(builder: (context) => ComicPage(platform, comic)));
   }
 
+  // 列表显示
   Widget _buildViewList(BuildContext context) {
     var children = comics
         .map((c) => ListTile(
@@ -54,6 +58,7 @@ class IndexesView extends StatelessWidget {
     );
   }
 
+  // 网格显示
   Widget _buildViewMode(BuildContext context) => ComicsView(
         comics,
         inStackItemBuilders: gridViewInStackItemBuilders,
@@ -62,6 +67,7 @@ class IndexesView extends StatelessWidget {
         httpHeaders: httpHeaders,
       );
 
+  // 向网格单元注入 Widget
   final gridViewInStackItemBuilders = [
     (comic) => Positioned(
           right: 0,
@@ -78,23 +84,32 @@ class IndexesView extends StatelessWidget {
         ),
   ];
 
-  Widget _buildLoading() {
-    return Center(
-      child: CircularProgressIndicator(),
-    );
-  }
+  // 加载视图
+  final loadingView = const Center(
+    child: CircularProgressIndicator(),
+  );
+
+  // 加载视图（下一页）
+  final loadingNextView = const Positioned(
+    bottom: 0,
+    left: 0,
+    right: 0,
+    child: LinearProgressIndicator(),
+  );
 
   @override
   Widget build(BuildContext context) {
-    if (comics.length == 0) {
-      return _buildLoading();
-    } else if (isViewList) {
+    if (comics.length == 0)
+      return loadingView;
+    else {
+      var itemsView =
+          isViewList ? _buildViewList(context) : _buildViewMode(context);
+      var stackChildren = [itemsView];
+      if (isFetchingNext) stackChildren.add(loadingNextView);
       return Scrollbar(
-        child: _buildViewList(context),
-      );
-    } else {
-      return Scrollbar(
-        child: _buildViewMode(context),
+        child: Stack(
+          children: stackChildren,
+        ),
       );
     }
   }
@@ -115,6 +130,7 @@ class _MainViewState extends State<MainView> {
   var isLoading = false;
   var currentPage = 1;
   var _isSearching = false;
+  var _isFetchingNext = false;
   var searched = false;
 
   final TextEditingController editingController = TextEditingController();
@@ -128,12 +144,20 @@ class _MainViewState extends State<MainView> {
         _comics.clear();
       });
     }
-    var comics = await compute(
-        _getComicsTask, {'platform': widget.platform, 'page': currentPage});
+    if (currentPage > 1)
+      setState(() {
+        _isFetchingNext = true;
+      });
+    var comics =
+        await compute(_getComicsTask, Tuple2(widget.platform, currentPage));
     setState(() {
       _comics.addAll(comics);
     });
     isLoading = false;
+    if (currentPage > 1)
+      setState(() {
+        _isFetchingNext = false;
+      });
   }
 
   void searchComics(String keywords) async {
@@ -161,7 +185,7 @@ class _MainViewState extends State<MainView> {
     // 滚动事件（翻页）
     scrollController.addListener(() {
       if (!isLoading &&
-          (scrollController.position.maxScrollExtent - 200) <=
+          (scrollController.position.maxScrollExtent - 800) <=
               scrollController.offset &&
           !_isSearching) {
         currentPage++;
@@ -182,12 +206,10 @@ class _MainViewState extends State<MainView> {
     if (_isSearching) {
       editingController.clear();
       // 如果搜索过，重置搜索结果
-      var init = false;
       if (searched) {
         searched = false;
-        init = true;
+        fetchComics(init: true); // 重置结果
       }
-      fetchComics(init: init); // 重置结果
     } else {
       // 打开搜索框
     }
@@ -241,11 +263,9 @@ class _MainViewState extends State<MainView> {
           ),
         ],
       ),
-      body:
-          IndexesView(widget.platform, _isViewList, _comics, scrollController, {
-        'Referer':
-            '${widget.platform.isHttps ? 'https' : 'http'}://${widget.platform.domain}'
-      }),
+      body: IndexesView(widget.platform, _isViewList, _comics, scrollController,
+          buildHeaders(widget.platform),
+          isFetchingNext: _isFetchingNext),
     );
   }
 }
@@ -261,9 +281,9 @@ class IndexPage extends StatelessWidget {
   }
 }
 
-List<models.Comic> _getComicsTask(args) {
-  models.Platform platform = args['platform'];
-  int page = args['page'];
+List<models.Comic> _getComicsTask(Tuple2<models.Platform, int> args) {
+  var platform = args.item1;
+  var page = args.item2;
   return platform.index(page);
 }
 
