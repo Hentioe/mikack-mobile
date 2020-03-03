@@ -1,6 +1,7 @@
 import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:tuple/tuple.dart';
 import 'package:mikack/models.dart' as models;
 import '../widgets/text_hint.dart';
@@ -144,40 +145,31 @@ class _MainViewState extends State<_MainView> {
       _chapter = created.item2;
     });
     // 加载第一页
-    fetchNextPage(flip: true);
+    fetchNextPage(turning: true);
   }
 
-  void fetchNextPage({flip = false, preCount = 3}) async {
-    if (_addresses.length >= _chapter.pageCount) return;
-    var address = await compute(
-        _getNextAddressTask, _pageInterator.asValuePageInaterator());
-    // 预下载
-    precacheImage(
-        NetworkImage(address, headers: _chapter.pageHeaders), context);
-    setState(() {
-      _addresses.add(address);
-      if (flip) _currentPage++;
+  final lock = Lock();
+
+  void fetchNextPage({turning = false, preCount = 3}) async {
+    // 同步资源下载和地址池写入
+    await lock.synchronized(() async {
+      if (_addresses.length >= _chapter.pageCount) return;
+      var address = await compute(
+          _getNextAddressTask, _pageInterator.asValuePageInaterator());
+      setState(() {
+        _addresses.add(address);
+        if (turning) _currentPage++;
+      });
+      // 预缓存（立即翻页的不缓存）
+      if (!turning)
+        precacheImage(
+            NetworkImage(address, headers: _chapter.pageHeaders), context);
     });
     // 预下载
-    if (preCount > 0) {
-      if (preCaching) {
-        preCaching = false;
-        if (isWaitFlip) {
-          isWaitFlip = false;
-          setState(() => _currentPage++);
-        }
-      }
-      fetchNextPage(preCount: --preCount);
-    }
+    if (preCount > 0) fetchNextPage(preCount: --preCount);
   }
 
-  // 预下载时不继续加载
-  var preCaching = false;
-
-  // 等待翻页（预下载完毕自动翻页）
-  var isWaitFlip = false;
-
-  void handleNext(page) async {
+  void handleNext(page) {
     var currentCount = _addresses.length;
     if (page == _chapter.pageCount) return;
     // 直接修改页码
@@ -185,12 +177,10 @@ class _MainViewState extends State<_MainView> {
       setState(() {
         _currentPage = page + 1;
       });
-    }
-    if (!preCaching && (page + 1) == currentCount) {
-      preCaching = true;
-      fetchNextPage();
-    }
-    if ((page + 1) > currentCount) isWaitFlip = true;
+      // 预下载
+      if ((page + 1) == currentCount) fetchNextPage();
+    } else
+      fetchNextPage(turning: true, preCount: 0); // 加载并翻页
     pageScrollController.jumpTo(0);
   }
 
