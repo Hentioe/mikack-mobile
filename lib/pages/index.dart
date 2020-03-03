@@ -7,7 +7,8 @@ import 'comic.dart';
 import 'package:tuple/tuple.dart';
 import '../fragments/libraries.dart' show buildHeaders;
 
-const listCoverSize = 50.0;
+const viewListCoverHeight = double.infinity;
+const viewListCoverWidth = 50.0;
 const listCoverRadius = 4.0;
 
 class IndexesView extends StatelessWidget {
@@ -31,25 +32,31 @@ class IndexesView extends StatelessWidget {
         MaterialPageRoute(builder: (context) => ComicPage(platform, comic)));
   }
 
+  // 列表显示的边框形状
+  final viewListShape = const RoundedRectangleBorder(
+      borderRadius: BorderRadiusDirectional.all(Radius.circular(1)));
+
   // 列表显示
   Widget _buildViewList(BuildContext context) {
     var children = comics
-        .map((c) => ListTile(
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16.0, vertical: 3.0),
-              leading: ClipRRect(
-                borderRadius: BorderRadius.circular(listCoverRadius),
-                child: Image.network(c.cover,
+        .map((c) => Card(
+              shape: viewListShape,
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Image.network(c.cover,
                     headers: httpHeaders,
                     fit: BoxFit.cover,
-                    height: listCoverSize,
-                    width: listCoverSize),
+                    height: viewListCoverHeight,
+                    width: viewListCoverWidth),
+                title: Text(c.title,
+                    style: TextStyle(color: Colors.black),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+                trailing: IconButton(
+                    icon: Icon(Icons.favorite_border),
+                    onPressed: () => _handleFavorite(c)),
+                onTap: () => _openComicPage(context, c),
               ),
-              title: Text(c.title),
-              trailing: IconButton(
-                  icon: Icon(Icons.favorite_border),
-                  onPressed: () => _handleFavorite(c)),
-              onTap: () => _openComicPage(context, c),
             ))
         .toList();
     return ListView(
