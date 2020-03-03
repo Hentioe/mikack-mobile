@@ -1,21 +1,24 @@
 import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:tuple/tuple.dart';
 import 'package:mikack/models.dart' as models;
 import '../widgets/text_hint.dart';
 import '../widgets/outline_text.dart';
 
-const backgroundColor = Color.fromARGB(255, 50, 49, 50);
+const backgroundColor = Color.fromARGB(255, 50, 50, 50);
 const pageInfoTextColor = Color.fromARGB(255, 255, 255, 255);
 const pageInfoOutlineColor = Color.fromARGB(255, 0, 0, 0);
 const pageInfoFontSize = 10.0;
+const spinkitSize = 35.0;
+const connectionIndicatorColor = Color.fromARGB(255, 138, 138, 138);
 
 class PagesView extends StatelessWidget {
   PagesView(this.chapter, this.addresses, this.currentPage, this.handleNext,
       this.handlePrev,
-      {this.scrollController});
+      {this.scrollController, this.waiting = false});
 
   final models.Chapter chapter;
   final List<String> addresses;
@@ -23,14 +26,25 @@ class PagesView extends StatelessWidget {
   final void Function(int) handleNext;
   final void Function(int) handlePrev;
   final ScrollController scrollController;
+  final bool waiting;
 
   bool isLoading() {
-    return (addresses == null || addresses.length == 0);
+    return (addresses == null || addresses.length == 0 || waiting);
   }
 
   Widget _buildLoadingView() {
-    return const TextHint('载入中…');
+    if (waiting) {
+      return SpinKitPouringHourglass(
+          color: connectionIndicatorColor, size: spinkitSize);
+    } else {
+      return const TextHint('载入中…');
+    }
   }
+
+  final connectingIndicator = SpinKitWave(
+    color: connectionIndicatorColor,
+    size: spinkitSize,
+  );
 
   Widget _buildImageView() {
     return Image.network(
@@ -38,7 +52,18 @@ class PagesView extends StatelessWidget {
       headers: chapter.pageHeaders,
       loadingBuilder: (BuildContext context, Widget child,
           ImageChunkEvent loadingProgress) {
-        if (loadingProgress == null) return child;
+        if (loadingProgress == null) {
+          if (child is Semantics) {
+            var rawImage = child.child;
+            if (rawImage is RawImage) {
+              if (rawImage.image == null)
+                return Center(
+                  child: connectingIndicator,
+                );
+            }
+          }
+          return child;
+        }
         return Center(
           child: CircularProgressIndicator(
             value: loadingProgress.expectedTotalBytes != null
@@ -62,6 +87,7 @@ class PagesView extends StatelessWidget {
   }
 
   void _handleTapUp(TapUpDetails details, BuildContext context) {
+    if (isLoading()) return;
     var centerLocation = MediaQuery.of(context).size.width / 2;
     var x = details.globalPosition.dx;
 
@@ -72,10 +98,28 @@ class PagesView extends StatelessWidget {
     }
   }
 
+  // 构建页码信息视图
+  Widget _buildPageInfoView() {
+    var pageInfo = chapter == null ? '' : '$currentPage/${chapter.pageCount}';
+    return Positioned(
+      bottom: 2,
+      left: 0,
+      right: 0,
+      child: Container(
+        child: Center(
+          child: OutlineText(
+            pageInfo,
+            fontSize: pageInfoFontSize,
+            textColor: pageInfoTextColor,
+            outlineColor: pageInfoOutlineColor,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    var pageInfo = chapter == null ? '' : '$currentPage/${chapter.pageCount}';
-
     return GestureDetector(
       child: Scaffold(
         backgroundColor: backgroundColor,
@@ -83,21 +127,7 @@ class PagesView extends StatelessWidget {
           children: [
             Positioned.fill(
                 child: Container(child: Center(child: _buildView()))),
-            Positioned(
-              bottom: 2,
-              left: 0,
-              right: 0,
-              child: Container(
-                child: Center(
-                  child: OutlineText(
-                    pageInfo,
-                    fontSize: pageInfoFontSize,
-                    textColor: pageInfoTextColor,
-                    outlineColor: pageInfoOutlineColor,
-                  ),
-                ),
-              ),
-            )
+            _buildPageInfoView(),
           ],
         ),
       ),
@@ -119,6 +149,7 @@ class _MainView extends StatefulWidget {
 class _MainViewState extends State<_MainView> {
   var _currentPage = 0;
   var _addresses = <String>[];
+  bool _waiting = false;
   models.Chapter _chapter;
   models.PageIterator _pageInterator;
 
@@ -152,13 +183,17 @@ class _MainViewState extends State<_MainView> {
 
   void fetchNextPage({turning = false, preCount = 3}) async {
     // 同步资源下载和地址池写入
+    if (turning) setState(() => _waiting = true);
     await lock.synchronized(() async {
       if (_addresses.length >= _chapter.pageCount) return;
       var address = await compute(
           _getNextAddressTask, _pageInterator.asValuePageInaterator());
       setState(() {
         _addresses.add(address);
-        if (turning) _currentPage++;
+        if (turning) {
+          _waiting = false;
+          _currentPage++;
+        }
       });
       // 预缓存（立即翻页的不缓存）
       if (!turning)
@@ -179,8 +214,9 @@ class _MainViewState extends State<_MainView> {
       });
       // 预下载
       if ((page + 1) == currentCount) fetchNextPage();
-    } else
+    } else {
       fetchNextPage(turning: true, preCount: 0); // 加载并翻页
+    }
     pageScrollController.jumpTo(0);
   }
 
@@ -199,7 +235,7 @@ class _MainViewState extends State<_MainView> {
   @override
   Widget build(BuildContext context) {
     return PagesView(_chapter, _addresses, _currentPage, handleNext, handlePrev,
-        scrollController: pageScrollController);
+        scrollController: pageScrollController, waiting: _waiting);
   }
 }
 
