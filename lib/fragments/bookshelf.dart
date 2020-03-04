@@ -102,7 +102,7 @@ class _MainViewState extends State<MainView> {
       MaterialPageRoute(
         builder: (context) => ComicPage(platform, comic),
       ),
-    );
+    ).then((_) => fetchFavorites());
   }
 
   @override

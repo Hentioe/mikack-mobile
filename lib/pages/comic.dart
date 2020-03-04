@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mikack_mobile/store.dart';
 import 'package:tuple/tuple.dart';
 import 'package:mikack/models.dart' as models;
 import 'comic/info_tab.dart';
@@ -25,6 +26,8 @@ class _MainPageState extends State<_MainPage>
   void initState() {
     tabController = TabController(length: 2, vsync: this);
     _comic = widget.comic;
+    // 更新上次阅读时间
+    updateLastReadTime();
     fetchChapters();
     super.initState();
   }
@@ -35,6 +38,14 @@ class _MainPageState extends State<_MainPage>
     setState(() {
       _comic = comic;
     });
+  }
+
+  void updateLastReadTime() async {
+    var favotite = await getFavorite(address: _comic.url);
+    if (favotite != null) {
+      favotite.lastReadTime = DateTime.now();
+      await updateFavorite(favotite);
+    }
   }
 
   void openFirstChapter(BuildContext context) {
