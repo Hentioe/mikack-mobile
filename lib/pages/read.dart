@@ -283,7 +283,10 @@ Tuple2<ValuePageIterator, models.Chapter> _createPageIteratorTask(
   var pageIterator = platform.createPageIter(chapter);
 
   return Tuple2(
-      ValuePageIterator(pageIterator.createdIterPointer.address,
-          pageIterator.iterPointer.address),
-      chapter);
+    ValuePageIterator(
+      pageIterator.createdIterPointer.address,
+      pageIterator.iterPointer.address,
+    ),
+    chapter,
+  );
 }
