@@ -181,7 +181,7 @@ class _MainViewState extends State<_MainView> {
 
   final lock = Lock();
 
-  void fetchNextPage({turning = false, preCount = 3}) async {
+  void fetchNextPage({turning = false, preCount = 2}) async {
     // 同步资源下载和地址池写入
     if (turning) setState(() => _waiting = true);
     await lock.synchronized(() async {

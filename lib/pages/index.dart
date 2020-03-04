@@ -6,15 +6,22 @@ import '../widgets/comics_view.dart';
 import 'comic.dart';
 import 'package:tuple/tuple.dart';
 import '../fragments/libraries.dart' show buildHeaders;
+import '../store.dart';
+import '../ext.dart';
 
 const viewListCoverHeight = double.infinity;
 const viewListCoverWidth = 50.0;
 const listCoverRadius = 4.0;
 
-class IndexesView extends StatelessWidget {
-  IndexesView(this.platform, this.isViewList, this.comics,
-      this.scrollController, this.httpHeaders,
-      {this.isFetchingNext = false});
+class IndexesView extends StatefulWidget {
+  IndexesView(
+    this.platform,
+    this.isViewList,
+    this.comics,
+    this.scrollController,
+    this.httpHeaders, {
+    this.isFetchingNext = false,
+  });
 
   final models.Platform platform;
   final bool isViewList;
@@ -23,13 +30,53 @@ class IndexesView extends StatelessWidget {
   final Map<String, String> httpHeaders;
   final bool isFetchingNext;
 
+  @override
+  State<StatefulWidget> createState() => _IndexViewState();
+}
+
+class _IndexViewState extends State<IndexesView> {
+  var _favoriteAddresses = <String>[];
+
+  @override
+  void initState() {
+    super.initState();
+    // 加载收藏列表
+    fetchFavoriteAddresses();
+  }
+
   // 处理收藏按钮点击
-  static void _handleFavorite(models.Comic comic) {}
+  void _handleFavorite(models.Comic comic, bool isCancel) async {
+    var source = await widget.platform.toSavedSource();
+    if (!isCancel) {
+      // 收藏
+      await insertFavorite(Favorite(
+        sourceId: source.id,
+        name: comic.title,
+        address: comic.url,
+        cover: comic.cover,
+      ));
+      setState(() => _favoriteAddresses.add(comic.url));
+    } else {
+      // 取消收藏
+      await deleteFavorite(address: comic.url);
+      setState(() => _favoriteAddresses.remove(comic.url));
+    }
+  }
+
+  void fetchFavoriteAddresses() async {
+    (await findFavorites()).forEach(
+      (f) => setState(() => _favoriteAddresses.add(f.address)),
+    );
+  }
 
   // 打开阅读页面
   void _openComicPage(BuildContext context, models.Comic comic) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => ComicPage(platform, comic)));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ComicPage(widget.platform, comic),
+      ),
+    );
   }
 
   // 列表显示的边框形状
@@ -38,13 +85,13 @@ class IndexesView extends StatelessWidget {
 
   // 列表显示
   Widget _buildViewList(BuildContext context) {
-    var children = comics
+    var children = widget.comics
         .map((c) => Card(
               shape: viewListShape,
               child: ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: Image.network(c.cover,
-                    headers: httpHeaders,
+                    headers: widget.httpHeaders,
                     fit: BoxFit.cover,
                     height: viewListCoverHeight,
                     width: viewListCoverWidth),
@@ -53,43 +100,26 @@ class IndexesView extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
                 trailing: IconButton(
-                    icon: Icon(Icons.favorite_border),
-                    onPressed: () => _handleFavorite(c)),
+                    icon: Icon(Icons.favorite_border), onPressed: () => {}),
                 onTap: () => _openComicPage(context, c),
               ),
             ))
         .toList();
     return ListView(
       children: children,
-      controller: scrollController,
+      controller: widget.scrollController,
     );
   }
 
   // 网格显示
-  Widget _buildViewMode(BuildContext context) => ComicsView(
-        comics,
-        inStackItemBuilders: gridViewInStackItemBuilders,
+  Widget _buildViewMode() => ComicsView(
+        widget.comics,
+        enableFavorite: true,
+        handleFavorite: _handleFavorite,
         onTap: (comic) => _openComicPage(context, comic),
-        scrollController: scrollController,
-        httpHeaders: httpHeaders,
+        scrollController: widget.scrollController,
+        favoriteAddresses: _favoriteAddresses,
       );
-
-  // 向网格单元注入 Widget
-  final gridViewInStackItemBuilders = [
-    (comic) => Positioned(
-          right: 0,
-          top: 0,
-          child: Material(
-            color: Colors.transparent,
-            child: IconButton(
-                icon: Icon(
-                  Icons.favorite_border,
-                  color: Colors.white,
-                ),
-                onPressed: () => _handleFavorite(comic)),
-          ),
-        ),
-  ];
 
   // 加载视图
   final loadingView = const Center(
@@ -106,13 +136,13 @@ class IndexesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (comics.length == 0)
+    if (widget.comics.length == 0)
       return loadingView;
     else {
       var itemsView =
-          isViewList ? _buildViewList(context) : _buildViewMode(context);
+          widget.isViewList ? _buildViewList(context) : _buildViewMode();
       var stackChildren = [itemsView];
-      if (isFetchingNext) stackChildren.add(loadingNextView);
+      if (widget.isFetchingNext) stackChildren.add(loadingNextView);
       return Scrollbar(
         child: Stack(
           children: stackChildren,
@@ -140,6 +170,8 @@ class _MainViewState extends State<MainView> {
   var _isFetchingNext = false;
   var searched = false;
 
+  Map<String, String> headers;
+
   final TextEditingController editingController = TextEditingController();
 
   void fetchComics({init: false}) async {
@@ -157,6 +189,7 @@ class _MainViewState extends State<MainView> {
       });
     var comics =
         await compute(_getComicsTask, Tuple2(widget.platform, currentPage));
+    comics.forEach((c) => c.headers = headers);
     setState(() {
       _comics.addAll(comics);
     });
@@ -174,6 +207,7 @@ class _MainViewState extends State<MainView> {
     });
     var comics =
         await compute(_searchComicsTask, Tuple2(widget.platform, keywords));
+    comics.forEach((c) => c.headers = headers);
     setState(() {
       _comics.addAll(comics);
     });
@@ -185,6 +219,8 @@ class _MainViewState extends State<MainView> {
   @override
   void initState() {
     super.initState();
+    // 共享同一个资源 headers
+    headers = widget.platform.buildBaseHeaders();
     // 加载第一页
     fetchComics();
     // 输入事件（搜索）
@@ -270,9 +306,14 @@ class _MainViewState extends State<MainView> {
           ),
         ],
       ),
-      body: IndexesView(widget.platform, _isViewList, _comics, scrollController,
-          buildHeaders(widget.platform),
-          isFetchingNext: _isFetchingNext),
+      body: IndexesView(
+        widget.platform,
+        _isViewList,
+        _comics,
+        scrollController,
+        widget.platform.buildBaseHeaders(),
+        isFetchingNext: _isFetchingNext,
+      ),
     );
   }
 }

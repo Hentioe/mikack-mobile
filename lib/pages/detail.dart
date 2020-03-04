@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 import '../widgets/tag.dart';
-import '../fragments/libraries.dart' show buildHeaders;
+import '../ext.dart';
 
 class FeatureStatus extends StatelessWidget {
   FeatureStatus(this.name, this.description, this.isSupport);
@@ -65,7 +65,7 @@ class DetailPage extends StatelessWidget {
                         fit: BoxFit.fill,
                         width: 60,
                         height: 60,
-                        headers: buildHeaders(platform),
+                        headers: platform.buildBaseHeaders(),
                         filterQuality: FilterQuality.none,
                       ),
                       // 平台元数据

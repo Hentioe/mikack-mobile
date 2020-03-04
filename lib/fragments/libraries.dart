@@ -1,20 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:mikack/mikack.dart' as mikack;
-import 'package:mikack/models.dart';
 import '../pages/detail.dart';
 import '../pages/index.dart';
-
-Map<String, String> buildHeaders(Platform platform) {
-  return platform != null
-      ? {
-          'Referer':
-              '${platform.isHttps ? 'https' : 'http'}://${platform.domain}'
-        }
-      : null;
-}
+import 'bookshelf.dart' show platformList;
+import '../ext.dart';
 
 class LibrariesFragment extends StatelessWidget {
-  final _platforms = mikack.platforms();
+  final _platforms = platformList;
 
   List<Widget> _buildPlatformList(BuildContext context) {
     return _platforms
@@ -31,7 +22,7 @@ class LibrariesFragment extends StatelessWidget {
                     width: 30,
                     height: 30,
                     fit: BoxFit.fill,
-                    headers: buildHeaders(p),
+                    headers: p.buildBaseHeaders(),
                     filterQuality: FilterQuality.none,
                   ),
                 ),
