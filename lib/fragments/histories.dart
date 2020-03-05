@@ -44,6 +44,8 @@ class HistoriesView extends StatelessWidget {
                         ListTile(
                           title: Text(
                             h.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.clip,
                             style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
