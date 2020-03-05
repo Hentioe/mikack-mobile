@@ -11,7 +11,7 @@ Future<List<History>> findHistories() async {
   final db = await database();
 
   final List<Map<String, dynamic>> maps =
-      await db.query(History.tableName, orderBy: 'datetime(inserted_at) DESC');
+      await db.query(History.tableName, orderBy: 'datetime(updated_at) DESC');
 
   return maps.map((map) => History.fromMap(map)).toList();
 }
@@ -34,10 +34,22 @@ Future<History> getHistory({int id, String address}) async {
 Future<void> updateHistory(History historiy) async {
   final db = await database();
 
+  historiy.updateAt = DateTime.now();
   await db.update(
     History.tableName,
     historiy.toMap(),
     where: 'id = ?',
     whereArgs: [historiy.id],
+  );
+}
+
+Future<void> deleteHistory(id) async {
+  final db = await database();
+
+  var cond = makeCondition({'id': id});
+  await db.delete(
+    History.tableName,
+    where: cond.item1,
+    whereArgs: cond.item2,
   );
 }

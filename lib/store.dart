@@ -22,6 +22,7 @@ Future<Database> database() async {
           'address TEXT NOT NULL,'
           'cover TEXT,'
           'inserted_at TEXT NOT NULL,'
+          'updated_at TEXT NOT NULL,'
           'FOREIGN KEY(source_id) REFERENCES sources(id)'
           ');');
       await db.execute(
@@ -44,7 +45,15 @@ Future<Database> database() async {
       await db.execute(
           'CREATE UNIQUE INDEX favorites_address_dex ON favorites (address);');
     },
-    version: 1,
+    onUpgrade: (db, oldVersion, newVersion) async {
+      switch (oldVersion) {
+        case 1:
+          // 创建 updated_at 列
+          await db.execute('ALTER TABLE histories ADD updated_at TEXT');
+          break;
+      }
+    },
+    version: 2,
   );
 }
 

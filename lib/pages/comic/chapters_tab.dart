@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
-import '../read.dart';
 
 class ChaptersTab extends StatelessWidget {
-  ChaptersTab(this.platform, this.comic);
+  ChaptersTab(this.comic, {this.openReadPage});
 
-  final models.Platform platform;
   final models.Comic comic;
+  final void Function(models.Chapter) openReadPage;
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +22,7 @@ class ChaptersTab extends StatelessWidget {
                     icon: Icon(Icons.more_vert),
                     onPressed: () {},
                   ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => ReadPage(platform, c)));
-                  },
+                  onTap: () => openReadPage(c),
                 ))
             .toList(),
       ),

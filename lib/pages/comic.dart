@@ -6,6 +6,7 @@ import 'package:mikack/models.dart' as models;
 import 'comic/info_tab.dart';
 import 'comic/chapters_tab.dart';
 import './read.dart';
+import '../ext.dart';
 
 class _MainPage extends StatefulWidget {
   _MainPage(this.platform, this.comic);
@@ -32,6 +33,15 @@ class _MainPageState extends State<_MainPage>
     super.initState();
   }
 
+  void openReadPage(models.Chapter chapter) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ReadPage(widget.platform, widget.comic, chapter),
+      ),
+    );
+  }
+
   void fetchChapters() async {
     var comic =
         await compute(_fetchChaptersTask, Tuple2(widget.platform, _comic));
@@ -49,10 +59,7 @@ class _MainPageState extends State<_MainPage>
   }
 
   void openFirstChapter(BuildContext context) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (_) => ReadPage(widget.platform, _comic.chapters[0])));
+    openReadPage(_comic.chapters[0]);
   }
 
   @override
@@ -78,7 +85,10 @@ class _MainPageState extends State<_MainPage>
         controller: tabController,
         children: [
           InfoTab(widget.platform, _comic),
-          ChaptersTab(widget.platform, _comic)
+          ChaptersTab(
+            _comic,
+            openReadPage: openReadPage,
+          )
         ],
       ),
       floatingActionButton: showFloatActionBtn

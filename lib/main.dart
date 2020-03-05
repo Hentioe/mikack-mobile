@@ -38,7 +38,7 @@ class MyHomePage extends StatefulWidget {
     DrawerItem('我的书架', Icons.class_, BookshelfFragment()),
     DrawerItem('书架更新', Icons.fiber_new, BooksUpdateFragment()),
     DrawerItem('图书仓库', Icons.store, LibrariesFragment()),
-    DrawerItem('浏览历史', Icons.history, HistoriesView()),
+    DrawerItem('浏览历史', Icons.history, HistoriesFragment()),
   ];
 
   @override

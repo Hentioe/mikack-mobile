@@ -7,6 +7,8 @@ import 'package:tuple/tuple.dart';
 import 'package:mikack/models.dart' as models;
 import '../widgets/text_hint.dart';
 import '../widgets/outline_text.dart';
+import '../ext.dart';
+import '../store.dart';
 
 const backgroundColor = Color.fromARGB(255, 50, 50, 50);
 const pageInfoTextColor = Color.fromARGB(255, 255, 255, 255);
@@ -137,9 +139,10 @@ class PagesView extends StatelessWidget {
 }
 
 class _MainView extends StatefulWidget {
-  _MainView(this.platform, this.chapter);
+  _MainView(this.platform, this.comic, this.chapter);
 
   final models.Platform platform;
+  final models.Comic comic;
   final models.Chapter chapter;
 
   @override
@@ -168,12 +171,40 @@ class _MainViewState extends State<_MainView> {
     super.dispose();
   }
 
+  // 添加阅读历史
+  void addHistory(models.Chapter chapter) async {
+    var history = await getHistory(address: chapter.url);
+    if (history != null) {
+      // 如果存在阅读历史，仅更新
+      history.title = chapter.title;
+      history.cover = widget.comic.cover;
+      await updateHistory(history);
+    } else {
+      // 创建阅读历史
+      var source = await widget.platform.toSavedSource();
+      var history = History(
+        sourceId: source.id,
+        title: chapter.title,
+        address: chapter.url,
+        cover: widget.comic.cover,
+      );
+      await insertHistory(history);
+      // 如果漫画被收藏，和最后一次阅读关联上
+      var favorite = await getFavorite(address: widget.comic.url);
+      if (favorite != null) {
+        favorite.lastReadHistoryId = history.id;
+        updateFavorite(favorite);
+      }
+    }
+  }
+
   void createPageInterator(BuildContext context) async {
     var created = await compute(
         _createPageIteratorTask, Tuple2(widget.platform, widget.chapter));
     setState(() {
       _pageInterator = created.item1.asPageIterator();
       _chapter = created.item2;
+      addHistory(_chapter);
     });
     // 加载第一页
     fetchNextPage(turning: true);
@@ -240,14 +271,15 @@ class _MainViewState extends State<_MainView> {
 }
 
 class ReadPage extends StatelessWidget {
-  ReadPage(this.platform, this.chapter);
+  ReadPage(this.platform, this.comic, this.chapter);
 
   final models.Platform platform;
+  final models.Comic comic;
   final models.Chapter chapter;
 
   @override
   Widget build(BuildContext context) {
-    return _MainView(platform, chapter);
+    return _MainView(platform, comic, chapter);
   }
 }
 

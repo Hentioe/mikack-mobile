@@ -33,7 +33,7 @@ class Source {
 class Favorite {
   int id;
   final int sourceId;
-  final int lastReadHistoryId;
+  int lastReadHistoryId;
   String name;
   final String address;
   String cover;
@@ -109,10 +109,11 @@ class Favorite {
 class History {
   final int id;
   final int sourceId;
-  final String title;
+  String title;
   final String address;
   String cover;
   DateTime insertedAt;
+  DateTime updateAt;
 
   History({
     this.id,
@@ -121,10 +122,14 @@ class History {
     this.address,
     this.cover,
     this.insertedAt,
+    this.updateAt,
   }) {
     if (insertedAt == null) insertedAt = DateTime.now();
+    if (updateAt == null) updateAt = DateTime.now();
   }
 
+  Source source;
+  Map<String, String> headers = {};
   static final String tableName = "histories";
 
   Map<String, dynamic> toMap() {
@@ -135,6 +140,7 @@ class History {
       'address': address,
       'cover': cover,
       'inserted_at': insertedAt.toString(),
+      'updated_at': updateAt.toString(),
     };
   }
 

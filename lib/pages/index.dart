@@ -5,7 +5,6 @@ import 'package:mikack/models.dart' as models;
 import '../widgets/comics_view.dart';
 import 'comic.dart';
 import 'package:tuple/tuple.dart';
-import '../fragments/libraries.dart' show buildHeaders;
 import '../store.dart';
 import '../ext.dart';
 

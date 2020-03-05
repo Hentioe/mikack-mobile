@@ -35,6 +35,7 @@ Future<Favorite> getFavorite({int id, String address}) async {
 Future<void> updateFavorite(Favorite favorite) async {
   final db = await database();
 
+  favorite.updatedAt = DateTime.now();
   await db.update(
     Favorite.tableName,
     favorite.toMap(),
