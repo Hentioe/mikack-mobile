@@ -1,4 +1,4 @@
-import 'dart:ffi';
+import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -9,6 +9,7 @@ import '../widgets/text_hint.dart';
 import '../widgets/outline_text.dart';
 import '../ext.dart';
 import '../store.dart';
+import '../helper/compute_ext.dart';
 
 const backgroundColor = Color.fromARGB(255, 50, 50, 50);
 const pageInfoTextColor = Color.fromARGB(255, 255, 255, 255);
@@ -167,7 +168,12 @@ class _MainViewState extends State<_MainView> {
 
   @override
   void dispose() {
-    if (_pageInterator != null) _pageInterator.free();
+    if (_pageInterator != null) {
+      // 以通信的方式安全释放迭代器内存（注意，需要保证迭代器 API 非并发调用）
+      nextResultPort.sendPort
+          .send(Tuple2('free', _pageInterator.asValuePageInaterator()));
+      nextResultPort = null;
+    }
     super.dispose();
   }
 
@@ -210,15 +216,18 @@ class _MainViewState extends State<_MainView> {
     fetchNextPage(turning: true);
   }
 
-  final lock = Lock();
+  final lock = Lock(); // 同步调用迭代器（必须）
+  ReceivePort nextResultPort; // 留下 port 用以通信释放内存
 
   void fetchNextPage({turning = false, preCount = 2}) async {
     // 同步资源下载和地址池写入
     if (turning) setState(() => _waiting = true);
     await lock.synchronized(() async {
       if (_addresses.length >= _chapter.pageCount) return;
-      var address = await compute(
+      var controller = await createComputeController(
           _getNextAddressTask, _pageInterator.asValuePageInaterator());
+      nextResultPort = controller.resultPort;
+      var address = await controllableCompute(controller);
       setState(() {
         _addresses.add(address);
         if (turning) {
@@ -280,26 +289,6 @@ class ReadPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _MainView(platform, comic, chapter);
-  }
-}
-
-class ValuePageIterator {
-  int createdIterPointerAddress;
-  int iterPointerAddress;
-
-  ValuePageIterator(this.createdIterPointerAddress, this.iterPointerAddress);
-
-  models.PageIterator asPageIterator() {
-    return models.PageIterator(
-        Pointer.fromAddress(this.createdIterPointerAddress),
-        Pointer.fromAddress(this.iterPointerAddress));
-  }
-}
-
-extension PageInteratorCopyable on models.PageIterator {
-  ValuePageIterator asValuePageInaterator() {
-    return ValuePageIterator(
-        this.createdIterPointer.address, this.iterPointer.address);
   }
 }
 
