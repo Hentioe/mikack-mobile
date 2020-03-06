@@ -15,6 +15,8 @@ class ComputeController {
   final ReceivePort errorPort;
   final String debugLabel;
   final int flowId;
+
+  static const destoryCommand = 0;
 }
 
 Future<ComputeController> createComputeController<Q, R>(
@@ -55,9 +57,9 @@ Future<R> controllableCompute<Q, R>(ComputeController controller) async {
       result.completeError(exception, stack);
     }
   });
-  Tuple2<String, TaskCommand> command;
+  Tuple2<int, TaskCommand> command;
   controller.resultPort.listen((dynamic data) {
-    if (data is Tuple2<String, TaskCommand>)
+    if (data is Tuple2<int, TaskCommand>)
       command = data;
     else if (!result.isCompleted) result.complete(data as R);
   });
@@ -65,8 +67,8 @@ Future<R> controllableCompute<Q, R>(ComputeController controller) async {
   // 任务结束执行命令
   if (command != null) {
     switch (command.item1) {
-      case 'free':
-        command.item2.free();
+      case ComputeController.destoryCommand:
+        command.item2.destory();
     }
   }
   Timeline.startSync('${controller.debugLabel}: end',
@@ -118,7 +120,7 @@ Future<void> _spawn<Q, R>(
 }
 
 abstract class TaskCommand {
-  void free();
+  void destory();
 }
 
 class ValuePageIterator implements TaskCommand {
@@ -134,7 +136,7 @@ class ValuePageIterator implements TaskCommand {
   }
 
   @override
-  void free() {
+  void destory() {
     asPageIterator().free();
   }
 }
