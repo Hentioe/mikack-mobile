@@ -183,10 +183,18 @@ class _MainViewState extends State<_MainView> {
   // 添加阅读历史
   void addHistory(models.Chapter chapter) async {
     var history = await getHistory(address: chapter.url);
+    var favorite = await getFavorite(address: widget.comic.url);
     if (history != null) {
       // 如果存在阅读历史，仅更新
       history.title = chapter.title;
+      history.homeUrl = widget.comic.url;
       history.cover = widget.comic.cover;
+      // 如果漫画被收藏，和最后一次阅读关联上
+      if (favorite != null) {
+        favorite.lastReadHistoryId = history.id;
+        favorite.lastReadTime = DateTime.now();
+        await updateFavorite(favorite);
+      }
       await updateHistory(history);
     } else {
       // 创建阅读历史
@@ -194,15 +202,16 @@ class _MainViewState extends State<_MainView> {
       var history = History(
         sourceId: source.id,
         title: chapter.title,
+        homeUrl: widget.comic.url,
         address: chapter.url,
         cover: widget.comic.cover,
       );
       await insertHistory(history);
       // 如果漫画被收藏，和最后一次阅读关联上
-      var favorite = await getFavorite(address: widget.comic.url);
       if (favorite != null) {
         favorite.lastReadHistoryId = history.id;
-        updateFavorite(favorite);
+        favorite.lastReadTime = DateTime.now();
+        await updateFavorite(favorite);
       }
     }
   }

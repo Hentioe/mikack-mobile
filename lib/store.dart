@@ -51,9 +51,12 @@ Future<Database> database() async {
           // 创建 updated_at 列
           await db.execute('ALTER TABLE histories ADD updated_at TEXT');
           break;
+        case 2:
+          // 创建 home_url 列
+          await db.execute('ALTER TABLE histories ADD home_url TEXT');
       }
     },
-    version: 2,
+    version: 3,
   );
 }
 

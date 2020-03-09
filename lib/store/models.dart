@@ -110,6 +110,7 @@ class History {
   final int id;
   final int sourceId;
   String title;
+  String homeUrl;
   final String address;
   String cover;
   DateTime insertedAt;
@@ -119,6 +120,7 @@ class History {
     this.id,
     this.sourceId,
     this.title,
+    this.homeUrl,
     this.address,
     this.cover,
     this.insertedAt,
@@ -137,6 +139,7 @@ class History {
       'id': id,
       'source_id': sourceId,
       'title': title,
+      'home_url': homeUrl,
       'address': address,
       'cover': cover,
       'inserted_at': insertedAt.toString(),
@@ -149,6 +152,7 @@ class History {
       id: map['id'],
       sourceId: map['source_id'],
       title: map['title'],
+      homeUrl: map['home_url'],
       address: map['address'],
       cover: map['cover'],
       insertedAt: DateTime.parse(map['inserted_at']),
@@ -157,5 +161,13 @@ class History {
 
   String toString() {
     return 'History(id: $id, sourceId: $sourceId, title: $title)';
+  }
+
+  Chapter asChapter() {
+    return Chapter(title: title, url: address, which: 0, pageHeaders: {});
+  }
+
+  Comic asComic() {
+    return Comic("", homeUrl, cover);
   }
 }

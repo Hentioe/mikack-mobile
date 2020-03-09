@@ -6,5 +6,5 @@ Tuple2<String, List<dynamic>> makeCondition(Map<String, dynamic> conditions) {
       return Tuple2('${cond.key} = ?', [cond.value]);
     }
   }
-  return null;
+  return Tuple2('1 > ?', [2]);
 }
