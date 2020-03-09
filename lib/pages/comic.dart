@@ -6,7 +6,6 @@ import 'package:mikack/models.dart' as models;
 import 'comic/info_tab.dart';
 import 'comic/chapters_tab.dart';
 import './read.dart';
-import '../ext.dart';
 
 class _MainPage extends StatefulWidget {
   _MainPage(this.platform, this.comic);

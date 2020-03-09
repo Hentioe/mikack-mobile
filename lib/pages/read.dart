@@ -1,6 +1,7 @@
 import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:tuple/tuple.dart';
@@ -50,43 +51,45 @@ class PagesView extends StatelessWidget {
   );
 
   Widget _buildImageView() {
-    return Image.network(
-      addresses[currentPage - 1],
-      headers: chapter.pageHeaders,
-      loadingBuilder: (BuildContext context, Widget child,
-          ImageChunkEvent loadingProgress) {
-        if (loadingProgress == null) {
-          if (child is Semantics) {
-            var rawImage = child.child;
-            if (rawImage is RawImage) {
-              if (rawImage.image == null)
-                return Center(
-                  child: connectingIndicator,
-                );
+    return ListView(
+      shrinkWrap: true,
+      controller: scrollController,
+      children: [
+        Image.network(
+          addresses[currentPage - 1],
+          headers: chapter.pageHeaders,
+          fit: BoxFit.fitWidth,
+          width: double.infinity,
+          loadingBuilder: (BuildContext context, Widget child,
+              ImageChunkEvent loadingProgress) {
+            if (loadingProgress == null) {
+              if (child is Semantics) {
+                var rawImage = child.child;
+                if (rawImage is RawImage) {
+                  if (rawImage.image == null)
+                    return Center(
+                      child: connectingIndicator,
+                    );
+                }
+              }
+              return child;
             }
-          }
-          return child;
-        }
-        return Center(
-          child: CircularProgressIndicator(
-            value: loadingProgress.expectedTotalBytes != null
-                ? loadingProgress.cumulativeBytesLoaded /
-                    loadingProgress.expectedTotalBytes
-                : null,
-          ),
-        );
-      },
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes
+                    : null,
+              ),
+            );
+          },
+        )
+      ],
     );
   }
 
   Widget _buildView() {
-    return isLoading()
-        ? _buildLoadingView()
-        : ListView(
-            shrinkWrap: true,
-            children: [_buildImageView()],
-            controller: scrollController,
-          );
+    return isLoading() ? _buildLoadingView() : _buildImageView();
   }
 
   void _handleTapUp(TapUpDetails details, BuildContext context) {
