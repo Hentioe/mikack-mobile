@@ -19,6 +19,7 @@ Future<Database> database() async {
           'id INTEGER PRIMARY KEY AUTOINCREMENT,'
           'source_id INTEGER NOT NULL,'
           'title TEXT NOT NULL,'
+          'home_url TEXT NOT NULL,'
           'address TEXT NOT NULL,'
           'cover TEXT,'
           'inserted_at TEXT NOT NULL,'
