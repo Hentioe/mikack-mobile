@@ -9,7 +9,10 @@ void hiddenChromeAll() => SystemChrome.setEnabledSystemUIOverlays([]);
 
 void setNavigationBarColor(Color color) {
   SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle.light.copyWith(systemNavigationBarColor: color),
+    SystemUiOverlayStyle(
+      systemNavigationBarColor: color,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
   );
 }
 
