@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:mikack_mobile/store.dart';
 import 'package:tuple/tuple.dart';
@@ -34,12 +35,13 @@ class _MainPageState extends State<_MainPage>
   }
 
   void openReadPage(models.Chapter chapter) {
+    setNavigationBarColor(readingBackgroundColor);
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => ReadPage(widget.platform, widget.comic, chapter),
       ),
-    );
+    ).then((_) => chromeInit(primaryColor));
   }
 
   void fetchChapters() async {
@@ -108,7 +110,7 @@ class ComicPage extends BasePage {
 
   @override
   Widget build(BuildContext context) {
-    initNavigationBar();
+    initSystemUI();
     return _MainPage(platform, comic);
   }
 }

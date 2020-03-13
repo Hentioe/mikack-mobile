@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:mikack_mobile/pages/base_page.dart';
 import '../widgets/comics_view.dart';
 import 'comic.dart';
 import 'package:tuple/tuple.dart';
@@ -317,13 +318,14 @@ class _MainViewState extends State<MainView> {
   }
 }
 
-class IndexPage extends StatelessWidget {
+class IndexPage extends BasePage {
   IndexPage(this.platform);
 
   final models.Platform platform;
 
   @override
   Widget build(BuildContext context) {
+    initSystemUI();
     return MainView(platform);
   }
 }

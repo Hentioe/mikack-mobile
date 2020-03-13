@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:mikack_mobile/pages/base_page.dart';
 import '../widgets/tag.dart';
 import '../ext.dart';
 
@@ -34,7 +35,7 @@ class FeatureStatus extends StatelessWidget {
   }
 }
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends BasePage {
   DetailPage(this.platform);
 
   final models.Platform platform;
@@ -114,6 +115,7 @@ class DetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    initSystemUI();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

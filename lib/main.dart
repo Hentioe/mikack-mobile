@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'fragments/libraries.dart';
 import 'fragments/bookshelf.dart';
 import 'fragments/books_update.dart';
@@ -8,13 +7,10 @@ import 'pages/base_page.dart';
 
 void main() => runApp(MyApp());
 
-const primaryColor = Colors.deepOrange;
-const secondaryColor = Colors.deepOrangeAccent;
-
 class MyApp extends BasePage {
   @override
   Widget build(BuildContext context) {
-    initNavigationBar();
+    initSystemUI();
     return MaterialApp(
       title: 'Mikack Mobile',
       theme: ThemeData(
@@ -53,7 +49,7 @@ const headerLogoSize = 65.0;
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedDrawerIndex = 0;
   final _header = DrawerHeader(
-    decoration: BoxDecoration(color: secondaryColor),
+    decoration: BoxDecoration(color: primaryColor),
     child: Row(
       children: [
         Image.asset(
@@ -72,8 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(systemNavigationBarColor: Colors.red));
     var drawerOptions = <Widget>[];
     for (var i = 0; i < widget.drawerItems.length; i++) {
       var d = widget.drawerItems[i];

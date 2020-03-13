@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mikack_mobile/fragments/bookshelf.dart';
+import 'package:mikack_mobile/helper/chrome.dart';
+import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:mikack_mobile/store.dart';
 import '../pages/read.dart';
 import '../ext.dart';
@@ -129,13 +131,14 @@ class _MainViewState extends State<MainView> {
     var platform =
         platformList.firstWhere((p) => p.domain == history.source.domain);
     if (platform != null) {
+      setNavigationBarColor(readingBackgroundColor);
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) =>
               ReadPage(platform, history.asComic(), history.asChapter()),
         ),
-      );
+      ).then((_) => chromeInit(primaryColor));
     }
   }
 

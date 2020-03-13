@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:tuple/tuple.dart';
@@ -13,10 +14,10 @@ import '../ext.dart';
 import '../store.dart';
 import '../helper/compute_ext.dart';
 
-const backgroundColor = Color.fromARGB(255, 50, 50, 50);
+const readingBackgroundColor = Color.fromARGB(255, 50, 50, 50);
 const pageInfoTextColor = Color.fromARGB(255, 255, 255, 255);
 const pageInfoOutlineColor = Color.fromARGB(255, 0, 0, 0);
-const pageInfoFontSize = 10.0;
+const pageInfoFontSize = 13.0;
 const spinkitSize = 35.0;
 const connectionIndicatorColor = Color.fromARGB(255, 138, 138, 138);
 
@@ -52,40 +53,43 @@ class PagesView extends StatelessWidget {
   );
 
   Widget _buildImageView() {
-    return ListView(
-      shrinkWrap: true,
-      controller: scrollController,
-      children: [
-        Image.network(
-          addresses[currentPage - 1],
-          headers: chapter.pageHeaders,
-          fit: BoxFit.fitWidth,
-          width: double.infinity,
-          loadingBuilder: (BuildContext context, Widget child,
-              ImageChunkEvent loadingProgress) {
-            if (loadingProgress == null) {
-              if (child is Semantics) {
-                var rawImage = child.child;
-                if (rawImage is RawImage) {
-                  if (rawImage.image == null)
-                    return Center(
-                      child: connectingIndicator,
-                    );
+    return Container(
+      child: ListView(
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        controller: scrollController,
+        children: [
+          Image.network(
+            addresses[currentPage - 1],
+            headers: chapter.pageHeaders,
+            fit: BoxFit.fitWidth,
+            width: double.infinity,
+            loadingBuilder: (BuildContext context, Widget child,
+                ImageChunkEvent loadingProgress) {
+              if (loadingProgress == null) {
+                if (child is Semantics) {
+                  var rawImage = child.child;
+                  if (rawImage is RawImage) {
+                    if (rawImage.image == null)
+                      return Center(
+                        child: connectingIndicator,
+                      );
+                  }
                 }
+                return child;
               }
-              return child;
-            }
-            return Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes
-                    : null,
-              ),
-            );
-          },
-        )
-      ],
+              return Center(
+                child: CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes
+                      : null,
+                ),
+              );
+            },
+          )
+        ],
+      ),
     );
   }
 
@@ -109,7 +113,7 @@ class PagesView extends StatelessWidget {
   Widget _buildPageInfoView() {
     var pageInfo = chapter == null ? '' : '$currentPage/${chapter.pageCount}';
     return Positioned(
-      bottom: kBottomNavigationBarHeight,
+      bottom: 2,
       left: 0,
       right: 0,
       child: Container(
@@ -129,12 +133,13 @@ class PagesView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor: readingBackgroundColor,
         resizeToAvoidBottomPadding: false,
         body: Stack(
           children: [
             Positioned.fill(
-                child: Container(child: Center(child: _buildView()))),
+              child: Center(child: _buildView()),
+            ),
             _buildPageInfoView(),
           ],
         ),
@@ -167,7 +172,7 @@ class _MainViewState extends State<_MainView> {
   @override
   void initState() {
     // 创建页面迭代器
-    createPageInterator(context);
+    createPageInterator();
     super.initState();
   }
 
@@ -218,9 +223,11 @@ class _MainViewState extends State<_MainView> {
     }
   }
 
-  void createPageInterator(BuildContext context) async {
+  void createPageInterator() async {
     var created = await compute(
         _createPageIteratorTask, Tuple2(widget.platform, widget.chapter));
+    // 迭代器创建完成隐藏系统 UI
+    hiddenChromeAll();
     setState(() {
       _pageInterator = created.item1.asPageIterator();
       _chapter = created.item2;
@@ -302,7 +309,6 @@ class ReadPage extends BasePage {
 
   @override
   Widget build(BuildContext context) {
-    initNavigationBar();
     return _MainView(platform, comic, chapter);
   }
 }
