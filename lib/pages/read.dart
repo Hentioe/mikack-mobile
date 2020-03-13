@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:tuple/tuple.dart';
 import 'package:mikack/models.dart' as models;
@@ -108,7 +109,7 @@ class PagesView extends StatelessWidget {
   Widget _buildPageInfoView() {
     var pageInfo = chapter == null ? '' : '$currentPage/${chapter.pageCount}';
     return Positioned(
-      bottom: 2,
+      bottom: kBottomNavigationBarHeight,
       left: 0,
       right: 0,
       child: Container(
@@ -129,6 +130,7 @@ class PagesView extends StatelessWidget {
     return GestureDetector(
       child: Scaffold(
         backgroundColor: backgroundColor,
+        resizeToAvoidBottomPadding: false,
         body: Stack(
           children: [
             Positioned.fill(
@@ -291,7 +293,7 @@ class _MainViewState extends State<_MainView> {
   }
 }
 
-class ReadPage extends StatelessWidget {
+class ReadPage extends BasePage {
   ReadPage(this.platform, this.comic, this.chapter);
 
   final models.Platform platform;
@@ -300,6 +302,7 @@ class ReadPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    initNavigationBar();
     return _MainView(platform, comic, chapter);
   }
 }

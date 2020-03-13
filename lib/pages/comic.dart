@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:mikack_mobile/store.dart';
 import 'package:tuple/tuple.dart';
 import 'package:mikack/models.dart' as models;
@@ -99,14 +100,17 @@ class _MainPageState extends State<_MainPage>
   }
 }
 
-class ComicPage extends StatelessWidget {
+class ComicPage extends BasePage {
   ComicPage(this.platform, this.comic);
 
   final models.Platform platform;
   final models.Comic comic;
 
   @override
-  Widget build(BuildContext context) => _MainPage(platform, comic);
+  Widget build(BuildContext context) {
+    initNavigationBar();
+    return _MainPage(platform, comic);
+  }
 }
 
 models.Comic _fetchChaptersTask(Tuple2<models.Platform, models.Comic> args) {
