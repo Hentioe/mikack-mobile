@@ -4,6 +4,7 @@ import 'fragments/bookshelf.dart';
 import 'fragments/books_update.dart';
 import 'fragments/histories.dart';
 import 'pages/base_page.dart';
+import 'pages/settings.dart';
 
 void main() => runApp(MyApp());
 
@@ -95,7 +96,10 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               leading: Icon(Icons.settings),
               title: Text('设置'),
-              onTap: () {},
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => SettingsPage()),
+              ),
             ),
           ],
         ),
