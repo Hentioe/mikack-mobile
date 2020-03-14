@@ -138,7 +138,7 @@ class _MainViewState extends State<MainView> {
           builder: (context) =>
               ReadPage(platform, history.asComic(), history.asChapter()),
         ),
-      ).then((_) => chromeInit(primaryColor));
+      ).then((_) => setSystemUI(primaryColor: primaryColor));
     }
   }
 

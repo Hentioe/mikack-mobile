@@ -47,7 +47,7 @@ class _MainPageState extends State<_MainPage>
       MaterialPageRoute(
         builder: (_) => ReadPage(widget.platform, widget.comic, chapter),
       ),
-    ).then((_) => chromeInit(primaryColor));
+    ).then((_) => setSystemUI(primaryColor: primaryColor));
   }
 
   void fetchChapters() async {

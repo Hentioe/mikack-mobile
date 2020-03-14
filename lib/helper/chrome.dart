@@ -1,11 +1,11 @@
 import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 
-void showChromeAll() => SystemChrome.setEnabledSystemUIOverlays(
+void showSystemUI() => SystemChrome.setEnabledSystemUIOverlays(
       [SystemUiOverlay.top, SystemUiOverlay.bottom],
     );
 
-void hiddenChromeAll() => SystemChrome.setEnabledSystemUIOverlays([]);
+void hiddenSystemUI() => SystemChrome.setEnabledSystemUIOverlays([]);
 
 void setNavigationBarColor(Color color) {
   SystemChrome.setSystemUIOverlayStyle(
@@ -16,7 +16,7 @@ void setNavigationBarColor(Color color) {
   );
 }
 
-void chromeInit(Color primaryColor) {
+void setSystemUI({Color primaryColor}) {
   setNavigationBarColor(primaryColor);
-  showChromeAll();
+  showSystemUI();
 }

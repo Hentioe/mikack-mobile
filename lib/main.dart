@@ -81,13 +81,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-          title: Text(widget.drawerItems[_selectedDrawerIndex].title),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {},
-            ),
-          ]),
+        title: Text(widget.drawerItems[_selectedDrawerIndex].title),
+      ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
