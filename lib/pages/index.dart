@@ -8,10 +8,6 @@ import 'comic.dart';
 import 'package:tuple/tuple.dart';
 import '../ext.dart';
 
-const viewListCoverHeight = double.infinity;
-const viewListCoverWidth = 50.0;
-const listCoverRadius = 4.0;
-
 class IndexesView extends StatefulWidget {
   IndexesView(
     this.platform,
@@ -49,45 +45,6 @@ class _IndexViewState extends State<IndexesView> {
     );
   }
 
-  // 列表显示的边框形状
-  final viewListShape = const RoundedRectangleBorder(
-      borderRadius: BorderRadiusDirectional.all(Radius.circular(1)));
-
-  // 列表显示
-  Widget _buildViewList(BuildContext context) {
-    var children = widget.comics
-        .map((c) => Card(
-              shape: viewListShape,
-              child: ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Image.network(c.cover,
-                    headers: widget.httpHeaders,
-                    fit: BoxFit.cover,
-                    height: viewListCoverHeight,
-                    width: viewListCoverWidth),
-                title: Text(c.title,
-                    style: TextStyle(color: Colors.black),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
-                trailing: IconButton(
-                    icon: Icon(Icons.favorite_border), onPressed: () => {}),
-                onTap: () => _openComicPage(context, c),
-              ),
-            ))
-        .toList();
-    return ListView(
-      children: children,
-      controller: widget.scrollController,
-    );
-  }
-
-  // 网格显示
-  Widget _buildViewMode() => ComicsView(
-        widget.comics,
-        onTap: (comic) => _openComicPage(context, comic),
-        scrollController: widget.scrollController,
-      );
-
   // 加载视图
   final loadingView = const Center(
     child: CircularProgressIndicator(),
@@ -106,9 +63,13 @@ class _IndexViewState extends State<IndexesView> {
     if (widget.comics.length == 0)
       return loadingView;
     else {
-      var itemsView =
-          widget.isViewList ? _buildViewList(context) : _buildViewMode();
-      var stackChildren = [itemsView];
+      Widget comicsView = ComicsView(
+        widget.comics,
+        isViewList: widget.isViewList,
+        onTap: (comic) => _openComicPage(context, comic),
+        scrollController: widget.scrollController,
+      );
+      var stackChildren = [comicsView];
       if (widget.isFetchingNext) stackChildren.add(loadingNextView);
       return Scrollbar(
         child: Stack(
