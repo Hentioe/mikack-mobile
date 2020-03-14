@@ -2,46 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 
 class ComicsView extends StatelessWidget {
-  ComicsView(
-    this.comics, {
-    this.onTap,
-    this.onLongPress,
-    this.scrollController,
-    this.httpHeaders,
-    this.enableFavorite = false,
-    this.handleFavorite,
-    this.favoriteAddresses = const <String>[],
-  });
+  ComicsView(this.comics,
+      {this.onTap, this.onLongPress, this.scrollController, this.httpHeaders});
 
   final List<models.Comic> comics;
   final Function(models.Comic) onTap;
   final Function(models.Comic) onLongPress;
   final ScrollController scrollController;
   final Map<String, String> httpHeaders;
-  final enableFavorite;
-  final Function(models.Comic, bool) handleFavorite;
-  final favoriteAddresses;
-
-  List<Widget> _buildFavoriteView(models.Comic comic) {
-    var children = <Widget>[];
-    if (enableFavorite) {
-      var iconData = Icons.favorite_border;
-      var isCancel = favoriteAddresses.contains(comic.url);
-      if (isCancel) iconData = Icons.favorite;
-      children.add(Positioned(
-        right: 0,
-        top: 0,
-        child: Material(
-          color: Colors.transparent,
-          child: IconButton(
-            icon: Icon(iconData, color: Colors.white),
-            onPressed: () => handleFavorite(comic, isCancel),
-          ),
-        ),
-      ));
-    }
-    return children;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +62,6 @@ class ComicsView extends StatelessWidget {
                     ),
                   ),
                 ),
-                ..._buildFavoriteView(comics[index]),
               ],
             ),
           );

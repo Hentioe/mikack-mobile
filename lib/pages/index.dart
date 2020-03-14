@@ -6,7 +6,6 @@ import 'package:mikack_mobile/pages/base_page.dart';
 import '../widgets/comics_view.dart';
 import 'comic.dart';
 import 'package:tuple/tuple.dart';
-import '../store.dart';
 import '../ext.dart';
 
 const viewListCoverHeight = double.infinity;
@@ -35,38 +34,9 @@ class IndexesView extends StatefulWidget {
 }
 
 class _IndexViewState extends State<IndexesView> {
-  var _favoriteAddresses = <String>[];
-
   @override
   void initState() {
     super.initState();
-    // 加载收藏列表
-    fetchFavoriteAddresses();
-  }
-
-  // 处理收藏按钮点击
-  void _handleFavorite(models.Comic comic, bool isCancel) async {
-    var source = await widget.platform.toSavedSource();
-    if (!isCancel) {
-      // 收藏
-      await insertFavorite(Favorite(
-        sourceId: source.id,
-        name: comic.title,
-        address: comic.url,
-        cover: comic.cover,
-      ));
-      setState(() => _favoriteAddresses.add(comic.url));
-    } else {
-      // 取消收藏
-      await deleteFavorite(address: comic.url);
-      setState(() => _favoriteAddresses.remove(comic.url));
-    }
-  }
-
-  void fetchFavoriteAddresses() async {
-    (await findFavorites()).forEach(
-      (f) => setState(() => _favoriteAddresses.add(f.address)),
-    );
   }
 
   // 打开阅读页面
@@ -114,11 +84,8 @@ class _IndexViewState extends State<IndexesView> {
   // 网格显示
   Widget _buildViewMode() => ComicsView(
         widget.comics,
-        enableFavorite: true,
-        handleFavorite: _handleFavorite,
         onTap: (comic) => _openComicPage(context, comic),
         scrollController: widget.scrollController,
-        favoriteAddresses: _favoriteAddresses,
       );
 
   // 加载视图

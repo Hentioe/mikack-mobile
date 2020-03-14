@@ -29,14 +29,7 @@ class BooksView extends StatelessWidget {
         ),
       );
     return Scrollbar(
-      child: ComicsView(
-        comics,
-        enableFavorite: true,
-        handleFavorite: (models.Comic comic, bool isCancel) =>
-            {if (isCancel) handleCancelFavorite(comic)},
-        favoriteAddresses: comics.map((c) => c.url).toList(),
-        onTap: handleOpen,
-      ),
+      child: ComicsView(comics, onTap: handleOpen),
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:mikack/models.dart' as models;
 import 'comic/info_tab.dart';
 import 'comic/chapters_tab.dart';
 import './read.dart';
+import '../ext.dart';
 
 class _MainPage extends StatefulWidget {
   _MainPage(this.platform, this.comic);
@@ -24,13 +25,18 @@ class _MainPageState extends State<_MainPage>
   TabController tabController;
   models.Comic _comic;
 
+  bool _isFavorite = false;
+
   @override
   void initState() {
     tabController = TabController(length: 2, vsync: this);
     _comic = widget.comic;
     // 更新上次阅读时间
     updateLastReadTime();
+    // 加载章节信息
     fetchChapters();
+    // 加载收藏状态
+    fetchIsFavorite();
     super.initState();
   }
 
@@ -64,6 +70,30 @@ class _MainPageState extends State<_MainPage>
     openReadPage(_comic.chapters[0]);
   }
 
+  void fetchIsFavorite() async {
+    var favorite = await getFavorite(address: _comic.url);
+    if (favorite != null) setState(() => _isFavorite = true);
+  }
+
+  // 处理收藏按钮点击
+  void _handleFavorite() async {
+    var source = await widget.platform.toSavedSource();
+    if (!_isFavorite) {
+      // 收藏
+      await insertFavorite(Favorite(
+        sourceId: source.id,
+        name: _comic.title,
+        address: _comic.url,
+        cover: _comic.cover,
+      ));
+      setState(() => _isFavorite = true);
+    } else {
+      // 取消收藏
+      await deleteFavorite(address: _comic.url);
+      setState(() => _isFavorite = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var showFloatActionBtn =
@@ -86,7 +116,12 @@ class _MainPageState extends State<_MainPage>
       body: TabBarView(
         controller: tabController,
         children: [
-          InfoTab(widget.platform, _comic),
+          InfoTab(
+            widget.platform,
+            _comic,
+            isFavorite: _isFavorite,
+            handleFavorite: _handleFavorite,
+          ),
           ChaptersTab(
             _comic,
             openReadPage: openReadPage,
