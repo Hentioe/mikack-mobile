@@ -9,10 +9,10 @@ import 'fragments/books_update.dart';
 import 'fragments/histories.dart';
 import 'pages/base_page.dart';
 import 'pages/settings.dart';
-import 'pages/settings.dart' show startPageKey;
 
 // 全部平台列表
 final List<models.Platform> platformList = platforms();
+const bookshelfSoryByKey = 'bookshelf_sory_by';
 
 void main() => runApp(MyApp());
 
@@ -66,11 +66,13 @@ class _MyHomePageState extends State<MyHomePage> {
   List<int> _includeTags = [];
   List<int> _excludesTags = [];
   List<models.Platform> _platforms = [];
+  BookshelfSortBy _bookshelfSortBy = BookshelfSortBy.readAt;
 
   @override
   void initState() {
     fetchLockedDrawerIndex();
     fetchPlatforms();
+    fetchBookshelfSortBy();
     super.initState();
   }
 
@@ -97,6 +99,14 @@ class _MyHomePageState extends State<MyHomePage> {
         _excludesTags.map((v) => models.Tag(v, '')).toList(),
       );
     });
+  }
+
+  void fetchBookshelfSortBy() async {
+    var prefs = await SharedPreferences.getInstance();
+    var sortBy = parseBookshelfSortBy(prefs.getString(bookshelfSoryByKey));
+    if (sortBy != _bookshelfSortBy) {
+      setState(() => _bookshelfSortBy = sortBy);
+    }
   }
 
   final _header = DrawerHeader(
@@ -137,9 +147,37 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Widget _buildBookshelfSortMenuView() {
+    return PopupMenuButton<BookshelfSortBy>(
+      icon: Icon(Icons.sort),
+      onSelected: updateBookshelfSortBy,
+      itemBuilder: (BuildContext context) => [
+        const PopupMenuItem(
+          value: BookshelfSortBy.readAt,
+          child: Text('上次阅读时间'),
+        ),
+        const PopupMenuItem(
+          value: BookshelfSortBy.insertedAt,
+          child: Text('最初添加时间'),
+        ),
+      ],
+    );
+  }
+
+  void updateBookshelfSortBy(BookshelfSortBy sortBy) async {
+    var prefs = await SharedPreferences.getInstance();
+    await prefs.setString(bookshelfSoryByKey, sortBy.value());
+    setState(() => _bookshelfSortBy = sortBy);
+  }
+
   void initDrawerItems() {
     _drawerItems = [
-      DrawerItem('我的书架', Icons.class_, BookshelfFragment()),
+      DrawerItem(
+        '我的书架',
+        Icons.class_,
+        BookshelfFragment(sortBy: _bookshelfSortBy),
+        actions: [_buildBookshelfSortMenuView()],
+      ),
       DrawerItem('书架更新', Icons.fiber_new, BooksUpdateFragment()),
       DrawerItem(
         '图书仓库',

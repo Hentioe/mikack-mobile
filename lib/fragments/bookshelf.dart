@@ -8,6 +8,36 @@ import '../pages/comic.dart';
 
 final List<models.Platform> platformList = platforms();
 
+enum BookshelfSortBy { readAt, insertedAt }
+
+const _readAt = 'read_at';
+const _insertedAt = 'inserted_at';
+
+extension BookshelfSortByExt on BookshelfSortBy {
+  String value() {
+    switch (this) {
+      case BookshelfSortBy.readAt:
+        return _readAt;
+      case BookshelfSortBy.insertedAt:
+        return _insertedAt;
+      default:
+        return _readAt;
+    }
+  }
+}
+
+BookshelfSortBy parseBookshelfSortBy(String value,
+    {BookshelfSortBy orValue = BookshelfSortBy.readAt}) {
+  switch (value) {
+    case _readAt:
+      return BookshelfSortBy.readAt;
+    case _insertedAt:
+      return BookshelfSortBy.insertedAt;
+    default:
+      return orValue;
+  }
+}
+
 class BooksView extends StatelessWidget {
   BooksView(
     this.comics, {
@@ -35,6 +65,10 @@ class BooksView extends StatelessWidget {
 }
 
 class MainView extends StatefulWidget {
+  MainView({this.sortBy}) : super(key: ObjectKey(sortBy));
+
+  final BookshelfSortBy sortBy;
+
   @override
   State<StatefulWidget> createState() => _MainViewState();
 }
@@ -50,7 +84,7 @@ class _MainViewState extends State<MainView> {
   }
 
   void fetchFavorites() async {
-    var favorites = await findFavorites();
+    var favorites = await findFavorites(sortBy: widget.sortBy);
     for (var i = 0; i < favorites.length; i++) {
       var source = await getSource(id: favorites[i].sourceId);
       favorites[i].source = source;
@@ -109,8 +143,12 @@ class _MainViewState extends State<MainView> {
 }
 
 class BookshelfFragment extends StatelessWidget {
+  BookshelfFragment({this.sortBy = BookshelfSortBy.readAt});
+
+  final BookshelfSortBy sortBy;
+
   @override
   Widget build(BuildContext context) {
-    return MainView();
+    return MainView(sortBy: sortBy);
   }
 }

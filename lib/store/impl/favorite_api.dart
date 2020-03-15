@@ -1,3 +1,5 @@
+import 'package:mikack_mobile/fragments/bookshelf.dart';
+
 import '../../store.dart';
 import '../models.dart';
 import '../helper.dart';
@@ -8,11 +10,20 @@ Future<void> insertFavorite(Favorite favorite) async {
   favorite.id = id;
 }
 
-Future<List<Favorite>> findFavorites() async {
+Future<List<Favorite>> findFavorites(
+    {BookshelfSortBy sortBy = BookshelfSortBy.readAt}) async {
   final db = await database();
 
-  final List<Map<String, dynamic>> maps = await db.query(Favorite.tableName,
-      orderBy: 'datetime(last_read_time) DESC');
+  var column = 'last_read_time'; // 默认上次阅读时间
+  switch (sortBy) {
+    case BookshelfSortBy.readAt:
+      break;
+    case BookshelfSortBy.insertedAt:
+      column = 'inserted_at';
+  }
+
+  final List<Map<String, dynamic>> maps =
+      await db.query(Favorite.tableName, orderBy: 'datetime($column) DESC');
 
   return maps.map((map) => Favorite.fromMap(map)).toList();
 }
