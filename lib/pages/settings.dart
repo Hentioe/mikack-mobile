@@ -100,8 +100,23 @@ class _SettingItemGroup extends StatelessWidget {
   }
 }
 
+class _SettingsCheckBoxIcon extends StatelessWidget {
+  _SettingsCheckBoxIcon({this.value = false});
+
+  final bool value;
+
+  @override
+  Widget build(BuildContext context) {
+    return value
+        ? Icon(Icons.check_box,
+            color: primaryColor, size: _settingsItemTrailingSize)
+        : Icon(Icons.check_box_outline_blank, size: _settingsItemTrailingSize);
+  }
+}
+
 const startPageKey = 'start_page';
 const leftHandModeKey = 'left_mode';
+const allowNsfwKey = 'allow_nsfw';
 
 class _SettingsView extends StatefulWidget {
   @override
@@ -119,11 +134,13 @@ class _SettingsState extends State<_SettingsView> {
   void initState() {
     fetchSelectedPage();
     fetchLeftHandMode();
+    fetchAllowNsfw();
     super.initState();
   }
 
   var _selectedPage = 'default';
   var _leftHandMode = false;
+  var _allowNsfw = false;
 
   void fetchSelectedPage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -138,6 +155,14 @@ class _SettingsState extends State<_SettingsView> {
     setState(() {
       var enabled = prefs.getBool(leftHandModeKey);
       if (enabled != null) _leftHandMode = enabled;
+    });
+  }
+
+  void fetchAllowNsfw() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      var enabled = prefs.getBool(allowNsfwKey);
+      if (enabled != null) _allowNsfw = enabled;
     });
   }
 
@@ -164,6 +189,12 @@ class _SettingsState extends State<_SettingsView> {
     setState(() => _leftHandMode = !_leftHandMode);
   }
 
+  void _handAllowNsfw() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(allowNsfwKey, !_allowNsfw);
+    setState(() => _allowNsfw = !_allowNsfw);
+  }
+
   Widget _buildContentView() {
     return Column(
       children: [
@@ -182,14 +213,15 @@ class _SettingsState extends State<_SettingsView> {
             _SettingItem(
               '左手翻页模式',
               subtitle: '反转默认翻页的操作方向',
-              trailing: _leftHandMode
-                  ? Icon(Icons.check_box,
-                      color: primaryColor, size: _settingsItemTrailingSize)
-                  : Icon(Icons.check_box_outline_blank,
-                      size: _settingsItemTrailingSize),
+              trailing: _SettingsCheckBoxIcon(value: _leftHandMode),
               onTap: _handleLeftHandMode,
             ),
-            _SettingItem('允许 NSFW 内容', subtitle: '允许显示不宜工作场合公开的资源（可能包含成人内容）'),
+            _SettingItem(
+              '允许 NSFW 内容',
+              subtitle: '将显示不宜于工作场合公开的资源（可能包含成人内容）',
+              trailing: _SettingsCheckBoxIcon(value: _allowNsfw),
+              onTap: _handAllowNsfw,
+            ),
           ],
         ),
         SizedBox(height: _settingsItemSpacing),
