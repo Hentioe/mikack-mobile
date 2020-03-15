@@ -26,10 +26,13 @@ dependencies:
   flutter_spinkit: ^4.1.2
   sqflite: ^1.2.1
   path: ^1.6.4
+  easy_dialogs: ^1.0.0
+  shared_preferences: ^0.5.6+3
+  quiver: ^2.1.3
 
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
+#dev_dependencies:
+#  flutter_test:
+#    sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

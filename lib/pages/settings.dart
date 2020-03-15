@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:easy_dialogs/easy_dialogs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../pages/base_page.dart';
+import '../main.dart' show startPages;
 
 const _settingsItemSpacing = 14.0;
 const _settingsPadding = 18.0;
 
 class _SettingItem extends StatelessWidget {
-  _SettingItem(this.title, {this.subtitle});
+  _SettingItem(this.title, {this.subtitle, this.onTap});
 
   final String title;
   final String subtitle;
+  final void Function() onTap;
 
   static final titleStyle = TextStyle(
     fontSize: 15.0,
@@ -45,7 +49,9 @@ class _SettingItem extends StatelessWidget {
           children: children,
         ),
       ),
-      onTap: () {},
+      onTap: () {
+        if (onTap != null) onTap();
+      },
     );
   }
 }
@@ -86,12 +92,52 @@ class _SettingItemGroup extends StatelessWidget {
   }
 }
 
-class SettingsPage extends BasePage {
+const startPageKey = 'start_page';
+
+class _SettingsView extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _SettingsState();
+}
+
+class _SettingsState extends State<_SettingsView> {
   final copyrightTextStyle = TextStyle(
     fontSize: 12,
     color: Colors.grey[400],
     fontFamily: 'Monospace',
   );
+
+  @override
+  void initState() {
+    fetchSelectedPage();
+    super.initState();
+  }
+
+  var _selectedPage = 'default';
+
+  void fetchSelectedPage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      var selected = prefs.getString(startPageKey);
+      if (selected != null) _selectedPage = selected;
+    });
+  }
+
+  void updateSelectedPage(key) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(startPageKey, key);
+    setState(() => _selectedPage = key);
+  }
+
+  Widget _buildStartPageDialog() {
+    return SingleChoiceConfirmationDialog<String>(
+      title: Text('选择开始页面'),
+      initialValue: startPages[_selectedPage],
+      items: startPages.values.toList(),
+      onSubmitted: (text) {
+        updateSelectedPage(startPages.inverse[text]);
+      },
+    );
+  }
 
   Widget _buildContentView() {
     return Column(
@@ -100,9 +146,16 @@ class SettingsPage extends BasePage {
         _SettingItemGroup(
           '基本设置',
           children: [
-            _SettingItem('开始页面', subtitle: '我的书架'),
+            _SettingItem(
+              '开始页面',
+              subtitle: startPages[_selectedPage],
+              onTap: () => showDialog(
+                context: context,
+                builder: (_) => _buildStartPageDialog(),
+              ),
+            ),
             _SettingItem('左手翻页模式', subtitle: '反转默认翻页的操作方向'),
-            _SettingItem('允许 NSFW 内容', subtitle: '显示不宜工作场合公开的内容（可能包含成人内容）'),
+            _SettingItem('允许 NSFW 内容', subtitle: '允许显示不宜工作场合公开的资源（可能包含成人内容）'),
           ],
         ),
         SizedBox(height: _settingsItemSpacing),
@@ -134,7 +187,7 @@ class SettingsPage extends BasePage {
             _SettingItem('使用条款'),
           ],
         ),
-        SizedBox(height: 40),
+        SizedBox(height: 30),
         Center(
           child: Text(
             '@ 2020 mikack.me',
@@ -147,24 +200,27 @@ class SettingsPage extends BasePage {
             style: copyrightTextStyle,
           ),
         ),
-        SizedBox(height: 50),
+        SizedBox(height: 40),
       ],
     );
   }
 
-  Widget _buildBodyView() {
+  @override
+  Widget build(BuildContext context) {
     return ListView(
       children: [_buildContentView()],
     );
   }
+}
 
+class SettingsPage extends BasePage {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('设置'),
       ),
-      body: _buildBodyView(),
+      body: _SettingsView(),
     );
   }
 }

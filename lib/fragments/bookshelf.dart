@@ -55,7 +55,7 @@ class _MainViewState extends State<MainView> {
       var source = await getSource(id: favorites[i].sourceId);
       favorites[i].source = source;
     }
-    setState(() => _favorites = favorites);
+    if (mounted) setState(() => _favorites = favorites);
   }
 
   void _handleCancelFavorite(models.Comic comic) async {
