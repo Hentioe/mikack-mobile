@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/pages/base_page.dart';
+import 'package:mikack_mobile/widgets/text_hint.dart';
 import '../widgets/tag.dart';
 import '../ext.dart';
 
@@ -107,7 +108,9 @@ class DetailPage extends BasePage {
                 ],
               ),
             ),
-          )
+          ),
+          SizedBox(height: 30),
+          TextHint('暂时没有偏好设置'),
         ],
       ),
     );
