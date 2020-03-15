@@ -227,6 +227,7 @@ class _MainViewState extends State<_MainView> {
     var created = await compute(
         _createPageIteratorTask, Tuple2(widget.platform, widget.chapter));
     // 迭代器创建完成隐藏系统 UI
+    if (!mounted) return;
     hiddenSystemUI();
     setState(() {
       _pageInterator = created.item1.asPageIterator();
