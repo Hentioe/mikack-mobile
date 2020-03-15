@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mikack/mikack.dart';
+import 'package:mikack/models.dart' as models;
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'fragments/libraries.dart';
@@ -8,6 +10,9 @@ import 'fragments/histories.dart';
 import 'pages/base_page.dart';
 import 'pages/settings.dart';
 import 'pages/settings.dart' show startPageKey;
+
+// 全部平台列表
+final List<models.Platform> platformList = platforms();
 
 void main() => runApp(MyApp());
 
@@ -29,11 +34,13 @@ class MyApp extends BasePage {
 final startPages = BiMap<String, String>();
 
 class DrawerItem {
-  String title;
-  IconData iconData;
-  Widget fragment;
+  final String title;
+  final IconData iconData;
+  final Widget fragment;
+  final List<Widget> actions;
 
-  DrawerItem(this.title, this.iconData, this.fragment);
+  DrawerItem(this.title, this.iconData, this.fragment,
+      {this.actions = const []});
 }
 
 class MyHomePage extends StatefulWidget {
@@ -47,13 +54,6 @@ class MyHomePage extends StatefulWidget {
     });
   }
 
-  final drawerItems = [
-    DrawerItem('我的书架', Icons.class_, BookshelfFragment()),
-    DrawerItem('书架更新', Icons.fiber_new, BooksUpdateFragment()),
-    DrawerItem('图书仓库', Icons.store, LibrariesFragment()),
-    DrawerItem('浏览历史', Icons.history, HistoriesFragment()),
-  ];
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -62,10 +62,15 @@ const headerLogoSize = 65.0;
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedDrawerIndex = 0;
+  List<DrawerItem> _drawerItems = [];
+  List<int> _includeTags = [];
+  List<int> _excludesTags = [];
+  List<models.Platform> _platforms = [];
 
   @override
   void initState() {
     fetchLockedDrawerIndex();
+    fetchPlatforms();
     super.initState();
   }
 
@@ -75,14 +80,23 @@ class _MyHomePageState extends State<MyHomePage> {
     int index = 0;
     if (lockedKey != null && lockedKey != 'default') {
       var drawerItemName = startPages[lockedKey];
-      for (var i = 0; i < widget.drawerItems.length; i++) {
-        if (widget.drawerItems[i].title == drawerItemName) {
+      for (var i = 0; i < _drawerItems.length; i++) {
+        if (_drawerItems[i].title == drawerItemName) {
           index = i;
           break;
         }
       }
     }
     setState(() => _selectedDrawerIndex = index);
+  }
+
+  void fetchPlatforms() async {
+    setState(() {
+      _platforms = findPlatforms(
+        _includeTags.map((v) => models.Tag(v, '')).toList(),
+        _excludesTags.map((v) => models.Tag(v, '')).toList(),
+      );
+    });
   }
 
   final _header = DrawerHeader(
@@ -103,11 +117,49 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pop(); // 关闭抽屉
   }
 
+  void _handleSearch() {}
+
+  void _handleLibrariesFilter() {
+    var fragment = _drawerItems[_selectedDrawerIndex].fragment;
+    if (fragment is LibrariesFragment) {
+      fragment
+          .openFilter(context, includes: _includeTags, excludes: _excludesTags)
+          .then((filters) {
+        var includes = filters.item1;
+        var excludes = filters.item2;
+
+        setState(() {
+          _includeTags = includes;
+          _excludesTags = excludes;
+        });
+        fetchPlatforms();
+      });
+    }
+  }
+
+  void initDrawerItems() {
+    _drawerItems = [
+      DrawerItem('我的书架', Icons.class_, BookshelfFragment()),
+      DrawerItem('书架更新', Icons.fiber_new, BooksUpdateFragment()),
+      DrawerItem(
+        '图书仓库',
+        Icons.store,
+        LibrariesFragment(_platforms),
+        actions: [
+          IconButton(
+              icon: Icon(Icons.filter_list), onPressed: _handleLibrariesFilter)
+        ],
+      ),
+      DrawerItem('浏览历史', Icons.history, HistoriesFragment()),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    initDrawerItems();
     var drawerOptions = <Widget>[];
-    for (var i = 0; i < widget.drawerItems.length; i++) {
-      var d = widget.drawerItems[i];
+    for (var i = 0; i < _drawerItems.length; i++) {
+      var d = _drawerItems[i];
       drawerOptions.add(new ListTile(
         leading: new Icon(d.iconData),
         title: new Text(d.title),
@@ -118,7 +170,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.drawerItems[_selectedDrawerIndex].title),
+        title: Text(_drawerItems[_selectedDrawerIndex].title),
+        actions: [
+          IconButton(icon: Icon(Icons.search), onPressed: _handleSearch),
+          ..._drawerItems[_selectedDrawerIndex].actions
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -140,7 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      body: widget.drawerItems[_selectedDrawerIndex].fragment,
+      body: _drawerItems[_selectedDrawerIndex].fragment,
     );
   }
 }
