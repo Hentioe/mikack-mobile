@@ -152,11 +152,13 @@ class _MyHomePageState extends State<MyHomePage> {
       icon: Icon(Icons.sort),
       onSelected: updateBookshelfSortBy,
       itemBuilder: (BuildContext context) => [
-        const PopupMenuItem(
+        CheckedPopupMenuItem(
+          checked: _bookshelfSortBy == BookshelfSortBy.readAt,
           value: BookshelfSortBy.readAt,
           child: Text('上次阅读时间'),
         ),
-        const PopupMenuItem(
+        CheckedPopupMenuItem(
+          checked: _bookshelfSortBy == BookshelfSortBy.insertedAt,
           value: BookshelfSortBy.insertedAt,
           child: Text('最初添加时间'),
         ),
