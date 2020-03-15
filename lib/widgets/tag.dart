@@ -1,27 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+
+const defaultSelectedTagColor = Colors.blueAccent;
+const defaultTagPadding =
+    EdgeInsets.only(left: 10, right: 10, top: 0.5, bottom: 0.5);
 
 class Tag extends StatelessWidget {
-  Tag(this.text);
+  Tag(this.value, this.text, {this.selected = false, this.onTap});
 
+  final int value;
   final String text;
+  final bool selected;
+  final void Function(int) onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.blueAccent),
-        color: Colors.blueAccent,
-      ),
-      padding: EdgeInsets.only(left: 10, right: 10, top: 0.5, bottom: 0.5),
+    return GestureDetector(
       child: Container(
-        height: 14,
-        child: Center(
-          child: Text(text,
-              style: TextStyle(
-                  fontSize: 10, color: Colors.white, fontFamily: 'Monospace')),
+        // 圆角
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: defaultSelectedTagColor),
+          color: selected ? defaultSelectedTagColor : Colors.transparent,
+        ),
+        padding: defaultTagPadding,
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 10,
+            color: selected ? Colors.white : defaultSelectedTagColor,
+            fontFamily: 'Monospace',
+            height: 1.5,
+          ),
         ),
       ),
+      onTap: onTap != null ? () => onTap(value) : null,
     );
   }
 }

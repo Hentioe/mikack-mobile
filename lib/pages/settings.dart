@@ -211,8 +211,8 @@ class _SettingsState extends State<_SettingsView> {
               ),
             ),
             _SettingItem(
-              '左手翻页模式',
-              subtitle: '反转默认翻页的操作方向',
+              '左手翻页',
+              subtitle: '反转默认的翻页操作方向',
               trailing: _SettingsCheckBoxIcon(value: _leftHandMode),
               onTap: _handleLeftHandMode,
             ),

@@ -43,7 +43,7 @@ class DetailPage extends BasePage {
 
   // 构建标签视图列表
   List<Widget> _buildTagViewList() {
-    return platform.tags.map((t) => Tag(t.name)).toList();
+    return platform.tags.map((t) => Tag(t.value, t.name)).toList();
   }
 
   Widget _buildBody() {
