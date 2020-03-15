@@ -5,6 +5,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/pages/base_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:tuple/tuple.dart';
 import 'package:mikack/models.dart' as models;
@@ -13,6 +14,7 @@ import '../widgets/outline_text.dart';
 import '../ext.dart';
 import '../store.dart';
 import '../helper/compute_ext.dart';
+import 'settings.dart';
 
 const readingBackgroundColor = Color.fromARGB(255, 50, 50, 50);
 const pageInfoTextColor = Color.fromARGB(255, 255, 255, 255);
@@ -22,9 +24,16 @@ const spinkitSize = 35.0;
 const connectionIndicatorColor = Color.fromARGB(255, 138, 138, 138);
 
 class PagesView extends StatelessWidget {
-  PagesView(this.chapter, this.addresses, this.currentPage, this.handleNext,
-      this.handlePrev,
-      {this.scrollController, this.waiting = false});
+  PagesView(
+    this.chapter,
+    this.addresses,
+    this.currentPage,
+    this.handleNext,
+    this.handlePrev, {
+    this.scrollController,
+    this.waiting = false,
+    this.leftHandMode = false,
+  });
 
   final models.Chapter chapter;
   final List<String> addresses;
@@ -33,6 +42,7 @@ class PagesView extends StatelessWidget {
   final void Function(int) handlePrev;
   final ScrollController scrollController;
   final bool waiting;
+  final bool leftHandMode;
 
   bool isLoading() {
     return (addresses == null || addresses.length == 0 || waiting);
@@ -99,13 +109,21 @@ class PagesView extends StatelessWidget {
 
   void _handleTapUp(TapUpDetails details, BuildContext context) {
     if (isLoading()) return;
-    var centerLocation = MediaQuery.of(context).size.width / 2;
+    var centerLocation = MediaQuery.of(context).size.width / 2; // 取屏幕的一半长度
     var x = details.globalPosition.dx;
 
     if (centerLocation > x) {
-      handlePrev(currentPage);
+      // 左屏幕（默认上一页，左手模式相反）
+      if (leftHandMode)
+        handleNext(currentPage);
+      else
+        handlePrev(currentPage);
     } else {
-      handleNext(currentPage);
+      // 右屏幕（默认下一页，左手模式相反）
+      if (leftHandMode)
+        handlePrev(currentPage);
+      else
+        handleNext(currentPage);
     }
   }
 
@@ -164,6 +182,7 @@ class _MainViewState extends State<_MainView> {
   var _currentPage = 0;
   var _addresses = <String>[];
   bool _waiting = false;
+  bool _leftHandMode = false;
   models.Chapter _chapter;
   models.PageIterator _pageInterator;
 
@@ -173,7 +192,15 @@ class _MainViewState extends State<_MainView> {
   void initState() {
     // 创建页面迭代器
     createPageInterator();
+    fetchLeftHandMode();
     super.initState();
+  }
+
+  // 加载左手模式设置
+  void fetchLeftHandMode() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var leftHandMode = prefs.getBool(leftHandModeKey);
+    setState(() => _leftHandMode = leftHandMode);
   }
 
   @override
@@ -296,8 +323,16 @@ class _MainViewState extends State<_MainView> {
 
   @override
   Widget build(BuildContext context) {
-    return PagesView(_chapter, _addresses, _currentPage, handleNext, handlePrev,
-        scrollController: pageScrollController, waiting: _waiting);
+    return PagesView(
+      _chapter,
+      _addresses,
+      _currentPage,
+      handleNext,
+      handlePrev,
+      scrollController: pageScrollController,
+      waiting: _waiting,
+      leftHandMode: _leftHandMode,
+    );
   }
 }
 

@@ -4,15 +4,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../pages/base_page.dart';
 import '../main.dart' show startPages;
 
-const _settingsItemSpacing = 14.0;
+const _settingsItemSpacing = 16.0;
 const _settingsPadding = 18.0;
+const _settingsItemTrailingSize = 20.0;
 
 class _SettingItem extends StatelessWidget {
-  _SettingItem(this.title, {this.subtitle, this.onTap});
+  _SettingItem(this.title, {this.subtitle, this.onTap, this.trailing});
 
   final String title;
   final String subtitle;
   final void Function() onTap;
+  final Widget trailing;
 
   static final titleStyle = TextStyle(
     fontSize: 15.0,
@@ -26,7 +28,13 @@ class _SettingItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [Text(title, style: titleStyle)];
+    List<Widget> mainRowChildren = [
+      Expanded(
+        child: Text(title, style: titleStyle),
+      )
+    ];
+    if (trailing != null) mainRowChildren.add(trailing);
+    List<Widget> children = [Row(children: mainRowChildren)];
     if (subtitle != null) {
       children.add(SizedBox(height: 4));
       children.add(Text(subtitle, style: subtitleStyle));
@@ -36,7 +44,7 @@ class _SettingItem extends StatelessWidget {
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.grey[100])),
+          border: Border(bottom: BorderSide(color: Colors.grey[300])),
         ),
         padding: EdgeInsets.only(
           top: _settingsItemSpacing,
@@ -93,6 +101,7 @@ class _SettingItemGroup extends StatelessWidget {
 }
 
 const startPageKey = 'start_page';
+const leftHandModeKey = 'left_mode';
 
 class _SettingsView extends StatefulWidget {
   @override
@@ -109,16 +118,26 @@ class _SettingsState extends State<_SettingsView> {
   @override
   void initState() {
     fetchSelectedPage();
+    fetchLeftHandMode();
     super.initState();
   }
 
   var _selectedPage = 'default';
+  var _leftHandMode = false;
 
   void fetchSelectedPage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       var selected = prefs.getString(startPageKey);
       if (selected != null) _selectedPage = selected;
+    });
+  }
+
+  void fetchLeftHandMode() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      var enabled = prefs.getBool(leftHandModeKey);
+      if (enabled != null) _leftHandMode = enabled;
     });
   }
 
@@ -139,6 +158,12 @@ class _SettingsState extends State<_SettingsView> {
     );
   }
 
+  void _handleLeftHandMode() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(leftHandModeKey, !_leftHandMode);
+    setState(() => _leftHandMode = !_leftHandMode);
+  }
+
   Widget _buildContentView() {
     return Column(
       children: [
@@ -154,7 +179,16 @@ class _SettingsState extends State<_SettingsView> {
                 builder: (_) => _buildStartPageDialog(),
               ),
             ),
-            _SettingItem('左手翻页模式', subtitle: '反转默认翻页的操作方向'),
+            _SettingItem(
+              '左手翻页模式',
+              subtitle: '反转默认翻页的操作方向',
+              trailing: _leftHandMode
+                  ? Icon(Icons.check_box,
+                      color: primaryColor, size: _settingsItemTrailingSize)
+                  : Icon(Icons.check_box_outline_blank,
+                      size: _settingsItemTrailingSize),
+              onTap: _handleLeftHandMode,
+            ),
             _SettingItem('允许 NSFW 内容', subtitle: '允许显示不宜工作场合公开的资源（可能包含成人内容）'),
           ],
         ),
