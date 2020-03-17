@@ -200,6 +200,7 @@ class _MainViewState extends State<_MainView> {
   void fetchLeftHandMode() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var leftHandMode = prefs.getBool(leftHandModeKey);
+    if (leftHandMode == null) leftHandMode = false;
     setState(() => _leftHandMode = leftHandMode);
   }
 

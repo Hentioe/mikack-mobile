@@ -115,6 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void fetchAllowNsfw() async {
     var prefs = await SharedPreferences.getInstance();
     var isAllow = prefs.getBool(allowNsfwKey);
+    if (isAllow == null) isAllow = false;
     allowNsfw = isAllow;
     if (isAllow) {
       // 如果启用，则排除并重写载入
