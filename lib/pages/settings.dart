@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_dialogs/easy_dialogs.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mikack_mobile/store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../pages/base_page.dart';
@@ -140,12 +141,16 @@ class _SettingsState extends State<_SettingsView> {
     fetchSelectedPage();
     fetchLeftHandMode();
     fetchAllowNsfw();
+    fetchHistoriesTotal();
+    fetchFavoritesTotal();
     super.initState();
   }
 
   var _selectedPage = 'default';
   var _leftHandMode = false;
   var _allowNsfw = false;
+  var _historitesTotal = 0;
+  var _favoritesTotal = 0;
 
   void fetchSelectedPage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -210,6 +215,28 @@ class _SettingsState extends State<_SettingsView> {
     }
   }
 
+  void fetchHistoriesTotal() async {
+    var total = await getHistoriesTotal();
+    setState(() => _historitesTotal = total);
+  }
+
+  void _handleHistoriesClean() async {
+    await deleteAllHistories();
+    fetchHistoriesTotal();
+    Fluttertoast.showToast(msg: '历史记录已清空');
+  }
+
+  void fetchFavoritesTotal() async {
+    var total = await getFavoritesTotal();
+    setState(() => _favoritesTotal = total);
+  }
+
+  void _handleFavoritesClean() async {
+    await deleteAllFavorites();
+    fetchFavoritesTotal();
+    Fluttertoast.showToast(msg: '书架已清空');
+  }
+
   Widget _buildContentView() {
     return Column(
       children: [
@@ -244,8 +271,15 @@ class _SettingsState extends State<_SettingsView> {
           '数据清理',
           children: [
             _SettingItem('清空图片缓存'),
-            _SettingItem('清空阅读历史'),
-            _SettingItem('清空书架图书'),
+            _SettingItem('清空阅读历史',
+                subtitle: _historitesTotal > 0
+                    ? '存在 $_historitesTotal 条阅读记录'
+                    : '没有阅读记录',
+                onTap: () => _handleHistoriesClean()),
+            _SettingItem('清空书架图书',
+                subtitle:
+                    _favoritesTotal > 0 ? '上架 $_favoritesTotal 本图书' : '书架是空的',
+                onTap: () => _handleFavoritesClean()),
           ],
         ),
         SizedBox(height: _settingsItemSpacing),

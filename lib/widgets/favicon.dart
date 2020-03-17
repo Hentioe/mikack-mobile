@@ -20,11 +20,12 @@ class Favicon extends StatelessWidget {
       );
     } else {
       return Container(
-        color: Colors.grey[500],
+        color: Colors.orange,
         width: size,
         height: size,
         child: Center(
-          child: Text(platform.name[0], style: TextStyle(color: Colors.white)),
+          child: Text(platform.name[0],
+              style: TextStyle(color: Colors.white, fontSize: 18)),
         ),
       );
     }

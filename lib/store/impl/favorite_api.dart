@@ -1,4 +1,5 @@
 import 'package:mikack_mobile/fragments/bookshelf.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../../store.dart';
 import '../models.dart';
@@ -64,4 +65,16 @@ Future<void> deleteFavorite({int id, String address}) async {
     where: cond.item1,
     whereArgs: cond.item2,
   );
+}
+
+Future<void> deleteAllFavorites() async {
+  final db = await database();
+  await db.delete(Favorite.tableName);
+}
+
+Future<int> getFavoritesTotal() async {
+  final db = await database();
+
+  return Sqflite.firstIntValue(
+      await db.rawQuery('SELECT COUNT(*) FROM ${Favorite.tableName}'));
 }

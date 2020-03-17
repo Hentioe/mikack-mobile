@@ -65,7 +65,7 @@ class BooksView extends StatelessWidget {
 }
 
 class MainView extends StatefulWidget {
-  MainView({this.sortBy}) : super(key: ObjectKey(sortBy));
+  MainView({this.sortBy}) : super(key: UniqueKey());
 
   final BookshelfSortBy sortBy;
 

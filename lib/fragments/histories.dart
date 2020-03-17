@@ -108,6 +108,8 @@ class HistoriesView extends StatelessWidget {
 }
 
 class MainView extends StatefulWidget {
+  MainView() : super(key: UniqueKey());
+
   @override
   State<StatefulWidget> createState() => _MainViewState();
 }
