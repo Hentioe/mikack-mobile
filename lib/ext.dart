@@ -1,4 +1,5 @@
 import 'package:mikack/models.dart';
+import 'package:mikack_mobile/widgets/comics_view.dart';
 import 'store.dart';
 
 extension PlatformExt on Platform {
@@ -16,8 +17,20 @@ extension PlatformExt on Platform {
   }
 }
 
-extension FavoritesToComics on List<Favorite> {
+extension FavoritesExt on List<Favorite> {
   List<Comic> toComicList() {
     return this.map((f) => f.toComic()).toList();
+  }
+}
+
+extension ComicsExt on List<Comic> {
+  List<ComicViewItem> toViewItems() {
+    return this.map((c) => c.toViewItem()).toList();
+  }
+}
+
+extension ComicExt on Comic {
+  ComicViewItem toViewItem({Platform platform}) {
+    return ComicViewItem(this, platfrom: platform);
   }
 }

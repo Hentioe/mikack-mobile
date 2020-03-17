@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 import '../widgets/comics_view.dart';
+import 'package:mikack_mobile/ext.dart';
 
 class BooksView extends StatelessWidget {
   BooksView(this.comics);
@@ -15,7 +16,7 @@ class BooksView extends StatelessWidget {
             style: TextStyle(fontSize: 18, color: Colors.grey[400])),
       );
     return Scrollbar(
-      child: ComicsView(comics),
+      child: ComicsView(comics.toViewItems()),
     );
   }
 }

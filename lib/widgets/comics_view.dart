@@ -1,21 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:mikack_mobile/widgets/favicon.dart';
 
 const viewListCoverHeight = double.infinity;
 const viewListCoverWidth = 50.0;
 const listCoverRadius = 4.0;
 
+class ComicViewItem {
+  final models.Comic comic;
+  final models.Platform platfrom;
+
+  ComicViewItem(
+    this.comic, {
+    this.platfrom,
+  });
+}
+
 class ComicsView extends StatelessWidget {
   ComicsView(
-    this.comics, {
+    this.items, {
     this.isViewList = false,
+    this.showPlatform = false,
     this.onTap,
     this.onLongPress,
     this.scrollController,
   });
 
+  final List<ComicViewItem> items;
   final bool isViewList;
-  final List<models.Comic> comics;
+  final bool showPlatform;
   final Function(models.Comic) onTap;
   final Function(models.Comic) onLongPress;
   final ScrollController scrollController;
@@ -26,21 +39,21 @@ class ComicsView extends StatelessWidget {
 
   // 列表显示
   Widget _buildViewList() {
-    var children = comics
-        .map((c) => Card(
+    var children = items
+        .map((item) => Card(
               shape: viewListShape,
               child: ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Image.network(c.cover,
-                    headers: c.headers,
+                leading: Image.network(item.comic.cover,
+                    headers: item.comic.headers,
                     fit: BoxFit.cover,
                     height: viewListCoverHeight,
                     width: viewListCoverWidth),
-                title: Text(c.title,
+                title: Text(item.comic.title,
                     style: TextStyle(color: Colors.black),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
-                onTap: () => onTap(c),
+                onTap: () => onTap(item.comic),
               ),
             ))
         .toList();
@@ -51,19 +64,34 @@ class ComicsView extends StatelessWidget {
   }
 
   // 网格显示
-  Widget _buildGridView() {
+  Widget _buildGridView(BuildContext context) {
+    var attachItems = <Widget Function(ComicViewItem)>[];
+    if (showPlatform)
+      attachItems.add(
+        (item) => Positioned(
+          right: 4,
+          top: 4,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(11),
+            child: Container(
+              color: Colors.white.withOpacity(0.7),
+              child: Favicon(item.platfrom, size: 22),
+            ),
+          ),
+        ),
+      );
     return GridView.count(
       crossAxisCount: 2,
-      children: List.generate(comics.length, (index) {
+      children: List.generate(items.length, (index) {
         return Card(
           child: Stack(
             fit: StackFit.expand,
             children: [
               // 图片
               Image.network(
-                comics[index].cover,
+                items[index].comic.cover,
                 fit: BoxFit.cover,
-                headers: comics[index].headers,
+                headers: items[index].comic.headers,
               ),
               // 文字
               Positioned(
@@ -82,21 +110,24 @@ class ComicsView extends StatelessWidget {
                         Colors.transparent,
                       ])),
                   child: Center(
-                    child: Text(comics[index].title,
+                    child: Text(items[index].comic.title,
                         style: TextStyle(color: Colors.white),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis),
                   ),
                 ),
               ),
+              ...attachItems.map((builder) => builder(items[index])).toList(),
               // 点击事件和效果
               Positioned.fill(
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: () => onTap == null ? null : onTap(comics[index]),
-                    onLongPress: () =>
-                        onLongPress == null ? null : onLongPress(comics[index]),
+                    onTap: () =>
+                        onTap == null ? null : onTap(items[index].comic),
+                    onLongPress: () => onLongPress == null
+                        ? null
+                        : onLongPress(items[index].comic),
                   ),
                 ),
               ),
@@ -110,6 +141,6 @@ class ComicsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return isViewList ? _buildViewList() : _buildGridView();
+    return isViewList ? _buildViewList() : _buildGridView(context);
   }
 }

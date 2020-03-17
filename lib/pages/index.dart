@@ -64,7 +64,7 @@ class _IndexViewState extends State<IndexesView> {
       return loadingView;
     else {
       Widget comicsView = ComicsView(
-        widget.comics,
+        widget.comics.toViewItems(),
         isViewList: widget.isViewList,
         onTap: (comic) => _openComicPage(context, comic),
         scrollController: widget.scrollController,

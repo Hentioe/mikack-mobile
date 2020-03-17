@@ -46,7 +46,7 @@ class BooksView extends StatelessWidget {
   });
 
   final void Function(models.Comic) handleCancelFavorite;
-  final List<models.Comic> comics;
+  final List<ComicViewItem> comics;
   final Function(models.Comic) handleOpen;
 
   @override
@@ -59,7 +59,7 @@ class BooksView extends StatelessWidget {
         ),
       );
     return Scrollbar(
-      child: ComicsView(comics, onTap: handleOpen),
+      child: ComicsView(comics, showPlatform: true, onTap: handleOpen),
     );
   }
 }
@@ -99,13 +99,13 @@ class _MainViewState extends State<MainView> {
     });
   }
 
-  List<models.Comic> comicsAttachHeaders() {
+  List<ComicViewItem> makeViewItems() {
     return _favorites.map((f) {
       var comic = f.toComic();
       var platform =
           platformList.firstWhere((p) => p.domain == f.source.domain);
       comic.headers = platform.buildBaseHeaders();
-      return comic;
+      return comic.toViewItem(platform: platform);
     }).toList();
   }
 
@@ -135,7 +135,7 @@ class _MainViewState extends State<MainView> {
   @override
   Widget build(BuildContext context) {
     return BooksView(
-      comicsAttachHeaders(),
+      makeViewItems(),
       handleCancelFavorite: _handleCancelFavorite,
       handleOpen: _openComicPage,
     );
