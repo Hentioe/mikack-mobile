@@ -59,12 +59,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 const headerLogoSize = 65.0;
+const nsfwTagValue = 3;
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedDrawerIndex = 0;
   List<DrawerItem> _drawerItems = [];
-  List<int> _includeTags = [];
-  List<int> _excludesTags = [];
+  List<int> includeTags = [];
+  bool allowNsfw = false;
+  List<int> excludesTags = [nsfwTagValue];
   List<models.Platform> _platforms = [];
   BookshelfSortBy _bookshelfSortBy = BookshelfSortBy.readAt;
 
@@ -73,6 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
     fetchLockedDrawerIndex();
     fetchPlatforms();
     fetchBookshelfSortBy();
+    fetchAllowNsfw();
     super.initState();
   }
 
@@ -95,8 +98,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void fetchPlatforms() async {
     setState(() {
       _platforms = findPlatforms(
-        _includeTags.map((v) => models.Tag(v, '')).toList(),
-        _excludesTags.map((v) => models.Tag(v, '')).toList(),
+        includeTags.map((v) => models.Tag(v, '')).toList(),
+        excludesTags.map((v) => models.Tag(v, '')).toList(),
       );
     });
   }
@@ -106,6 +109,27 @@ class _MyHomePageState extends State<MyHomePage> {
     var sortBy = parseBookshelfSortBy(prefs.getString(bookshelfSoryByKey));
     if (sortBy != _bookshelfSortBy) {
       setState(() => _bookshelfSortBy = sortBy);
+    }
+  }
+
+  void fetchAllowNsfw() async {
+    var prefs = await SharedPreferences.getInstance();
+    var isAllow = prefs.getBool(allowNsfwKey);
+    allowNsfw = isAllow;
+    if (isAllow) {
+      // 如果启用，则排除并重写载入
+      if (excludesTags.contains(nsfwTagValue)) {
+        excludesTags.remove(nsfwTagValue);
+        fetchPlatforms();
+      }
+    } else {
+      // 没启用，添加排除标签并删除包含标签
+      if (!excludesTags.contains(nsfwTagValue)) {
+        excludesTags.add(nsfwTagValue);
+        if (includeTags.contains(nsfwTagValue))
+          includeTags.remove(nsfwTagValue);
+        fetchPlatforms();
+      }
     }
   }
 
@@ -133,14 +157,17 @@ class _MyHomePageState extends State<MyHomePage> {
     var fragment = _drawerItems[_selectedDrawerIndex].fragment;
     if (fragment is LibrariesFragment) {
       fragment
-          .openFilter(context, includes: _includeTags, excludes: _excludesTags)
+          .openFilter(context,
+              includes: includeTags,
+              excludes: excludesTags,
+              allowNsfw: allowNsfw)
           .then((filters) {
         var includes = filters.item1;
         var excludes = filters.item2;
 
         setState(() {
-          _includeTags = includes;
-          _excludesTags = excludes;
+          includeTags = includes;
+          excludesTags = excludes;
         });
         fetchPlatforms();
       });
@@ -231,7 +258,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => SettingsPage()),
-              ),
+              ).then((_) => fetchAllowNsfw()), // 设置页面返回后刷新可能变更的数据
             ),
           ],
         ),

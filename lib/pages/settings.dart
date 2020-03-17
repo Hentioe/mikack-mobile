@@ -22,7 +22,7 @@ class _SettingItem extends StatelessWidget {
   );
 
   static final subtitleStyle = TextStyle(
-    fontSize: 12.0,
+    fontSize: 13.0,
     color: Colors.grey[700],
   );
 

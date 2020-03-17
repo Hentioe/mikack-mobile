@@ -6,8 +6,10 @@ import 'package:tuple/tuple.dart';
 import '../pages/detail.dart';
 import '../pages/index.dart';
 import '../widgets/tag.dart';
-import '../main.dart' show platformList;
+import '../main.dart' show platformList, nsfwTagValue;
 import '../widgets/favicon.dart';
+
+const allowNsfwHint = '未设置允许 NSFW 内容';
 
 class LibrariesFragment extends StatelessWidget {
   LibrariesFragment(this.platforms);
@@ -46,6 +48,7 @@ class LibrariesFragment extends StatelessWidget {
     BuildContext context, {
     List<int> includes = const [],
     List<int> excludes = const [],
+    allowNsfw = false,
   }) {
     var completer = Completer<Tuple2<List<int>, List<int>>>();
     var tagModels = tags();
@@ -55,6 +58,8 @@ class LibrariesFragment extends StatelessWidget {
               t.name,
               stateful: true,
               selected: includes.contains(t.value),
+              stateFixed: !allowNsfw && t.value == nsfwTagValue,
+              stateFixedReason: allowNsfwHint,
               onTap: (value, selected) =>
                   selected ? includes.add(value) : includes.remove(value),
             ))
@@ -65,6 +70,8 @@ class LibrariesFragment extends StatelessWidget {
               t.name,
               stateful: true,
               selected: excludes.contains(t.value),
+              stateFixed: !allowNsfw && t.value == nsfwTagValue,
+              stateFixedReason: allowNsfwHint,
               onTap: (value, selected) =>
                   selected ? excludes.add(value) : excludes.remove(value),
             ))

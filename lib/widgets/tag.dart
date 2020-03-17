@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 const defaultSelectedTagColor = Colors.blueAccent;
 const defaultTagPadding =
     EdgeInsets.only(left: 10, right: 10, top: 0.5, bottom: 0.5);
+const defaultFixedStateTagReason = '标签状态被锁定，不可更改';
 
 class _Tag extends StatefulWidget {
   _Tag(
@@ -11,6 +13,8 @@ class _Tag extends StatefulWidget {
     this.text, {
     this.selected,
     this.stateful,
+    this.stateFixed,
+    this.stateFixedReason,
     this.onTap,
   });
 
@@ -18,6 +22,8 @@ class _Tag extends StatefulWidget {
   final String text;
   final bool selected;
   final bool stateful;
+  final bool stateFixed;
+  final String stateFixedReason;
   final void Function(int, bool) onTap;
 
   @override
@@ -33,14 +39,25 @@ class _TagState extends State<_Tag> {
   }
 
   void handleTap(int value) {
-    if (widget.stateful)
-      setState(() {
-        if (_selected == null)
-          _selected = !widget.selected;
-        else
-          _selected = !_selected;
-      });
-    if (widget.onTap != null) widget.onTap(value, _selected || false);
+    if (widget.stateful) {
+      if (widget.stateFixed) {
+        if (_selected == null) _selected = widget.selected;
+        Fluttertoast.showToast(
+          msg: widget.stateFixedReason != null
+              ? widget.stateFixedReason
+              : defaultFixedStateTagReason,
+        );
+      } else {
+        setState(() {
+          if (_selected == null)
+            _selected = !widget.selected;
+          else
+            _selected = !_selected;
+        });
+      }
+    }
+    if (widget.onTap != null && !widget.stateFixed)
+      widget.onTap(value, _selected);
   }
 
   @override
@@ -79,6 +96,8 @@ class Tag extends StatelessWidget {
     this.text, {
     this.selected = false,
     this.stateful = false,
+    this.stateFixed = false,
+    this.stateFixedReason,
     this.onTap,
   });
 
@@ -86,6 +105,8 @@ class Tag extends StatelessWidget {
   final String text;
   final bool selected;
   final bool stateful;
+  final bool stateFixed;
+  final String stateFixedReason;
   final void Function(int, bool) onTap;
 
   @override
@@ -94,6 +115,8 @@ class Tag extends StatelessWidget {
         text,
         selected: selected,
         stateful: stateful,
+        stateFixed: stateFixed,
+        stateFixedReason: stateFixedReason,
         onTap: onTap,
       );
 }
