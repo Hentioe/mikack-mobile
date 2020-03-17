@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:easy_dialogs/easy_dialogs.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../pages/base_page.dart';
 import '../main.dart' show startPages;
 
 const _settingsItemSpacing = 16.0;
 const _settingsPadding = 18.0;
 const _settingsItemTrailingSize = 20.0;
+
+const settingsRepoUrl = 'https://github.com/Hentioe/mikack-mobile';
+const settingsGroupUrl = 'https://t.me/mikack';
 
 class _SettingItem extends StatelessWidget {
   _SettingItem(this.title, {this.subtitle, this.onTap, this.trailing});
@@ -195,6 +200,16 @@ class _SettingsState extends State<_SettingsView> {
     setState(() => _allowNsfw = !_allowNsfw);
   }
 
+  void launchUrl(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      Fluttertoast.showToast(
+        msg: '无法自动打开链接，手动试试看？',
+      );
+    }
+  }
+
   Widget _buildContentView() {
     return Column(
       children: [
@@ -237,12 +252,21 @@ class _SettingsState extends State<_SettingsView> {
         _SettingItemGroup(
           '掌握动态',
           children: [
-            _SettingItem('关注作者', subtitle: 'Hentioe (绅士喵)'),
+            _SettingItem(
+              '关注作者',
+              subtitle: 'Hentioe (绅士喵)',
+              onTap: () => launchUrl('https://bluerain.io'),
+            ),
             _SettingItem(
               '项目仓库',
-              subtitle: 'https://github.com/Hentioe/mikack-mobile',
+              subtitle: settingsRepoUrl.replaceFirst('https://', ''),
+              onTap: () => launchUrl(settingsRepoUrl),
             ),
-            _SettingItem('加入群组', subtitle: 'https://t.me/mikack'),
+            _SettingItem(
+              '加入群组',
+              subtitle: settingsGroupUrl.replaceFirst('https://', ''),
+              onTap: () => launchUrl(settingsGroupUrl),
+            ),
           ],
         ),
         SizedBox(height: _settingsItemSpacing),
