@@ -231,10 +231,33 @@ class _SettingsState extends State<_SettingsView> {
     setState(() => _favoritesTotal = total);
   }
 
-  void _handleFavoritesClean() async {
+  void cleanFavorites() async {
     await deleteAllFavorites();
     fetchFavoritesTotal();
     Fluttertoast.showToast(msg: '书架已清空');
+  }
+
+  void _handleFavoritesClean() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('清空书架'),
+        content: Text('书架收藏可能是比较重要的资源，您确定要清空吗？'),
+        actions: [
+          FlatButton(
+            child: Text("取消"),
+            onPressed: () => Navigator.of(context).pop(), //关闭对话框
+          ),
+          FlatButton(
+            child: Text("确认"),
+            onPressed: () {
+              cleanFavorites();
+              Navigator.of(context).pop(true); //关闭对话框
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildContentView() {
