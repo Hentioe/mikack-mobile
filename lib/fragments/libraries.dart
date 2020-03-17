@@ -6,8 +6,8 @@ import 'package:tuple/tuple.dart';
 import '../pages/detail.dart';
 import '../pages/index.dart';
 import '../widgets/tag.dart';
-import '../ext.dart';
 import '../main.dart' show platformList;
+import '../widgets/favicon.dart';
 
 class LibrariesFragment extends StatelessWidget {
   LibrariesFragment(this.platforms);
@@ -24,14 +24,7 @@ class LibrariesFragment extends StatelessWidget {
               child: ListTile(
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
-                  child: Image.network(
-                    p.favicon == null ? '' : p.favicon,
-                    width: 30,
-                    height: 30,
-                    fit: BoxFit.fill,
-                    headers: p.buildBaseHeaders(),
-                    filterQuality: FilterQuality.none,
-                  ),
+                  child: Favicon(p, size: 30),
                 ),
                 title: Text(p.name),
                 trailing: OutlineButton(

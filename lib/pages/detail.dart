@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/pages/base_page.dart';
+import 'package:mikack_mobile/widgets/favicon.dart';
 import 'package:mikack_mobile/widgets/text_hint.dart';
 import '../widgets/tag.dart';
-import '../ext.dart';
 
 class FeatureStatus extends StatelessWidget {
   FeatureStatus(this.name, this.description, this.isSupport);
@@ -62,14 +62,7 @@ class DetailPage extends BasePage {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       // 平台图标
-                      Image.network(
-                        platform.favicon == null ? '' : platform.favicon,
-                        fit: BoxFit.fill,
-                        width: 60,
-                        height: 60,
-                        headers: platform.buildBaseHeaders(),
-                        filterQuality: FilterQuality.none,
-                      ),
+                      Favicon(platform, size: 60),
                       // 平台元数据
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
