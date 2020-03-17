@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:tuple/tuple.dart';
@@ -93,7 +94,8 @@ class LibrariesFragment extends StatelessWidget {
             },
           ),
         ],
-        content: Stack(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             // 标签过滤
             Column(
@@ -124,15 +126,10 @@ class LibrariesFragment extends StatelessWidget {
                 ),
               ],
             ),
-            // 备注
-            Positioned(
-              bottom: 0,
-              right: 0,
-              left: 0,
-              child: Center(
-                child: Text('注意，一个平台可能存在多个标签',
-                    style: TextStyle(fontSize: 12.5, color: Colors.grey[500])),
-              ),
+            SizedBox(height: 25),
+            Center(
+              child: Text('部分平台可能存在多个标签',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[400])),
             )
           ],
         ),
