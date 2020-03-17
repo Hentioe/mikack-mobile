@@ -69,15 +69,9 @@ class ComicsView extends StatelessWidget {
     if (showPlatform)
       attachItems.add(
         (item) => Positioned(
-          right: 4,
-          top: 4,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(11),
-            child: Container(
-              color: Colors.white.withOpacity(0.7),
-              child: Favicon(item.platfrom, size: 22),
-            ),
-          ),
+          right: 0,
+          top: 0,
+          child: Favicon(item.platfrom, size: 22),
         ),
       );
     return GridView.count(

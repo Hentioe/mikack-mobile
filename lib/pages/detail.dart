@@ -73,8 +73,10 @@ class DetailPage extends BasePage {
                                   TextStyle(color: Colors.black, fontSize: 16)),
                           SizedBox(height: 2),
                           Text(platform.domain,
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 13)),
+                              style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 13,
+                                  fontFamily: 'Monospace')),
                           SizedBox(height: 10),
                           Wrap(
                             spacing: 5,
