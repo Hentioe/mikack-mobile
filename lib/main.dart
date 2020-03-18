@@ -192,11 +192,13 @@ class _MyHomePageState extends State<MyHomePage> {
       itemBuilder: (BuildContext context) => [
         CheckedPopupMenuItem(
           checked: _bookshelfSortBy == BookshelfSortBy.readAt,
+          enabled: _bookshelfSortBy != BookshelfSortBy.readAt,
           value: BookshelfSortBy.readAt,
           child: Text('上次阅读时间'),
         ),
         CheckedPopupMenuItem(
           checked: _bookshelfSortBy == BookshelfSortBy.insertedAt,
+          enabled: _bookshelfSortBy != BookshelfSortBy.insertedAt,
           value: BookshelfSortBy.insertedAt,
           child: Text('最初添加时间'),
         ),
