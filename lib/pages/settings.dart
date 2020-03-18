@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_dialogs/easy_dialogs.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mikack_mobile/pages/term.dart';
 import 'package:mikack_mobile/store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -331,7 +332,11 @@ class _SettingsState extends State<_SettingsView> {
           '关于',
           children: [
             _SettingItem('检查更新'),
-            _SettingItem('使用条款'),
+            _SettingItem(
+              '使用条款',
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => TermPage(readOnly: true))),
+            ),
           ],
         ),
         SizedBox(height: 30),

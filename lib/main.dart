@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:mikack_mobile/pages/term.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'fragments/libraries.dart';
@@ -76,7 +77,16 @@ class _MyHomePageState extends State<MyHomePage> {
     fetchPlatforms();
     fetchBookshelfSortBy();
     fetchAllowNsfw();
+    checkPermAcceped();
     super.initState();
+  }
+
+  void checkPermAcceped() async {
+    var prefs = await SharedPreferences.getInstance();
+    var versionStr = prefs.getString(accpetPermVersionKey);
+    if (versionStr == null)
+      Navigator.push(context,
+          MaterialPageRoute(builder: (_) => TermPage(readOnly: false)));
   }
 
   void fetchLockedDrawerIndex() async {
