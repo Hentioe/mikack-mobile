@@ -65,15 +65,12 @@ class ComicsView extends StatelessWidget {
 
   // 网格显示
   Widget _buildGridView(BuildContext context) {
-    var attachItems = <Widget Function(ComicViewItem)>[];
+    var favicon = <Widget Function(ComicViewItem)>[];
     if (showPlatform)
-      attachItems.add(
-        (item) => Positioned(
-          right: 0,
-          top: 0,
-          child: Favicon(item.platfrom, size: 22),
-        ),
-      );
+      favicon.addAll([
+        (item) => Favicon(item.platfrom, size: 10),
+        (_) => SizedBox(width: 4),
+      ]);
     return GridView.count(
       crossAxisCount: 2,
       children: List.generate(items.length, (index) {
@@ -104,14 +101,22 @@ class ComicsView extends StatelessWidget {
                         Colors.transparent,
                       ])),
                   child: Center(
-                    child: Text(items[index].comic.title,
-                        style: TextStyle(color: Colors.white),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        ...favicon
+                            .map((builder) => builder(items[index]))
+                            .toList(),
+                        Text(items[index].comic.title,
+                            style: TextStyle(color: Colors.white),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis)
+                      ],
+                    ),
                   ),
                 ),
               ),
-              ...attachItems.map((builder) => builder(items[index])).toList(),
               // 点击事件和效果
               Positioned.fill(
                 child: Material(
