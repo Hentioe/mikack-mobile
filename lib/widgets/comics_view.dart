@@ -68,7 +68,7 @@ class ComicsView extends StatelessWidget {
     var favicon = <Widget Function(ComicViewItem)>[];
     if (showPlatform)
       favicon.addAll([
-        (item) => Favicon(item.platfrom, size: 10),
+        (item) => Favicon(item.platfrom, size: 12),
         (_) => SizedBox(width: 4),
       ]);
     return GridView.count(
