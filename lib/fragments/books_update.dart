@@ -1,33 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:mikack/models.dart' as models;
+import 'package:mikack_mobile/widgets/text_hint.dart';
 import '../widgets/comics_view.dart';
-import 'package:mikack_mobile/ext.dart';
 
 class BooksView extends StatelessWidget {
-  BooksView(this.comics);
+  BooksView(this.comicViewItems);
 
-  final List<models.Comic> comics;
+  final List<ComicViewItem> comicViewItems;
 
   @override
   Widget build(BuildContext context) {
-    if (comics.length == 0)
-      return Center(
-        child: Text('暂未发现更新',
-            style: TextStyle(fontSize: 18, color: Colors.grey[400])),
-      );
+    if (comicViewItems.length == 0)
+      return LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+        return ListView(
+          children: <Widget>[
+            Container(
+              child: Center(
+                child: TextHint('下拉检查更新'),
+              ),
+              height: constraints.maxHeight,
+            ),
+          ],
+        );
+      });
     return Scrollbar(
-      child: ComicsView(comics.toViewItems()),
+      child: ComicsView(comicViewItems),
     );
   }
 }
 
-class MainView extends StatefulWidget {
+class _BooksUpdateFragment extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _MainViewState();
+  State<StatefulWidget> createState() => _BooksUpdateFragmentState();
 }
 
-class _MainViewState extends State<MainView> {
-  List<models.Comic> _comics = [];
+class _BooksUpdateFragmentState extends State<_BooksUpdateFragment> {
+  List<ComicViewItem> _comicViewItems = [];
 
   @override
   void initState() {
@@ -35,15 +43,24 @@ class _MainViewState extends State<MainView> {
     super.initState();
   }
 
+  Future<void> _handleRefresh() async {
+    await Future.delayed(Duration(seconds: 2), () {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BooksView(_comics);
+    return RefreshIndicator(
+      child: Stack(
+        children: [Positioned.fill(child: BooksView(_comicViewItems))],
+      ),
+      onRefresh: _handleRefresh,
+    );
   }
 }
 
 class BooksUpdateFragment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MainView();
+    return _BooksUpdateFragment();
   }
 }
