@@ -6,7 +6,7 @@ import 'package:mikack_mobile/widgets/text_hint.dart';
 import '../widgets/tag.dart';
 
 class FeatureStatus extends StatelessWidget {
-  FeatureStatus(this.name, this.description, this.isSupport);
+  FeatureStatus(this.name, this.description, {this.isSupport = false});
 
   final String name;
   final String description;
@@ -14,19 +14,22 @@ class FeatureStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var isSupportNotNull = isSupport;
+    if (isSupportNotNull == null) isSupportNotNull = false;
     return Material(
       color: Colors.white,
       child: InkWell(
         child: Container(
           padding: EdgeInsets.all(10),
-          width: 90,
+          width: 70,
           child: Column(
             children: [
-              Icon(isSupport ? Icons.check : Icons.close,
-                  size: 25, color: isSupport ? Colors.green : Colors.red),
+              Icon(isSupportNotNull ? Icons.check : Icons.close,
+                  size: 25,
+                  color: isSupportNotNull ? Colors.green : Colors.red),
               SizedBox(height: 10),
               Text(name,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -92,12 +95,16 @@ class DetailPage extends BasePage {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      FeatureStatus('基础可用', '可浏览资源图片', platform.isUsable),
-                      FeatureStatus(
-                          '分页支持', '可连续不断的加载资源列表', platform.isPageable),
-                      FeatureStatus('搜索支持', '可搜索站内资源', platform.isSearchable),
-                      FeatureStatus(
-                          '传输安全', '使用 HTTPS 与上游通信', platform.isSearchable),
+                      FeatureStatus('阅读支持', '可浏览资源图片',
+                          isSupport: platform.isUsable),
+                      FeatureStatus('索引分页', '可连续不断的加载资源列表，直到为空',
+                          isSupport: platform.isPageable),
+                      FeatureStatus('搜索支持', '可搜索站内资源',
+                          isSupport: platform.isSearchable),
+                      FeatureStatus('搜索分页', '可连续不断的加载搜索结果，直到为空',
+                          isSupport: platform.isSearchPageable),
+                      FeatureStatus('传输安全', '使用 HTTPS 与上游通信',
+                          isSupport: platform.isSearchable),
                     ],
                   ),
                 ],

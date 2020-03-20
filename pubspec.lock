@@ -93,7 +93,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: c14b30d4c14134ce673f637a2e7bcfc879786407
+      resolved-ref: "95bf82464e2e8e9c282530632021de1d498f29a6"
       url: "git@github.com:Hentioe/mikack-dart.git"
     source: git
     version: "0.0.0"
@@ -164,7 +164,7 @@ packages:
       name: sqflite_common
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.0+1"
   stack_trace:
     dependency: transitive
     description:
