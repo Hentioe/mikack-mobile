@@ -100,20 +100,20 @@ class ComicsView extends StatelessWidget {
                         Color.fromARGB(120, 0, 0, 0),
                         Colors.transparent,
                       ])),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ...favicon
-                            .map((builder) => builder(items[index]))
-                            .toList(),
-                        Text(items[index].comic.title,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ...favicon
+                          .map((builder) => builder(items[index]))
+                          .toList(),
+                      Flexible(
+                        child: Text(items[index].comic.title,
                             style: TextStyle(color: Colors.white),
                             maxLines: 1,
-                            overflow: TextOverflow.ellipsis)
-                      ],
-                    ),
+                            overflow: TextOverflow.ellipsis),
+                      )
+                    ],
                   ),
                 ),
               ),

@@ -109,7 +109,8 @@ class LibrariesFragment extends StatelessWidget {
                 SizedBox(height: 10),
                 Wrap(
                   spacing: 5,
-                  alignment: WrapAlignment.center,
+                  alignment: WrapAlignment.start,
+                  runSpacing: 10,
                   children: includesTags,
                 ),
                 SizedBox(height: 25),
@@ -121,7 +122,8 @@ class LibrariesFragment extends StatelessWidget {
                 SizedBox(height: 10),
                 Wrap(
                   spacing: 5,
-                  alignment: WrapAlignment.center,
+                  alignment: WrapAlignment.start,
+                  runSpacing: 10,
                   children: excludesTags,
                 ),
               ],

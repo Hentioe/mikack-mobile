@@ -60,7 +60,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 const headerLogoSize = 65.0;
-const nsfwTagValue = 3;
+const nsfwTagValue = 4;
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedDrawerIndex = 0;
