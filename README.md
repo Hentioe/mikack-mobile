@@ -1,6 +1,6 @@
 # mikack-mobile
 
-Mikack 是一个跨平台的开源手机漫画阅读器，是 [mikack](https://github.com/Hentioe/mikack) 生态的一部分。
+Mikack 是一个跨平台的开源手机漫画阅读器，是 [mikack](https://github.com/Hentioe/mikack) 生态圈最主要的上层应用之一。
 
 ## 基本说明
 
@@ -11,7 +11,7 @@ Mikack 是一个跨平台的开源手机漫画阅读器，是 [mikack](https://g
 
 ## 当前状态
 
-在未来很长时间内可能都不支持 IOS，但应该不是永久性的。即便是 Android 平台目前也处于开发阶段，会遇到功能不完善或 BUG 导致的体验问题。
+在未来很长时间内可能都不支持 iOS，但应该不是永久性的。即便是 Android 平台目前也处于开发阶段，会遇到功能不完善或 BUG 导致的体验问题。
 
 _待基础功能完善，将会在 Release 页面上传 apk 文件。_
 
