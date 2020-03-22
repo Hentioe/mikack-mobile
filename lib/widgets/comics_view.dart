@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/widgets/favicon.dart';
 
-const viewListCoverHeight = double.infinity;
-const viewListCoverWidth = 50.0;
+// 长:宽大约为 1.3，是常见漫画网站的封面标准
+// 注意：此处的值是宽/长
+const coverRatio = 180 / 240;
+
+const viewListCoverHeight = 56.0;
+const viewListCoverWidth = viewListCoverHeight * coverRatio;
 const listCoverRadius = 4.0;
 
 class ComicViewItem {
@@ -39,23 +43,28 @@ class ComicsView extends StatelessWidget {
 
   // 列表显示
   Widget _buildViewList() {
+    print('$viewListCoverWidth, $viewListCoverHeight');
     var children = items
-        .map((item) => Card(
-              shape: viewListShape,
-              child: ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Image.network(item.comic.cover,
-                    headers: item.comic.headers,
-                    fit: BoxFit.cover,
-                    height: viewListCoverHeight,
-                    width: viewListCoverWidth),
-                title: Text(item.comic.title,
-                    style: TextStyle(color: Colors.black),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
-                onTap: () => onTap(item.comic),
+        .map(
+          (item) => Card(
+            shape: viewListShape,
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Image.network(
+                item.comic.cover,
+                headers: item.comic.headers,
+                fit: BoxFit.cover,
+                width: viewListCoverWidth,
+                height: viewListCoverHeight,
               ),
-            ))
+              title: Text(item.comic.title,
+                  style: TextStyle(color: Colors.black),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
+              onTap: () => onTap(item.comic),
+            ),
+          ),
+        )
         .toList();
     return ListView(
       children: children,
@@ -75,7 +84,7 @@ class ComicsView extends StatelessWidget {
       crossAxisCount: 2,
       mainAxisSpacing: 2,
       crossAxisSpacing: 2,
-      childAspectRatio: 1 / 1.35,
+      childAspectRatio: coverRatio,
       padding: EdgeInsets.all(4),
       children: List.generate(items.length, (index) {
         return Card(

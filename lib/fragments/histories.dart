@@ -3,8 +3,12 @@ import 'package:mikack_mobile/fragments/bookshelf.dart';
 import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:mikack_mobile/store.dart';
+import 'package:mikack_mobile/widgets/comics_view.dart' show coverRatio;
 import '../pages/read.dart';
 import '../ext.dart';
+
+const historiesCoverWitdh = 90.0;
+const historiesCoverHeight = historiesCoverWitdh / coverRatio;
 
 class HistoriesView extends StatelessWidget {
   HistoriesView(this.histories, {this.handleRemove, this.handleContinue});
@@ -38,8 +42,8 @@ class HistoriesView extends StatelessWidget {
                     h.cover,
                     headers: h.headers,
                     fit: BoxFit.cover,
-                    height: 120,
-                    width: 90,
+                    height: historiesCoverHeight,
+                    width: historiesCoverWitdh,
                   ),
                   Expanded(
                     child: Column(
