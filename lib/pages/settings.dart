@@ -300,7 +300,7 @@ class _SettingsState extends State<_SettingsView> {
                     ? '存在 $_historitesTotal 条阅读记录'
                     : '没有阅读记录',
                 onTap: () => _handleHistoriesClean()),
-            _SettingItem('清空书架图书',
+            _SettingItem('清空书架收藏',
                 subtitle:
                     _favoritesTotal > 0 ? '上架 $_favoritesTotal 本图书' : '书架是空的',
                 onTap: () => _handleFavoritesClean()),
@@ -310,11 +310,6 @@ class _SettingsState extends State<_SettingsView> {
         _SettingItemGroup(
           '掌握动态',
           children: [
-            _SettingItem(
-              '关注作者',
-              subtitle: 'Hentioe (绅士喵)',
-              onTap: () => launchUrl('https://bluerain.io'),
-            ),
             _SettingItem(
               '项目仓库',
               subtitle: settingsRepoUrl.replaceFirst('https://', ''),
