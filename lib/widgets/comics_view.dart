@@ -9,6 +9,7 @@ const coverRatio = 180 / 240;
 const viewListCoverHeight = 56.0;
 const viewListCoverWidth = viewListCoverHeight * coverRatio;
 const listCoverRadius = 4.0;
+const comicsViewGridChildSpacing = 4.0;
 
 class ComicViewItem {
   final models.Comic comic;
@@ -77,15 +78,15 @@ class ComicsView extends StatelessWidget {
     var favicon = <Widget Function(ComicViewItem)>[];
     if (showPlatform)
       favicon.addAll([
-        (item) => Favicon(item.platfrom, size: 12),
+        (item) => Favicon(item.platfrom, size: 14),
         (_) => SizedBox(width: 4),
       ]);
     return GridView.count(
       crossAxisCount: 2,
-      mainAxisSpacing: 2,
-      crossAxisSpacing: 2,
+      mainAxisSpacing: comicsViewGridChildSpacing / 2,
+      crossAxisSpacing: comicsViewGridChildSpacing / 2,
       childAspectRatio: coverRatio,
-      padding: EdgeInsets.all(4),
+      padding: EdgeInsets.all(comicsViewGridChildSpacing),
       children: List.generate(items.length, (index) {
         return Card(
           child: Stack(
@@ -121,10 +122,13 @@ class ComicsView extends StatelessWidget {
                           .map((builder) => builder(items[index]))
                           .toList(),
                       Flexible(
-                        child: Text(items[index].comic.title,
-                            style: TextStyle(color: Colors.white),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis),
+                        child: Text(
+                          items[index].comic.title,
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       )
                     ],
                   ),
