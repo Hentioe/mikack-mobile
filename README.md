@@ -7,7 +7,7 @@ Mikack 是一个跨平台的开源手机漫画阅读器，是 [mikack](https://g
 本项目是由 Flutter 框架构建的 Mikack GUI 客户端，主要面向移动设备设计。
 | 书架 | 阅读 | 仓库 |
 |---|---|---|
-| ![1 shodow](https://user-images.githubusercontent.com/13946976/76711570-52a5e280-674c-11ea-99b8-6599c3902016.png) | ![2 shodow](https://user-images.githubusercontent.com/13946976/76711669-d95abf80-674c-11ea-9ca6-6a91850d9055.png) | ![3 shodow](https://user-images.githubusercontent.com/13946976/76711692-04ddaa00-674d-11ea-988d-cf47c66485e4.png) |
+| ![1 shadow](https://user-images.githubusercontent.com/13946976/77247514-f7ed1900-6c6c-11ea-958a-9091349ea776.png) | ![2 shodow](https://user-images.githubusercontent.com/13946976/76711669-d95abf80-674c-11ea-9ca6-6a91850d9055.png) | ![3 shodow](https://user-images.githubusercontent.com/13946976/76711692-04ddaa00-674d-11ea-988d-cf47c66485e4.png) |
 
 ## 当前状态
 
