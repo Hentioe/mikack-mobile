@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:mikack_mobile/store.dart';
@@ -10,17 +12,17 @@ import 'comic/chapters_tab.dart';
 import './read.dart';
 import '../ext.dart';
 
-class _MainPage extends StatefulWidget {
-  _MainPage(this.platform, this.comic);
+class _ComicPage extends StatefulWidget {
+  _ComicPage(this.platform, this.comic);
 
   final models.Platform platform;
   final models.Comic comic;
 
   @override
-  State<StatefulWidget> createState() => _MainPageState();
+  State<StatefulWidget> createState() => _ComicPageState();
 }
 
-class _MainPageState extends State<_MainPage>
+class _ComicPageState extends State<_ComicPage>
     with SingleTickerProviderStateMixin {
   TabController tabController;
   models.Comic _comic;
@@ -94,16 +96,45 @@ class _MainPageState extends State<_MainPage>
     }
   }
 
+  static final moreMenus = {'在浏览器中打开': 1};
+
+  void launchUrl(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      Fluttertoast.showToast(
+        msg: '无法自动打开链接',
+      );
+    }
+  }
+
+  void _handleMenuSelect(value) {
+    switch (value) {
+      case 1:
+        launchUrl(_comic.url);
+        break;
+    }
+  }
+
+  Widget _buildMoreMenu() {
+    return PopupMenuButton<int>(
+      icon: Icon(Icons.more_vert),
+      onSelected: _handleMenuSelect,
+      itemBuilder: (BuildContext context) => moreMenus.entries
+          .map((entry) => PopupMenuItem(
+                value: entry.value,
+                child: Text(entry.key),
+              ))
+          .toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var showFloatActionBtn =
         _comic.chapters != null && _comic.chapters.length == 1;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.keyboard_backspace),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: Text(widget.comic.title),
         bottom: TabBar(
           tabs: const [
@@ -112,6 +143,7 @@ class _MainPageState extends State<_MainPage>
           ],
           controller: tabController,
         ),
+        actions: [_buildMoreMenu()],
       ),
       body: TabBarView(
         controller: tabController,
@@ -146,7 +178,7 @@ class ComicPage extends BasePage {
   @override
   Widget build(BuildContext context) {
     initSystemUI();
-    return _MainPage(platform, comic);
+    return _ComicPage(platform, comic);
   }
 }
 
