@@ -1,3 +1,4 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_dialogs/easy_dialogs.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -261,6 +262,13 @@ class _SettingsState extends State<_SettingsView> {
     );
   }
 
+  void _handleCachedImageClean() async {
+    await clearDiskCachedImages();
+    Fluttertoast.showToast(
+      msg: '图片缓存已清理',
+    );
+  }
+
   Widget _buildContentView() {
     return Column(
       children: [
@@ -294,7 +302,10 @@ class _SettingsState extends State<_SettingsView> {
         _SettingItemGroup(
           '数据清理',
           children: [
-            _SettingItem('清空图片缓存'),
+            _SettingItem(
+              '清空图片缓存',
+              onTap: _handleCachedImageClean,
+            ),
             _SettingItem('清空阅读历史',
                 subtitle: _historitesTotal > 0
                     ? '存在 $_historitesTotal 条阅读记录'

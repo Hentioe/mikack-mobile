@@ -1,3 +1,4 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/widgets/favicon.dart';
@@ -10,6 +11,7 @@ const viewListCoverHeight = 56.0;
 const viewListCoverWidth = viewListCoverHeight * coverRatio;
 const listCoverRadius = 4.0;
 const comicsViewGridChildSpacing = 4.0;
+const comicsViewGridLoadingSize = 16.0;
 
 class ComicViewItem {
   final models.Comic comic;
@@ -44,20 +46,37 @@ class ComicsView extends StatelessWidget {
 
   // 列表显示
   Widget _buildViewList() {
-    print('$viewListCoverWidth, $viewListCoverHeight');
     var children = items
         .map(
           (item) => Card(
             shape: viewListShape,
             child: ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Image.network(
-                item.comic.cover,
-                headers: item.comic.headers,
-                fit: BoxFit.cover,
-                width: viewListCoverWidth,
-                height: viewListCoverHeight,
-              ),
+              leading: ExtendedImage.network(item.comic.cover,
+                  headers: item.comic.headers,
+                  fit: BoxFit.cover,
+                  width: viewListCoverWidth,
+                  height: viewListCoverHeight,
+                  cache: true, loadStateChanged: (state) {
+                switch (state.extendedImageLoadState) {
+                  case LoadState.loading:
+                    return Center(
+                      child: loadingView,
+                    );
+                    break;
+                  case LoadState.failed:
+                    return Center(
+                      child: Text(
+                        '无图',
+                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                      ),
+                    ); // 加载失败显示标题文本
+                    break;
+                  default:
+                    return null;
+                    break;
+                }
+              }),
               title: Text(item.comic.title,
                   style: TextStyle(color: Colors.black),
                   maxLines: 1,
@@ -72,6 +91,13 @@ class ComicsView extends StatelessWidget {
       controller: scrollController,
     );
   }
+
+  // 加载指示器
+  final loadingView = const SizedBox(
+    height: comicsViewGridLoadingSize,
+    width: comicsViewGridLoadingSize,
+    child: CircularProgressIndicator(strokeWidth: 2),
+  );
 
   // 网格显示
   Widget _buildGridView(BuildContext context) {
@@ -93,10 +119,31 @@ class ComicsView extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               // 图片
-              Image.network(
+              ExtendedImage.network(
                 items[index].comic.cover,
                 fit: BoxFit.cover,
                 headers: items[index].comic.headers,
+                cache: true,
+                loadStateChanged: (state) {
+                  switch (state.extendedImageLoadState) {
+                    case LoadState.loading:
+                      return Center(
+                        child: loadingView,
+                      );
+                      break;
+                    case LoadState.failed:
+                      return Center(
+                        child: Text(
+                          items[index].comic.title,
+                          style: TextStyle(color: Colors.grey, fontSize: 18),
+                        ),
+                      ); // 加载失败显示标题文本
+                      break;
+                    default:
+                      return null;
+                      break;
+                  }
+                },
               ),
               // 文字
               Positioned(

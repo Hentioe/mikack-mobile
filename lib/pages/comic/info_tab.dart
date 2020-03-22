@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 import '../../widgets/text_hint.dart';
@@ -47,7 +48,10 @@ class InfoTab extends StatelessWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(comic.cover),
+                      image: ExtendedNetworkImageProvider(
+                        comic.cover,
+                        cache: true,
+                      ),
                       fit: BoxFit.fitWidth,
                     ),
                   ),
@@ -71,9 +75,10 @@ class InfoTab extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // 左图
-                        Image.network(
+                        ExtendedImage.network(
                           comic.cover,
                           width: 100,
+                          cache: true,
                         ),
                         SizedBox(width: 20),
                         // 文字

@@ -1,3 +1,4 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mikack_mobile/fragments/bookshelf.dart';
 import 'package:mikack_mobile/helper/chrome.dart';
@@ -38,12 +39,13 @@ class HistoriesView extends StatelessWidget {
               elevation: 1.5,
               child: Row(
                 children: [
-                  Image.network(
+                  ExtendedImage.network(
                     h.cover,
                     headers: h.headers,
                     fit: BoxFit.cover,
                     height: historiesCoverHeight,
                     width: historiesCoverWitdh,
+                    cache: true,
                   ),
                   Expanded(
                     child: Column(
