@@ -73,6 +73,10 @@ class ComicsView extends StatelessWidget {
       ]);
     return GridView.count(
       crossAxisCount: 2,
+      mainAxisSpacing: 2,
+      crossAxisSpacing: 2,
+      childAspectRatio: 1 / 1.35,
+      padding: EdgeInsets.all(4),
       children: List.generate(items.length, (index) {
         return Card(
           child: Stack(
