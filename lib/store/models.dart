@@ -113,6 +113,7 @@ class History {
   String homeUrl;
   final String address;
   String cover;
+  bool displayed;
   DateTime insertedAt;
   DateTime updateAt;
 
@@ -123,6 +124,7 @@ class History {
     this.homeUrl,
     this.address,
     this.cover,
+    this.displayed,
     this.insertedAt,
     this.updateAt,
   }) {
@@ -142,6 +144,7 @@ class History {
       'home_url': homeUrl,
       'address': address,
       'cover': cover,
+      'displayed': displayed ? 1 : 0,
       'inserted_at': insertedAt.toString(),
       'updated_at': updateAt.toString(),
     };
@@ -155,6 +158,7 @@ class History {
       homeUrl: map['home_url'],
       address: map['address'],
       cover: map['cover'],
+      displayed: map['displayed'] == 1 ? true : false,
       insertedAt: DateTime.parse(map['inserted_at']),
     );
   }

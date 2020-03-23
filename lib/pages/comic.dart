@@ -26,8 +26,8 @@ class _ComicPageState extends State<_ComicPage>
     with SingleTickerProviderStateMixin {
   TabController tabController;
   models.Comic _comic;
-
   bool _isFavorite = false;
+  List<String> _readHistoryLinks = [];
 
   @override
   void initState() {
@@ -39,7 +39,16 @@ class _ComicPageState extends State<_ComicPage>
     fetchChapters();
     // 加载收藏状态
     fetchIsFavorite();
+    // 加载已阅读的章节链接
+    fetchReadHistoryLinks();
     super.initState();
+  }
+
+  void fetchReadHistoryLinks() async {
+    var readHistories =
+        await findHistories(forceDisplayed: false, homeUrl: _comic.url);
+    setState(
+        () => _readHistoryLinks = readHistories.map((h) => h.address).toList());
   }
 
   void openReadPage(models.Chapter chapter) {
@@ -129,6 +138,45 @@ class _ComicPageState extends State<_ComicPage>
     );
   }
 
+  void _handleChapterReadMark(models.Chapter chapter) async {
+    var source = await widget.platform.toSavedSource();
+    var history = await getHistory(address: chapter.url);
+    if (history == null) {
+      await insertHistory(History(
+        sourceId: source.id,
+        title: chapter.title,
+        homeUrl: _comic.url,
+        address: chapter.url,
+        cover: _comic.cover,
+        displayed: false,
+      ));
+    }
+    fetchReadHistoryLinks();
+  }
+
+  void _handleChaptersReadMark(List<models.Chapter> chapters) async {
+    var source = await widget.platform.toSavedSource();
+    for (models.Chapter chapter in chapters) {
+      var history = await getHistory(address: chapter.url);
+      if (history == null) {
+        await insertHistory(History(
+          sourceId: source.id,
+          title: chapter.title,
+          homeUrl: _comic.url,
+          address: chapter.url,
+          cover: _comic.cover,
+          displayed: false,
+        ));
+      }
+    }
+    fetchReadHistoryLinks();
+  }
+
+  void _handleChapterUnReadMark(models.Chapter chapter) async {
+    await deleteHistory(address: chapter.url);
+    fetchReadHistoryLinks();
+  }
+
   @override
   Widget build(BuildContext context) {
     var showFloatActionBtn =
@@ -156,7 +204,11 @@ class _ComicPageState extends State<_ComicPage>
           ),
           ChaptersTab(
             _comic,
+            readHistoryLinks: _readHistoryLinks,
             openReadPage: openReadPage,
+            handleChapterReadMark: _handleChapterReadMark,
+            handleChapterUnReadMark: _handleChapterUnReadMark,
+            handleChaptersReadMark: _handleChaptersReadMark,
           )
         ],
       ),

@@ -240,6 +240,7 @@ class _MainViewState extends State<_MainView> {
         homeUrl: widget.comic.url,
         address: chapter.url,
         cover: widget.comic.cover,
+        displayed: true,
       );
       await insertHistory(history);
       // 如果漫画被收藏，和最后一次阅读关联上

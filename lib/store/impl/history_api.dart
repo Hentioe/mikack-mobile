@@ -9,11 +9,30 @@ Future<void> insertHistory(History historiy) async {
   await db.insert(History.tableName, historiy.toMap());
 }
 
-Future<List<History>> findHistories() async {
+Future<List<History>> findHistories(
+    {forceDisplayed: true, String homeUrl}) async {
   final db = await database();
 
-  final List<Map<String, dynamic>> maps =
-  await db.query(History.tableName, orderBy: 'datetime(updated_at) DESC');
+  String where;
+  List<dynamic> whereArgs = [];
+  if (forceDisplayed) {
+    where = 'displayed = ?';
+    whereArgs = [1];
+  }
+  if (homeUrl != null) {
+    if (where != null)
+      where += ' AND ';
+    else
+      where = '';
+    where += 'home_url = ?';
+    whereArgs.add(homeUrl);
+  }
+  final List<Map<String, dynamic>> maps = await db.query(
+    History.tableName,
+    orderBy: 'datetime(updated_at) DESC',
+    whereArgs: whereArgs,
+    where: where,
+  );
 
   return maps.map((map) => History.fromMap(map)).toList();
 }
@@ -30,10 +49,7 @@ Future<History> getHistory({int id, String address}) async {
   );
   if (maps.isEmpty) return null;
 
-  return maps
-      .map((map) => History.fromMap(map))
-      .toList()
-      .first;
+  return maps.map((map) => History.fromMap(map)).toList().first;
 }
 
 Future<void> updateHistory(History historiy) async {
@@ -48,10 +64,10 @@ Future<void> updateHistory(History historiy) async {
   );
 }
 
-Future<void> deleteHistory(id) async {
+Future<void> deleteHistory({int id, String address}) async {
   final db = await database();
 
-  var cond = makeCondition({'id': id});
+  var cond = makeCondition({'id': id, 'address': address});
   await db.delete(
     History.tableName,
     where: cond.item1,

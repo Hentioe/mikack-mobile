@@ -131,7 +131,7 @@ class _MainViewState extends State<MainView> {
   }
 
   void removeHistory(History history) async {
-    await deleteHistory(history.id);
+    await deleteHistory(id: history.id);
     fetchHistories();
   }
 
