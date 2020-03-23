@@ -58,7 +58,10 @@ class _ComicPageState extends State<_ComicPage>
       MaterialPageRoute(
         builder: (_) => ReadPage(widget.platform, widget.comic, chapter),
       ),
-    ).then((_) => setSystemUI(primaryColor: primaryColor));
+    ).then((_) {
+      setSystemUI(primaryColor: primaryColor);
+      fetchReadHistoryLinks();
+    });
   }
 
   void fetchChapters() async {
