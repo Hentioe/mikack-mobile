@@ -48,7 +48,6 @@ class Favorite {
   Favorite({
     this.id,
     this.sourceId,
-    this.lastReadHistoryId,
     this.name,
     this.address,
     this.cover,
@@ -67,7 +66,6 @@ class Favorite {
     return {
       'id': id,
       'source_id': sourceId,
-      'last_read_history_id': lastReadHistoryId,
       'name': name,
       'address': address,
       'cover': cover,
@@ -85,7 +83,6 @@ class Favorite {
     return Favorite(
       id: map['id'],
       sourceId: map['source_id'],
-      lastReadHistoryId: map['last_read_history_id'],
       name: map['name'],
       address: map['address'],
       cover: map['cover'],

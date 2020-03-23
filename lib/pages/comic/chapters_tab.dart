@@ -42,16 +42,16 @@ class ChaptersTab extends StatelessWidget {
         PopupMenuItem(
           enabled: !readHistoryLinks.contains(chapter.url),
           value: 0,
-          child: Text('标记为已读'),
+          child: Text('标记已读'),
         ),
         PopupMenuItem(
           enabled: readHistoryLinks.contains(chapter.url),
           value: 1,
-          child: Text('标记为未读'),
+          child: Text('标记未读'),
         ),
         PopupMenuItem(
           value: 2,
-          child: Text('已读之前章节'),
+          child: Text('标记之前章节已读'),
         ),
       ],
     );

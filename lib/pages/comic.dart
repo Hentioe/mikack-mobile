@@ -154,30 +154,40 @@ class _ComicPageState extends State<_ComicPage>
         displayed: false,
       ));
     }
-    fetchReadHistoryLinks();
+    setState(() => _readHistoryLinks.add(chapter.url));
   }
 
   void _handleChaptersReadMark(List<models.Chapter> chapters) async {
     var source = await widget.platform.toSavedSource();
+    List<String> urls = [];
+    List<History> histories = [];
+    // 一次性查询出所有已存在的历史记录
+    var extendedHistoryAddresses = (await findHistories(
+            forceDisplayed: false,
+            addressesIn: chapters.map((c) => c.url).toList()))
+        .map((h) => h.address)
+        .toList();
+    // 剔除已存在的历史
+    chapters.removeWhere((c) => extendedHistoryAddresses.contains(c.url));
     for (models.Chapter chapter in chapters) {
-      var history = await getHistory(address: chapter.url);
-      if (history == null) {
-        await insertHistory(History(
-          sourceId: source.id,
-          title: chapter.title,
-          homeUrl: _comic.url,
-          address: chapter.url,
-          cover: _comic.cover,
-          displayed: false,
-        ));
-      }
+      histories.add(History(
+        sourceId: source.id,
+        title: chapter.title,
+        homeUrl: _comic.url,
+        address: chapter.url,
+        cover: _comic.cover,
+        displayed: false,
+      ));
+      urls.add(chapter.url);
     }
-    fetchReadHistoryLinks();
+    // 插入新的不显示历史（仅标记已读）
+    await insertHistories(histories);
+    setState(() => _readHistoryLinks.addAll(urls));
   }
 
   void _handleChapterUnReadMark(models.Chapter chapter) async {
     await deleteHistory(address: chapter.url);
-    fetchReadHistoryLinks();
+    setState(() => _readHistoryLinks.remove(chapter.url));
   }
 
   @override

@@ -9,8 +9,21 @@ Future<void> insertHistory(History historiy) async {
   await db.insert(History.tableName, historiy.toMap());
 }
 
+Future<void> insertHistories(List<History> histories) async {
+  final db = await database();
+  await db.transaction((tnx) async {
+    var banch = tnx.batch();
+    histories.forEach(
+      (history) => banch.insert(History.tableName, history.toMap()),
+    );
+    banch.commit();
+  });
+}
+
 Future<List<History>> findHistories(
-    {forceDisplayed: true, String homeUrl}) async {
+    {forceDisplayed: true,
+    String homeUrl,
+    addressesIn = const <String>[]}) async {
   final db = await database();
 
   String where;
@@ -27,11 +40,19 @@ Future<List<History>> findHistories(
     where += 'home_url = ?';
     whereArgs.add(homeUrl);
   }
+  if (addressesIn.length > 0) {
+    if (where != null)
+      where += ' AND ';
+    else
+      where = '';
+    where +=
+        'address IN (${addressesIn.map((addr) => '\'$addr\'').toList().join(',')})';
+  }
   final List<Map<String, dynamic>> maps = await db.query(
     History.tableName,
     orderBy: 'datetime(updated_at) DESC',
-    whereArgs: whereArgs,
     where: where,
+    whereArgs: whereArgs,
   );
 
   return maps.map((map) => History.fromMap(map)).toList();

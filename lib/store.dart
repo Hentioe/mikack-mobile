@@ -23,7 +23,6 @@ const latestHistoryTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
 
 const latestFavoriteTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
     'source_id INTEGER NOT NULL,' // 图源 ID
-    'last_read_history_id INTEGER,' // 上次阅读历史 ID
     'name TEXT NOT NULL,' // 名称（章节标题）
     'address TEXT NOT NULL,' // 地址
     'cover TEXT,' // 封面
@@ -32,21 +31,24 @@ const latestFavoriteTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
     'last_read_time TEXT NOT NULL,' // 上次阅读时间
     'inserted_at TEXT NOT NULL,' // 插入时间
     'updated_at TEXT NOT NULL,' // 更新时间
-    'FOREIGN KEY(source_id) REFERENCES sources(id),'
-    'FOREIGN KEY(last_read_history_id) REFERENCES histories(id)';
+    'FOREIGN KEY(source_id) REFERENCES sources(id)';
 
 List<String> tableStructureMigrationSqlGen(
-    String tableName, String tableStructure) {
+  String tableName,
+  String tableStructure, {
+  columns: const ['*'],
+}) {
   var newTableName = '${tableName}_new_tmp_name';
+  var columnsStr = columns.join(',');
   return [
     // 创建最新结构的临时表（包含检查约束）
     'CREATE TABLE $newTableName($tableStructure);',
     // 复制数据
-    'INSERT INTO $newTableName SELECT * FROM $tableName;',
+    'INSERT INTO $newTableName SELECT $columnsStr FROM $tableName;',
     // 删除旧表
     'DROP TABLE $tableName;',
     // 更新临时表名
-    'ALERT TABLE $newTableName RENAME TO $tableName;'
+    'ALTER TABLE $newTableName RENAME TO $tableName;'
   ];
 }
 
@@ -91,7 +93,7 @@ Future<Database> database() async {
           // 给阅读历史添加主页链接
           await db.execute('ALTER TABLE histories ADD home_url TEXT;');
           break;
-        case 4:
+        case 3:
           // 给阅读历史添加显示状态，并将已存在的数据设为显示（值为 1）
           await db.transaction((tnx) async {
             await multiExecInTrans(tnx, [
@@ -99,9 +101,30 @@ Future<Database> database() async {
               'ALTER TABLE histories ADD displayed INTEGER NULL;',
               // 填补空数据
               'UPDATE histories SET displayed = 1;',
-              // 迁移表结构（包含非空检查约束）
+              // 迁移表结构（包含非空和检查约束）
               ...tableStructureMigrationSqlGen(
                   'histories', latestHistoryTableStructure),
+            ]);
+          });
+          break;
+        case 4:
+          await db.transaction((tnx) async {
+            await multiExecInTrans(tnx, [
+              // 迁移表结构（删除收藏中对历史记录的关联）
+              ...tableStructureMigrationSqlGen(
+                  'favorites', latestFavoriteTableStructure,
+                  columns: [
+                    'id',
+                    'source_id',
+                    'name',
+                    'address',
+                    'cover',
+                    'inserted_chapters_count',
+                    'latest_chapters_count',
+                    'last_read_time',
+                    'inserted_at',
+                    'updated_at',
+                  ]),
             ]);
           });
           break;
