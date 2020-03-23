@@ -36,7 +36,7 @@ Future<List<Favorite>> findFavorites(
 Future<Favorite> getFavorite({int id, String address}) async {
   final db = await database();
 
-  var cond = makeCondition({'id': id, 'address': address});
+  var cond = makeSingleCondition({'id': id, 'address': address});
   final List<Map<String, dynamic>> maps = await db.query(
     Favorite.tableName,
     where: cond.item1,
@@ -63,7 +63,7 @@ Future<void> updateFavorite(Favorite favorite) async {
 Future<void> deleteFavorite({int id, String address}) async {
   final db = await database();
 
-  var cond = makeCondition({'id': id, 'address': address});
+  var cond = makeSingleCondition({'id': id, 'address': address});
   await db.delete(
     Favorite.tableName,
     where: cond.item1,

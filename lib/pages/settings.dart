@@ -306,7 +306,7 @@ class _SettingsState extends State<_SettingsView> {
               '清空图片缓存',
               onTap: _handleCachedImageClean,
             ),
-            _SettingItem('清空阅读历史',
+            _SettingItem('清空历史记录',
                 subtitle: _historitesTotal > 0
                     ? '存在 $_historitesTotal 条阅读记录'
                     : '没有阅读记录',

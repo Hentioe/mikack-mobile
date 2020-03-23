@@ -108,7 +108,7 @@ class _ComicPageState extends State<_ComicPage>
     }
   }
 
-  static final moreMenus = {'在浏览器中打开': 1};
+  static final moreMenus = {'在浏览器中打开': 1, '清空已阅读记录': 2};
 
   void launchUrl(String url) async {
     if (await canLaunch(url)) {
@@ -120,10 +120,18 @@ class _ComicPageState extends State<_ComicPage>
     }
   }
 
+  void resetReadHistories() async {
+    await deleteHistories(homeUrl: _comic.url);
+    setState(() => _readHistoryLinks = []);
+  }
+
   void _handleMenuSelect(value) {
     switch (value) {
       case 1:
         launchUrl(_comic.url);
+        break;
+      case 2:
+        resetReadHistories();
         break;
     }
   }

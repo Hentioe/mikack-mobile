@@ -19,7 +19,7 @@ Future<List<Source>> findSources() async {
 Future<Source> getSource({int id, String domain}) async {
   final db = await database();
 
-  var cond = makeCondition({'id': id, 'domain': domain});
+  var cond = makeSingleCondition({'id': id, 'domain': domain});
   final List<Map<String, dynamic>> maps = await db.query(
     Source.tableName,
     where: cond.item1,

@@ -61,7 +61,7 @@ Future<List<History>> findHistories(
 Future<History> getHistory({int id, String address}) async {
   final db = await database();
 
-  var cond = makeCondition({'id': id, 'address': address});
+  var cond = makeSingleCondition({'id': id, 'address': address});
   final List<Map<String, dynamic>> maps = await db.query(
     History.tableName,
     where: cond.item1,
@@ -88,7 +88,18 @@ Future<void> updateHistory(History historiy) async {
 Future<void> deleteHistory({int id, String address}) async {
   final db = await database();
 
-  var cond = makeCondition({'id': id, 'address': address});
+  var cond = makeSingleCondition({'id': id, 'address': address});
+  await db.delete(
+    History.tableName,
+    where: cond.item1,
+    whereArgs: cond.item2,
+  );
+}
+
+Future<void> deleteHistories({String homeUrl}) async {
+  final db = await database();
+
+  var cond = makeSingleCondition({'home_url': homeUrl});
   await db.delete(
     History.tableName,
     where: cond.item1,
@@ -104,6 +115,6 @@ Future<void> deleteAllHistories() async {
 Future<int> getHistoriesTotal() async {
   final db = await database();
 
-  return Sqflite.firstIntValue(
-      await db.rawQuery('SELECT COUNT(*) FROM ${History.tableName}'));
+  return Sqflite.firstIntValue(await db.rawQuery(
+      'SELECT COUNT(*) FROM ${History.tableName} where displayed = 1'));
 }
