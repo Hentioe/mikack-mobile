@@ -6,9 +6,11 @@ export './store/models.dart';
 
 const dbFile = 'mikack.db';
 
+// 图源表结构
 const latestSourceTableStructure =
     'id INTEGER PRIMARY KEY AUTOINCREMENT, domain TEXT NOT NULL, name TEXT NOT NULL';
 
+// 阅读历史表结构
 const latestHistoryTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
     'source_id INTEGER NOT NULL,' // 图源 ID
     'title TEXT NOT NULL,' // 标题
@@ -21,6 +23,7 @@ const latestHistoryTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
     'CHECK (displayed IN (0,1)),' // 确保 `显示状态` 为布尔值
     'FOREIGN KEY(source_id) REFERENCES sources(id)';
 
+// 书架收藏表结构
 const latestFavoriteTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
     'source_id INTEGER NOT NULL,' // 图源 ID
     'name TEXT NOT NULL,' // 名称（章节标题）
@@ -32,6 +35,11 @@ const latestFavoriteTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
     'inserted_at TEXT NOT NULL,' // 插入时间
     'updated_at TEXT NOT NULL,' // 更新时间
     'FOREIGN KEY(source_id) REFERENCES sources(id)';
+
+// 章节更新表结构
+const latestChapterUpdateStructure = 'home_url TEXT PRIMARY KEY,' // 主页链接，主键
+    'chapters_count INTEGER NOT NULL,' // 章节数量
+    'inserted_at TEXT NOT NULL'; // 插入时间
 
 List<String> tableStructureMigrationSqlGen(
   String tableName,

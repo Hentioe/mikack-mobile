@@ -99,6 +99,8 @@ class _ComicPageState extends State<_ComicPage>
         name: _comic.title,
         address: _comic.url,
         cover: _comic.cover,
+        // TODO：使用真实的章节数量
+        // insertedChaptersCount: _comic.chapters.length,
       ));
       setState(() => _isFavorite = true);
     } else {
@@ -138,6 +140,7 @@ class _ComicPageState extends State<_ComicPage>
 
   Widget _buildMoreMenu() {
     return PopupMenuButton<int>(
+      tooltip: '更多功能',
       icon: Icon(Icons.more_vert),
       onSelected: _handleMenuSelect,
       itemBuilder: (BuildContext context) => moreMenus.entries
@@ -235,6 +238,7 @@ class _ComicPageState extends State<_ComicPage>
       ),
       floatingActionButton: showFloatActionBtn
           ? FloatingActionButton(
+              tooltip: '开始阅读',
               child: Icon(Icons.play_arrow),
               onPressed: () => openFirstChapter(context))
           : null,

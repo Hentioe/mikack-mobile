@@ -30,7 +30,7 @@ extension ComicsExt on List<Comic> {
 }
 
 extension ComicExt on Comic {
-  ComicViewItem toViewItem({Platform platform}) {
-    return ComicViewItem(this, platfrom: platform);
+  ComicViewItem toViewItem({Platform platform, int badgeValue}) {
+    return ComicViewItem(this, platfrom: platform, badgeValue: badgeValue);
   }
 }

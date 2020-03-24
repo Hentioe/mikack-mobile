@@ -187,6 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildBookshelfSortMenuView() {
     return PopupMenuButton<BookshelfSortBy>(
+      tooltip: '修改排序方式',
       icon: Icon(Icons.sort),
       onSelected: updateBookshelfSortBy,
       itemBuilder: (BuildContext context) => [
@@ -227,7 +228,9 @@ class _MyHomePageState extends State<MyHomePage> {
         LibrariesFragment(_platforms),
         actions: [
           IconButton(
-              icon: Icon(Icons.filter_list), onPressed: _handleLibrariesFilter)
+              tooltip: '打开过滤菜单',
+              icon: Icon(Icons.filter_list),
+              onPressed: _handleLibrariesFilter)
         ],
       ),
       DrawerItem('浏览历史', Icons.history, HistoriesFragment()),
@@ -237,10 +240,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     initDrawerItems();
-    var drawerOptions = <Widget>[];
+    var drawerListView = <Widget>[];
     for (var i = 0; i < _drawerItems.length; i++) {
       var d = _drawerItems[i];
-      drawerOptions.add(new ListTile(
+      drawerListView.add(new ListTile(
         leading: new Icon(d.iconData),
         title: new Text(d.title),
         selected: i == _selectedDrawerIndex,
@@ -250,9 +253,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+              tooltip: '打开导航菜单',
+            );
+          },
+        ),
         title: Text(_drawerItems[_selectedDrawerIndex].title),
         actions: [
-          IconButton(icon: Icon(Icons.search), onPressed: _handleSearch),
+          IconButton(
+              tooltip: '打开全局搜索',
+              icon: Icon(Icons.search),
+              onPressed: _handleSearch),
           ..._drawerItems[_selectedDrawerIndex].actions
         ],
       ),
@@ -262,7 +279,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             _header,
             Column(
-              children: drawerOptions,
+              children: drawerListView,
             ),
             Divider(),
             ListTile(

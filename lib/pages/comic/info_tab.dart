@@ -126,6 +126,7 @@ class InfoTab extends StatelessWidget {
           top: coverMetaHeight - 28, // 浮动按钮默认大小为 56.0，取一半
           right: 15,
           child: FloatingActionButton(
+            tooltip: '${isFavorite ? '从书架删除' : '添加到书架'}',
             child: Icon(isFavorite ? Icons.bookmark : Icons.bookmark_border),
             onPressed: handleFavorite,
           ),

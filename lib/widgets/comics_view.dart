@@ -16,10 +16,12 @@ const comicsViewGridLoadingSize = 16.0;
 class ComicViewItem {
   final models.Comic comic;
   final models.Platform platfrom;
+  final int badgeValue;
 
   ComicViewItem(
     this.comic, {
     this.platfrom,
+    this.badgeValue,
   });
 }
 
@@ -28,6 +30,7 @@ class ComicsView extends StatelessWidget {
     this.items, {
     this.isViewList = false,
     this.showPlatform = false,
+    this.showBadge = false,
     this.onTap,
     this.onLongPress,
     this.scrollController,
@@ -36,6 +39,7 @@ class ComicsView extends StatelessWidget {
   final List<ComicViewItem> items;
   final bool isViewList;
   final bool showPlatform;
+  final bool showBadge;
   final Function(models.Comic) onTap;
   final Function(models.Comic) onLongPress;
   final ScrollController scrollController;
@@ -101,12 +105,31 @@ class ComicsView extends StatelessWidget {
 
   // 网格显示
   Widget _buildGridView(BuildContext context) {
-    var favicon = <Widget Function(ComicViewItem)>[];
+    List<Widget Function(ComicViewItem)> platformView = [];
     if (showPlatform)
-      favicon.addAll([
+      platformView.addAll([
         (item) => Favicon(item.platfrom, size: 14),
         (_) => SizedBox(width: 4),
       ]);
+    List<Widget Function(ComicViewItem)> badgeView = [];
+    if (showBadge)
+      badgeView.add(
+        (item) => Positioned(
+          top: 0,
+          left: 0,
+          child: Container(
+            width: 30,
+            height: 22,
+            color: Colors.blue,
+            child: Center(
+                child: Text(
+              '${item.badgeValue > 999 ? 999 : item.badgeValue}', // 最大显示 999
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            )),
+          ),
+        ),
+      );
     return GridView.count(
       crossAxisCount: 2,
       mainAxisSpacing: comicsViewGridChildSpacing / 2,
@@ -145,6 +168,8 @@ class ComicsView extends StatelessWidget {
                   }
                 },
               ),
+              // 徽章（角标）
+              ...badgeView.map((builder) => builder(items[index])).toList(),
               // 文字
               Positioned(
                 bottom: 0,
@@ -165,7 +190,7 @@ class ComicsView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      ...favicon
+                      ...platformView
                           .map((builder) => builder(items[index]))
                           .toList(),
                       Flexible(

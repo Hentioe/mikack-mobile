@@ -36,6 +36,7 @@ class ChaptersTab extends StatelessWidget {
 
   Widget _buildMorePopupMenu(models.Chapter chapter) {
     return PopupMenuButton<int>(
+      tooltip: '操作章节',
       icon: Icon(Icons.more_vert),
       onSelected: (value) => _handleMorePopupMenuSelect(value, chapter),
       itemBuilder: (BuildContext context) => [
