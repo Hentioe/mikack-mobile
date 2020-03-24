@@ -67,6 +67,12 @@ class _ComicPageState extends State<_ComicPage>
   void fetchChapters() async {
     var comic =
         await compute(_fetchChaptersTask, Tuple2(widget.platform, _comic));
+    // 更新已收藏的章节数量
+    var favorite = await getFavorite(address: comic.url);
+    if (favorite != null) {
+      favorite.latestChaptersCount = comic.chapters.length;
+      await updateFavorite(favorite);
+    }
     setState(() {
       _comic = comic;
     });

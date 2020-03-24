@@ -37,7 +37,6 @@ class Favorite {
   String name;
   final String address;
   String cover;
-  int insertedChaptersCount;
   int latestChaptersCount;
   DateTime lastReadTime;
   DateTime insertedAt;
@@ -51,7 +50,6 @@ class Favorite {
     this.name,
     this.address,
     this.cover,
-    this.insertedChaptersCount = 0,
     this.latestChaptersCount = 0,
     this.lastReadTime,
     this.insertedAt,
@@ -69,7 +67,6 @@ class Favorite {
       'name': name,
       'address': address,
       'cover': cover,
-      'inserted_chapters_count': insertedChaptersCount,
       'latest_chapters_count': latestChaptersCount,
       'last_read_time': lastReadTime.toString(),
       'inserted_at': insertedAt.toString(),
@@ -86,7 +83,6 @@ class Favorite {
       name: map['name'],
       address: map['address'],
       cover: map['cover'],
-      insertedChaptersCount: map['inserted_chapters_count'],
       latestChaptersCount: map['latest_chapters_count'],
       lastReadTime: DateTime.parse(map['last_read_time']),
       insertedAt: DateTime.parse(map['inserted_at']),
@@ -170,5 +166,41 @@ class History {
 
   Comic asComic() {
     return Comic("", homeUrl, cover);
+  }
+}
+
+class ChapterUpdate {
+  final String homeUrl;
+  final int chaptersCount;
+  DateTime insertedAt;
+
+  ChapterUpdate(
+    this.homeUrl, {
+    this.chaptersCount,
+    this.insertedAt,
+  }) {
+    if (insertedAt == null) insertedAt = DateTime.now();
+  }
+
+  static final String tableName = "chapter_updates";
+
+  Map<String, dynamic> toMap() {
+    return {
+      'home_url': homeUrl,
+      'chapters_count': chaptersCount,
+      'inserted_at': insertedAt.toString(),
+    };
+  }
+
+  factory ChapterUpdate.fromMap(Map<String, dynamic> map) {
+    return ChapterUpdate(
+      map['home_url'],
+      chaptersCount: map['chapters_count'],
+      insertedAt: DateTime.parse(map['inserted_at']),
+    );
+  }
+
+  String toString() {
+    return 'ChapterUpdate(homeUrl: $homeUrl, chaptersCount: $chaptersCount, insertedAt: $insertedAt)';
   }
 }

@@ -118,8 +118,7 @@ class _MainViewState extends State<MainView> {
     if (source == null) {
       // TODO: 图源已不存在了
     }
-    var platform =
-        findPlatforms([], []).firstWhere((p) => p.domain == source.domain);
+    var platform = platformList.firstWhere((p) => p.domain == source.domain);
     if (platform == null) {
       // TODO: 已不支持这个平台了哦
     }

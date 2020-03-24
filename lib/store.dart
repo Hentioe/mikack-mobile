@@ -29,8 +29,7 @@ const latestFavoriteTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
     'name TEXT NOT NULL,' // 名称（章节标题）
     'address TEXT NOT NULL,' // 地址
     'cover TEXT,' // 封面
-    'inserted_chapters_count INTEGER NOT NULL DEFAULT 0,' // 插入时的章节数量
-    'latest_chapters_count INTEGER NOT NULL DEFAULT 0,' // 最新的章节数量
+    'latest_chapters_count INTEGER NOT NULL DEFAULT 0,' // 最新章节数量
     'last_read_time TEXT NOT NULL,' // 上次阅读时间
     'inserted_at TEXT NOT NULL,' // 插入时间
     'updated_at TEXT NOT NULL,' // 更新时间
@@ -88,6 +87,8 @@ Future<Database> database() async {
           'CREATE TABLE favorites($latestFavoriteTableStructure);',
           // 创建收藏表字段索引
           'CREATE UNIQUE INDEX favorites_address_dex ON favorites (address);',
+          // 创建章节更新记录表
+          'CREATE TABLE chapter_updates($latestChapterUpdateStructure);',
         ]);
       });
     },
@@ -118,7 +119,7 @@ Future<Database> database() async {
         case 4:
           await db.transaction((tnx) async {
             await multiExecInTrans(tnx, [
-              // 迁移表结构（删除收藏中对历史记录的关联）
+              // 迁移收藏表结构（包含对历史记录关联的删除）
               ...tableStructureMigrationSqlGen(
                   'favorites', latestFavoriteTableStructure,
                   columns: [
@@ -136,9 +137,30 @@ Future<Database> database() async {
             ]);
           });
           break;
+        case 5:
+          await db.transaction((tnx) async {
+            await multiExecInTrans(tnx, [
+              // 迁移收藏表结构（包含对`inserted_chapters_count`列的删除）
+              ...tableStructureMigrationSqlGen(
+                  'favorites', latestFavoriteTableStructure,
+                  columns: [
+                    'id',
+                    'source_id',
+                    'name',
+                    'address',
+                    'cover',
+                    'latest_chapters_count',
+                    'last_read_time',
+                    'inserted_at',
+                    'updated_at',
+                  ]),
+              // 创建章节更新记录表
+              'CREATE TABLE chapter_updates($latestChapterUpdateStructure);',
+            ]);
+          });
       }
     },
-    version: 5,
+    version: 6,
   );
 }
 
