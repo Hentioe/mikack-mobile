@@ -105,8 +105,7 @@ class _ComicPageState extends State<_ComicPage>
         name: _comic.title,
         address: _comic.url,
         cover: _comic.cover,
-        // TODO：使用真实的章节数量
-        // insertedChaptersCount: _comic.chapters.length,
+        latestChaptersCount: _comic.chapters.length,
       ));
       setState(() => _isFavorite = true);
     } else {
