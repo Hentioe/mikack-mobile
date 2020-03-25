@@ -208,7 +208,7 @@ class _MainViewState extends State<_MainView> {
   void dispose() {
     if (_pageInterator != null) {
       // 以通信的方式安全释放迭代器内存（注意，需要保证迭代器 API 非并发调用）
-      nextResultPort.sendPort.send(Tuple2(ComputeController.destoryCommand,
+      nextResultPort?.sendPort?.send(Tuple2(ComputeController.destoryCommand,
           _pageInterator.asValuePageInaterator()));
       nextResultPort = null;
     }

@@ -97,9 +97,9 @@ class _ComicPageState extends State<_ComicPage>
 
   void fetchLastHistory() async {
     var lastReadHistory = await getLastHistory(_comic.url);
+    var lastReadChapterAddress = lastReadHistory?.address;
 
-    if (lastReadHistory != null)
-      setState(() => _lastReadAt = lastReadHistory.address);
+    setState(() => _lastReadAt = lastReadChapterAddress);
   }
 
   void updateLastReadTime() async {
@@ -232,6 +232,8 @@ class _ComicPageState extends State<_ComicPage>
   void _handleChapterUnReadMark(models.Chapter chapter) async {
     await deleteHistory(address: chapter.url);
     setState(() => _readHistoryLinks.remove(chapter.url));
+    // 更新上次阅读历史
+    fetchLastHistory();
   }
 
   void handleReverse() async {
