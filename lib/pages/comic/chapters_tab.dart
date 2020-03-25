@@ -4,6 +4,7 @@ import 'package:mikack/models.dart' as models;
 class ChaptersTab extends StatelessWidget {
   ChaptersTab(
     this.comic, {
+    this.reversed = false,
     this.openReadPage,
     this.handleChapterReadMark,
     this.handleChapterUnReadMark,
@@ -11,6 +12,7 @@ class ChaptersTab extends StatelessWidget {
     this.readHistoryLinks = const [],
   });
 
+  final bool reversed;
   final models.Comic comic;
   final void Function(models.Chapter) openReadPage;
   final void Function(models.Chapter) handleChapterReadMark;
@@ -64,9 +66,11 @@ class ChaptersTab extends StatelessWidget {
       return const Center(
         child: CircularProgressIndicator(),
       );
+    var chapters = comic.chapters;
+    if (reversed) chapters = comic.chapters.reversed.toList();
     return Scrollbar(
       child: ListView(
-        children: comic.chapters
+        children: chapters
             .map((c) => ListTile(
                   title: Text(
                     c.title,

@@ -125,6 +125,7 @@ class _SettingsCheckBoxIcon extends StatelessWidget {
 const startPageKey = 'start_page';
 const leftHandModeKey = 'left_mode';
 const allowNsfwKey = 'allow_nsfw';
+const chaptersReversedKey = 'chapters_reversed';
 
 class _SettingsView extends StatefulWidget {
   @override
@@ -145,12 +146,14 @@ class _SettingsState extends State<_SettingsView> {
     fetchAllowNsfw();
     fetchHistoriesTotal();
     fetchFavoritesTotal();
+    fetchChaptersRerversed();
     super.initState();
   }
 
   var _selectedPage = 'default';
   var _leftHandMode = false;
   var _allowNsfw = false;
+  var _chaptersReversed = false;
   var _historitesTotal = 0;
   var _favoritesTotal = 0;
 
@@ -159,6 +162,14 @@ class _SettingsState extends State<_SettingsView> {
     setState(() {
       var selected = prefs.getString(startPageKey);
       if (selected != null) _selectedPage = selected;
+    });
+  }
+
+  void fetchChaptersRerversed() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      var enabled = prefs.getBool(chaptersReversedKey);
+      if (enabled != null) _chaptersReversed = enabled;
     });
   }
 
@@ -193,6 +204,12 @@ class _SettingsState extends State<_SettingsView> {
         updateSelectedPage(startPages.inverse[text]);
       },
     );
+  }
+
+  void _handleReversedChapters() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(chaptersReversedKey, !_chaptersReversed);
+    setState(() => _chaptersReversed = !_chaptersReversed);
   }
 
   void _handleLeftHandMode() async {
@@ -295,6 +312,12 @@ class _SettingsState extends State<_SettingsView> {
               subtitle: '将显示不宜于工作场合公开的资源（可能包含成人内容）',
               trailing: _SettingsCheckBoxIcon(value: _allowNsfw),
               onTap: _handAllowNsfw,
+            ),
+            _SettingItem(
+              '倒序排列章节',
+              subtitle: '从高到低排列章节列表',
+              trailing: _SettingsCheckBoxIcon(value: _chaptersReversed),
+              onTap: _handleReversedChapters,
             ),
           ],
         ),

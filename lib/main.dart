@@ -263,7 +263,6 @@ class _MyHomePageState extends State<MyHomePage> {
               tooltip: '打开导航菜单',
             );
           },
-
         ),
         title: Text(_drawerItems[_selectedDrawerIndex].title),
         actions: [

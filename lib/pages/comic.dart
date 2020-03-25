@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mikack_mobile/pages/settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/pages/base_page.dart';
@@ -27,11 +29,17 @@ class _ComicPageState extends State<_ComicPage>
   TabController tabController;
   models.Comic _comic;
   bool _isFavorite = false;
+  int _tabIndex = 0;
+  bool _sortReversed = false;
+
   List<String> _readHistoryLinks = [];
 
   @override
   void initState() {
     tabController = TabController(length: 2, vsync: this);
+    tabController.addListener(() {
+      setState(() => _tabIndex = tabController.index);
+    });
     _comic = widget.comic;
     // 更新上次阅读时间
     updateLastReadTime();
@@ -73,7 +81,12 @@ class _ComicPageState extends State<_ComicPage>
       favorite.latestChaptersCount = comic.chapters.length;
       await updateFavorite(favorite);
     }
+    // 加载排序设置
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var chaptersReversed = prefs.getBool(chaptersReversedKey);
+    if (chaptersReversed == null) chaptersReversed = false;
     setState(() {
+      _sortReversed = chaptersReversed;
       _comic = comic;
     });
   }
@@ -105,7 +118,8 @@ class _ComicPageState extends State<_ComicPage>
         name: _comic.title,
         address: _comic.url,
         cover: _comic.cover,
-        latestChaptersCount: _comic.chapters != null ? _comic.chapters.length : 0,
+        latestChaptersCount:
+            _comic.chapters != null ? _comic.chapters.length : 0,
       ));
       setState(() => _isFavorite = true);
     } else {
@@ -206,8 +220,26 @@ class _ComicPageState extends State<_ComicPage>
     setState(() => _readHistoryLinks.remove(chapter.url));
   }
 
+  void handleReverse() async {
+    setState(() => _sortReversed = !_sortReversed);
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<Widget> tabActions = [];
+    switch (_tabIndex) {
+      case 0:
+        tabActions.add(IconButton(
+            tooltip: '分享此漫画', icon: Icon(Icons.share), onPressed: () {}));
+        break;
+      case 1:
+        tabActions.add(IconButton(
+          tooltip: '反转排序',
+          icon: Icon(Icons.swap_horiz),
+          onPressed: handleReverse,
+        ));
+        break;
+    }
     var showFloatActionBtn =
         _comic.chapters != null && _comic.chapters.length == 1;
     return Scaffold(
@@ -220,7 +252,7 @@ class _ComicPageState extends State<_ComicPage>
           ],
           controller: tabController,
         ),
-        actions: [_buildMoreMenu()],
+        actions: [...tabActions, _buildMoreMenu()],
       ),
       body: TabBarView(
         controller: tabController,
@@ -233,6 +265,7 @@ class _ComicPageState extends State<_ComicPage>
           ),
           ChaptersTab(
             _comic,
+            reversed: _sortReversed,
             readHistoryLinks: _readHistoryLinks,
             openReadPage: openReadPage,
             handleChapterReadMark: _handleChapterReadMark,
