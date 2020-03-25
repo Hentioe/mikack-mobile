@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 
+const groupSpacing = 10000;
+
 class ChaptersTab extends StatelessWidget {
   ChaptersTab(
     this.comic, {
@@ -62,6 +64,29 @@ class ChaptersTab extends StatelessWidget {
     );
   }
 
+  List<models.Chapter> reverseByGroup(List<models.Chapter> chapters,
+      {whitchAt = 0, List<List<models.Chapter>> reversedGroup}) {
+    var group = <models.Chapter>[];
+    for (models.Chapter c in chapters) {
+      if (c.which > whitchAt * groupSpacing &&
+          c.which < (whitchAt + 1) * groupSpacing)
+        group.add(c);
+      else
+        break;
+    }
+    if (reversedGroup == null) reversedGroup = [];
+    reversedGroup.add(group.reversed.toList());
+    if (group.last.which == chapters.last.which) {
+      // 到底了，合并并返回
+      return reversedGroup.expand((c) => c).toList();
+    }
+    return reverseByGroup(
+      chapters.getRange(group.length, chapters.length).toList(),
+      whitchAt: ++whitchAt,
+      reversedGroup: reversedGroup,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (comic.chapters == null)
@@ -69,7 +94,7 @@ class ChaptersTab extends StatelessWidget {
         child: CircularProgressIndicator(),
       );
     var chapters = comic.chapters;
-    if (reversed) chapters = comic.chapters.reversed.toList();
+    if (reversed) chapters = reverseByGroup(chapters);
     return Scrollbar(
       child: ListView(
         children: chapters
