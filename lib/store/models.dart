@@ -33,7 +33,6 @@ class Source {
 class Favorite {
   int id;
   final int sourceId;
-  int lastReadHistoryId;
   String name;
   final String address;
   String cover;

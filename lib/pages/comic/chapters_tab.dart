@@ -82,7 +82,7 @@ class ChaptersTab extends StatelessWidget {
                           : Colors.black,
                     ),
                   ),
-                  subtitle: lastReadAt == c.url
+                  subtitle: lastReadAt != null && lastReadAt == c.url
                       ? Text('上次阅读到这儿',
                           style: TextStyle(color: Colors.grey[500]))
                       : null,
