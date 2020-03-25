@@ -5,6 +5,7 @@ class ChaptersTab extends StatelessWidget {
   ChaptersTab(
     this.comic, {
     this.reversed = false,
+    this.lastReadAt,
     this.openReadPage,
     this.handleChapterReadMark,
     this.handleChapterUnReadMark,
@@ -13,6 +14,7 @@ class ChaptersTab extends StatelessWidget {
   });
 
   final bool reversed;
+  final String lastReadAt;
   final models.Comic comic;
   final void Function(models.Chapter) openReadPage;
   final void Function(models.Chapter) handleChapterReadMark;
@@ -80,6 +82,10 @@ class ChaptersTab extends StatelessWidget {
                           : Colors.black,
                     ),
                   ),
+                  subtitle: lastReadAt == c.url
+                      ? Text('上次阅读到这儿',
+                          style: TextStyle(color: Colors.grey[500]))
+                      : null,
                   trailing: _buildMorePopupMenu(c),
                   onTap: () => openReadPage(c),
                 ))

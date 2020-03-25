@@ -32,8 +32,8 @@ class _ComicPageState extends State<_ComicPage>
   bool _isFavorite = false;
   int _tabIndex = 0;
   bool _sortReversed = false;
-
   List<String> _readHistoryLinks = [];
+  String _lastReadAt;
 
   @override
   void initState() {
@@ -50,6 +50,8 @@ class _ComicPageState extends State<_ComicPage>
     fetchIsFavorite();
     // 加载已阅读的章节链接
     fetchReadHistoryLinks();
+    // 加载上次阅读位置
+    fetchLastHistory();
     super.initState();
   }
 
@@ -70,6 +72,7 @@ class _ComicPageState extends State<_ComicPage>
     ).then((_) {
       setSystemUI(primaryColor: primaryColor);
       fetchReadHistoryLinks();
+      fetchLastHistory();
     });
   }
 
@@ -90,6 +93,13 @@ class _ComicPageState extends State<_ComicPage>
       _sortReversed = chaptersReversed;
       _comic = comic;
     });
+  }
+
+  void fetchLastHistory() async {
+    var lastReadHistory = await getLastHistory(_comic.url);
+
+    if (lastReadHistory != null)
+      setState(() => _lastReadAt = lastReadHistory.address);
   }
 
   void updateLastReadTime() async {
@@ -144,7 +154,10 @@ class _ComicPageState extends State<_ComicPage>
 
   void resetReadHistories() async {
     await deleteHistories(homeUrl: _comic.url);
-    setState(() => _readHistoryLinks = []);
+    setState(() {
+      _readHistoryLinks = [];
+      _lastReadAt = null;
+    });
   }
 
   void _handleMenuSelect(value) {
@@ -274,6 +287,7 @@ class _ComicPageState extends State<_ComicPage>
           ChaptersTab(
             _comic,
             reversed: _sortReversed,
+            lastReadAt: _lastReadAt,
             readHistoryLinks: _readHistoryLinks,
             openReadPage: openReadPage,
             handleChapterReadMark: _handleChapterReadMark,

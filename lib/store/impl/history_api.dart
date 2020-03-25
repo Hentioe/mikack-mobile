@@ -73,6 +73,20 @@ Future<History> getHistory({int id, String address}) async {
   return maps.map((map) => History.fromMap(map)).toList().first;
 }
 
+Future<History> getLastHistory(String homeUrl) async {
+  final db = await database();
+  final List<Map<String, dynamic>> maps = await db.query(
+    History.tableName,
+    where: 'home_url = ? AND displayed = 1',
+    whereArgs: [homeUrl],
+    limit: 1,
+    orderBy: 'datetime(updated_at) DESC',
+  );
+  if (maps.isEmpty) return null;
+
+  return maps.map((map) => History.fromMap(map)).toList().first;
+}
+
 Future<void> updateHistory(History historiy) async {
   final db = await database();
 
