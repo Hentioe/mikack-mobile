@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mikack_mobile/pages/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -224,13 +225,20 @@ class _ComicPageState extends State<_ComicPage>
     setState(() => _sortReversed = !_sortReversed);
   }
 
+  void handleShare() async {
+    await FlutterShare.share(
+      title: '分享：${_comic.title}',
+      linkUrl: _comic.url,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Widget> tabActions = [];
     switch (_tabIndex) {
       case 0:
         tabActions.add(IconButton(
-            tooltip: '分享此漫画', icon: Icon(Icons.share), onPressed: () {}));
+            tooltip: '分享此漫画', icon: Icon(Icons.share), onPressed: handleShare));
         break;
       case 1:
         tabActions.add(IconButton(
