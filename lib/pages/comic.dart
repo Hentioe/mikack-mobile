@@ -105,7 +105,7 @@ class _ComicPageState extends State<_ComicPage>
         name: _comic.title,
         address: _comic.url,
         cover: _comic.cover,
-        latestChaptersCount: _comic.chapters.length,
+        latestChaptersCount: _comic.chapters != null ? _comic.chapters.length : 0,
       ));
       setState(() => _isFavorite = true);
     } else {
