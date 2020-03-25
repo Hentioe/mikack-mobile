@@ -33,8 +33,10 @@ class ChaptersTab extends StatelessWidget {
         handleChapterUnReadMark(chapter);
         break;
       case 2:
-        var beforeHistories =
-            comic.chapters.where((c) => c.which < chapter.which).toList();
+        var beginAt = chapter.which ~/ groupSpacing * groupSpacing;
+        var beforeHistories = comic.chapters
+            .where((c) => c.which > beginAt && c.which < chapter.which)
+            .toList();
         handleChaptersReadMark(beforeHistories);
         break;
     }

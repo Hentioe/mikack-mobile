@@ -315,7 +315,7 @@ class _SettingsState extends State<_SettingsView> {
             ),
             _SettingItem(
               '倒序排列章节',
-              subtitle: '从高到低排列章节列表',
+              subtitle: '章节列表从高到低排序',
               trailing: _SettingsCheckBoxIcon(value: _chaptersReversed),
               onTap: _handleReversedChapters,
             ),
@@ -331,7 +331,7 @@ class _SettingsState extends State<_SettingsView> {
             ),
             _SettingItem('清空历史记录',
                 subtitle: _historitesTotal > 0
-                    ? '存在 $_historitesTotal 条阅读记录'
+                    ? '存在 $_historitesTotal 条可见历史'
                     : '没有阅读记录',
                 onTap: () => _handleHistoriesClean()),
             _SettingItem('清空书架收藏',
