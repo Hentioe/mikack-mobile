@@ -167,18 +167,18 @@ class PagesView extends StatelessWidget {
   }
 }
 
-class _MainView extends StatefulWidget {
-  _MainView(this.platform, this.comic, this.chapter);
+class _ReadPage extends StatefulWidget {
+  _ReadPage(this.platform, this.comic, this.chapter);
 
   final models.Platform platform;
   final models.Comic comic;
   final models.Chapter chapter;
 
   @override
-  State<StatefulWidget> createState() => _MainViewState();
+  State<StatefulWidget> createState() => _ReadPageState();
 }
 
-class _MainViewState extends State<_MainView> {
+class _ReadPageState extends State<_ReadPage> {
   var _currentPage = 0;
   var _addresses = <String>[];
   bool _waiting = false;
@@ -335,7 +335,7 @@ class ReadPage extends BasePage {
 
   @override
   Widget build(BuildContext context) {
-    return _MainView(platform, comic, chapter);
+    return _ReadPage(platform, comic, chapter);
   }
 }
 

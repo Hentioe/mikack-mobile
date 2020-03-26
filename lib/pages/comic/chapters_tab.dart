@@ -67,11 +67,11 @@ class ChaptersTab extends StatelessWidget {
   }
 
   List<models.Chapter> reverseByGroup(List<models.Chapter> chapters,
-      {whitchAt = 0, List<List<models.Chapter>> reversedGroup}) {
+      {whichAt = 0, List<List<models.Chapter>> reversedGroup}) {
     var group = <models.Chapter>[];
     for (models.Chapter c in chapters) {
-      if (c.which > whitchAt * groupSpacing &&
-          c.which < (whitchAt + 1) * groupSpacing)
+      if (c.which > whichAt * groupSpacing &&
+          c.which < (whichAt + 1) * groupSpacing)
         group.add(c);
       else
         break;
@@ -84,7 +84,7 @@ class ChaptersTab extends StatelessWidget {
     }
     return reverseByGroup(
       chapters.getRange(group.length, chapters.length).toList(),
-      whitchAt: ++whitchAt,
+      whichAt: ++whichAt,
       reversedGroup: reversedGroup,
     );
   }
@@ -96,7 +96,7 @@ class ChaptersTab extends StatelessWidget {
         child: CircularProgressIndicator(),
       );
     var chapters = comic.chapters;
-    if (reversed) chapters = reverseByGroup(chapters);
+    if (chapters.length > 1 && reversed) chapters = reverseByGroup(chapters);
     return Scrollbar(
       child: ListView(
         children: chapters
