@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mikack_mobile/pages/read2.dart';
 import 'package:mikack_mobile/pages/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,7 +13,6 @@ import 'package:tuple/tuple.dart';
 import 'package:mikack/models.dart' as models;
 import 'comic/info_tab.dart';
 import 'comic/chapters_tab.dart';
-import './read.dart';
 import '../ext.dart';
 
 class _ComicPage extends StatefulWidget {
@@ -63,11 +63,16 @@ class _ComicPageState extends State<_ComicPage>
   }
 
   void openReadPage(models.Chapter chapter) {
-    setNavigationBarColor(readingBackgroundColor);
+    setNavigationBarColor(read2PageBackgroundColor);
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ReadPage(widget.platform, widget.comic, chapter),
+//        builder: (_) => ReadPage(widget.platform, widget.comic, chapter),
+        builder: (_) => Read2Page(
+          platform: widget.platform,
+          comic: widget.comic,
+          chapter: chapter,
+        ),
       ),
     ).then((_) {
       setSystemUI(primaryColor: primaryColor);
