@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:mikack_mobile/fragments/bookshelf.dart';
 import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/pages/base_page.dart';
+import 'package:mikack_mobile/pages/read2.dart';
 import 'package:mikack_mobile/store.dart';
 import 'package:mikack_mobile/widgets/comics_view.dart' show coverRatio;
-import '../pages/read.dart';
 import '../ext.dart';
 
-const historiesCoverWitdh = 90.0;
-const historiesCoverHeight = historiesCoverWitdh / coverRatio;
+const historiesCoverWidth = 90.0;
+const historiesCoverHeight = historiesCoverWidth / coverRatio;
 
 class HistoriesView extends StatelessWidget {
   HistoriesView(this.histories, {this.handleRemove, this.handleContinue});
@@ -44,7 +44,7 @@ class HistoriesView extends StatelessWidget {
                     headers: h.headers,
                     fit: BoxFit.cover,
                     height: historiesCoverHeight,
-                    width: historiesCoverWitdh,
+                    width: historiesCoverWidth,
                     cache: true,
                   ),
                   Expanded(
@@ -139,12 +139,15 @@ class _MainViewState extends State<MainView> {
     var platform =
         platformList.firstWhere((p) => p.domain == history.source.domain);
     if (platform != null) {
-      setNavigationBarColor(readingBackgroundColor);
+      setNavigationBarColor(read2PageBackgroundColor);
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              ReadPage(platform, history.asComic(), history.asChapter()),
+          builder: (context) => Read2Page(
+            platform: platform,
+            comic: history.asComic(),
+            chapter: history.asChapter(),
+          ),
         ),
       ).then((_) => setSystemUI(primaryColor: primaryColor));
     }

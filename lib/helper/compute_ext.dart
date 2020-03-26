@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:isolate';
 import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 import 'package:tuple/tuple.dart';
 import 'dart:ffi';
 import 'package:mikack/models.dart' as models;
+
+final log = Logger('ComputeExt');
 
 class ComputeController {
   ComputeController(this.isolate, this.resultPort, this.errorPort,
@@ -16,7 +19,7 @@ class ComputeController {
   final String debugLabel;
   final int flowId;
 
-  static const destoryCommand = 0;
+  static const destroyCommand = 0;
 }
 
 Future<ComputeController> createComputeController<Q, R>(
@@ -67,8 +70,8 @@ Future<R> controllableCompute<Q, R>(ComputeController controller) async {
   // 任务结束执行命令
   if (command != null) {
     switch (command.item1) {
-      case ComputeController.destoryCommand:
-        command.item2.destory();
+      case ComputeController.destroyCommand:
+        command.item2.destroy();
     }
   }
   Timeline.startSync('${controller.debugLabel}: end',
@@ -120,7 +123,7 @@ Future<void> _spawn<Q, R>(
 }
 
 abstract class TaskCommand {
-  void destory();
+  void destroy();
 }
 
 class ValuePageIterator implements TaskCommand {
@@ -136,13 +139,14 @@ class ValuePageIterator implements TaskCommand {
   }
 
   @override
-  void destory() {
+  void destroy() {
     asPageIterator().free();
+    log.info('Iterator is freed');
   }
 }
 
 extension PageInteratorCopyable on models.PageIterator {
-  ValuePageIterator asValuePageInaterator() {
+  ValuePageIterator asValuePageIterator() {
     return ValuePageIterator(
         this.createdIterPointer.address, this.iterPointer.address);
   }

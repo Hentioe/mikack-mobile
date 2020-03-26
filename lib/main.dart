@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:mikack_mobile/logging.dart';
 import 'package:mikack_mobile/pages/term.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,9 +14,12 @@ import 'pages/settings.dart';
 
 // 全部平台列表
 final List<models.Platform> platformList = platforms();
-const bookshelfSoryByKey = 'bookshelf_sory_by';
+const bookshelfSortByKey = 'bookshelf_sort_by';
 
-void main() => runApp(MyApp());
+void main() {
+  initLogger();
+  runApp(MyApp());
+}
 
 class MyApp extends BasePage {
   @override
@@ -116,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void fetchBookshelfSortBy() async {
     var prefs = await SharedPreferences.getInstance();
-    var sortBy = parseBookshelfSortBy(prefs.getString(bookshelfSoryByKey));
+    var sortBy = parseBookshelfSortBy(prefs.getString(bookshelfSortByKey));
     if (sortBy != _bookshelfSortBy) {
       setState(() => _bookshelfSortBy = sortBy);
     }
@@ -209,7 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void updateBookshelfSortBy(BookshelfSortBy sortBy) async {
     var prefs = await SharedPreferences.getInstance();
-    await prefs.setString(bookshelfSoryByKey, sortBy.value());
+    await prefs.setString(bookshelfSortByKey, sortBy.value());
     setState(() => _bookshelfSortBy = sortBy);
   }
 

@@ -3,6 +3,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:logging/logging.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/helper/compute_ext.dart';
@@ -17,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:tuple/tuple.dart';
 
+final log = Logger('Read2Page');
 const read2PageBackgroundColor = Color.fromARGB(255, 50, 50, 50);
 const _pageInfoTextColor = Color.fromARGB(255, 255, 255, 255);
 const _pageInfoOutlineColor = Color.fromARGB(255, 0, 0, 0);
@@ -54,10 +56,16 @@ class _Read2PageState extends State<_Read2Page> {
   @override
   void dispose() {
     if (_pageIterator != null) {
-      // 以通信的方式安全释放迭代器内存（注意，需要保证迭代器 API 非并发调用）
-      nextResultPort?.sendPort?.send(Tuple2(ComputeController.destoryCommand,
-          _pageIterator.asValuePageInaterator()));
-      nextResultPort = null;
+      if (nextResultPort != null) {
+        // 以通信的方式安全释放迭代器内存（注意，需要保证迭代器 API 非并发调用）
+        nextResultPort.sendPort.send(Tuple2(ComputeController.destroyCommand,
+            _pageIterator.asValuePageIterator()));
+        nextResultPort = null;
+      } else {
+        // 直接释放迭代器内存
+        _pageIterator.free();
+        log.info('Iterator is freed');
+      }
     }
     super.dispose();
   }
@@ -105,8 +113,12 @@ class _Read2PageState extends State<_Read2Page> {
   void createPageIterator() async {
     var created = await compute(
         _createPageIteratorTask, Tuple2(widget.platform, widget.chapter));
+    if (!mounted) {
+      created.item1.asPageIterator().free();
+      log.info('Iterator is freed');
+      return;
+    }
     // 迭代器创建完成隐藏系统 UI
-    if (!mounted) return;
     hiddenSystemUI();
     setState(() {
       _pageIterator = created.item1.asPageIterator();
@@ -127,15 +139,15 @@ class _Read2PageState extends State<_Read2Page> {
     // 同步资源下载和地址池写入
     if (!mounted) return;
     await lock.synchronized(() async {
+      if (!mounted) return;
       if (_pages.length >= _chapter.pageCount) return;
       var controller = await createComputeController(
-          _getNextAddressTask, _pageIterator.asValuePageInaterator());
+          _getNextAddressTask, _pageIterator.asValuePageIterator());
       nextResultPort = controller.resultPort;
       var address = await controllableCompute(controller);
-      if (mounted)
-        setState(() {
-          _pages.add(address);
-        });
+      nextResultPort = null;
+      if (!mounted) return;
+      setState(() => _pages.add(address));
       // 预缓存
       precacheImage(
           NetworkImage(address, headers: _chapter.pageHeaders), context);
@@ -260,7 +272,7 @@ class _Read2PageState extends State<_Read2Page> {
           initialScale: initialScale,
           inPageView: true,
           initialAlignment: InitialAlignment.topCenter,
-            cacheGesture: true,
+          cacheGesture: true,
         );
       },
       loadStateChanged: (state) {
