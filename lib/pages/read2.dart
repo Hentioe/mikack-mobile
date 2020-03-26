@@ -67,6 +67,7 @@ class _Read2PageState extends State<_Read2Page> {
         log.info('Iterator is freed');
       }
     }
+    pageController?.dispose();
     super.dispose();
   }
 
@@ -148,11 +149,13 @@ class _Read2PageState extends State<_Read2Page> {
       nextResultPort = null;
       if (!mounted) return;
       setState(() => _pages.add(address));
-      // 预缓存
+      // 预缓存图片资源
       precacheImage(
-          NetworkImage(address, headers: _chapter.pageHeaders), context);
+        ExtendedImage.network(address, headers: _chapter.pageHeaders).image,
+        context,
+      );
     });
-    // 预下载
+    // 预加载（递归并递减预下载次数）
     if (preCount > 0) fetchNextPage(preCount: --preCount);
   }
 
