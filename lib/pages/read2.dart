@@ -125,15 +125,17 @@ class _Read2PageState extends State<_Read2Page> {
 
   void fetchNextPage({preCount = 2}) async {
     // 同步资源下载和地址池写入
+    if (!mounted) return;
     await lock.synchronized(() async {
       if (_pages.length >= _chapter.pageCount) return;
       var controller = await createComputeController(
           _getNextAddressTask, _pageIterator.asValuePageInaterator());
       nextResultPort = controller.resultPort;
       var address = await controllableCompute(controller);
-      setState(() {
-        _pages.add(address);
-      });
+      if (mounted)
+        setState(() {
+          _pages.add(address);
+        });
       // 预缓存
       precacheImage(
           NetworkImage(address, headers: _chapter.pageHeaders), context);
@@ -172,8 +174,8 @@ class _Read2PageState extends State<_Read2Page> {
   animateToPage(page) {
     pageController.animateToPage(
       page,
-      duration: Duration(milliseconds: 100),
-      curve: Curves.easeIn,
+      duration: Duration(milliseconds: 80),
+      curve: Curves.easeInCubic,
     );
   }
 
@@ -225,51 +227,60 @@ class _Read2PageState extends State<_Read2Page> {
   //  );
 
   Widget _buildImageView(String address) {
-    return Container(
-      child: ListView(
-        shrinkWrap: true,
-        padding: EdgeInsets.zero,
-        children: [
-          ExtendedImage.network(
-            address,
-            headers: _chapter.pageHeaders,
-            fit: BoxFit.fitWidth,
-            width: double.infinity,
-            cache: true,
-            mode: ExtendedImageMode.gesture,
-            initGestureConfigHandler: (state) {
-              return GestureConfig(
-                minScale: 1.0,
-                animationMinScale: 0.7,
-                maxScale: 3.5,
-                animationMaxScale: 3.5,
-                speed: 1.0,
-                inertialSpeed: 100.0,
-                initialScale: 1.0,
-                inPageView: true,
-                initialAlignment: InitialAlignment.center,
-              );
-            },
-            loadStateChanged: (state) {
-              switch (state.extendedImageLoadState) {
-                case LoadState.loading:
-                  return Center(
-                    child: const CircularProgressIndicator(),
-                  );
-                  break;
-                case LoadState.failed:
-                  return Center(
-                    child: RaisedButton(child: Text('重试'), onPressed: () {}),
-                  ); // 加载失败显示标题文本
-                  break;
-                default:
-                  return null;
-                  break;
-              }
-            },
-          )
-        ],
-      ),
+    return ExtendedImage.network(
+      address,
+      headers: _chapter.pageHeaders,
+      fit: BoxFit.contain,
+      cache: true,
+      mode: ExtendedImageMode.gesture,
+      initGestureConfigHandler: (state) {
+        var img = state.extendedImageInfo.image;
+        var screenSize = MediaQuery.of(context).size;
+        var maxScale = 4.5;
+        var initialScale = 1.0;
+        var animationMaxScale = 5.5;
+        // 如果图片的长：宽比例大于屏幕长：宽比例，则设置独特的缩放值
+        // 屏幕：长-3 宽-1
+        // 图片：长-5 宽-1
+        // (3/1) < (5/1)
+        if ((screenSize.height / screenSize.width) < (img.height / img.width)) {
+          // 计算放大多少倍宽度占满屏幕宽度
+          initialScale =
+              screenSize.width / (img.width / (img.height / screenSize.height));
+          maxScale = initialScale + 1.0;
+          animationMaxScale = maxScale + 1.0;
+        }
+        return GestureConfig(
+          minScale: 1.0,
+          animationMinScale: 0.7,
+          maxScale: maxScale,
+          animationMaxScale: animationMaxScale,
+          speed: 1.0,
+          inertialSpeed: 100.0,
+          initialScale: initialScale,
+          inPageView: true,
+          initialAlignment: InitialAlignment.topCenter,
+            cacheGesture: true,
+        );
+      },
+      loadStateChanged: (state) {
+        switch (state.extendedImageLoadState) {
+          case LoadState.loading:
+            return Center(
+              child: const CircularProgressIndicator(),
+            );
+            break;
+          case LoadState.failed:
+            return Center(
+              child: RaisedButton(
+                  child: Text('重试'), onPressed: () => state.reLoadImage()),
+            ); // 加载失败显示标题文本
+            break;
+          default:
+            return null;
+            break;
+        }
+      },
     );
   }
 
@@ -296,7 +307,7 @@ class _Read2PageState extends State<_Read2Page> {
                         if (index >= _pages.length) {
                           return Center(child: connectingView);
                         } else {
-                          return Center(child: _buildImageView(_pages[index]));
+                          return _buildImageView(_pages[index]);
                         }
                       },
                       onPageChanged: handlePageChange,
