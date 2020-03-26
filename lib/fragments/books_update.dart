@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mikack_mobile/pages/comic.dart';
 import 'package:mikack_mobile/store.dart';
 import 'package:mikack_mobile/store/impl/chapter_update_api.dart';
@@ -60,8 +61,9 @@ class _BooksUpdateFragment extends StatefulWidget {
 class _BooksUpdateFragmentState extends State<_BooksUpdateFragment> {
   var _firstOpen = true;
   List<ComicViewItem> _comicViewItems = [];
-  var _refershing = false;
+  var _refreshing = false;
   var _progressIndicatorValue = 0.0;
+  var _stopped = false;
 
   @override
   void initState() {
@@ -72,9 +74,9 @@ class _BooksUpdateFragmentState extends State<_BooksUpdateFragment> {
 
   void fetchChapterUpdates() async {
     var favorites = await findFavorites();
-    var chapterUpates = await findChapterUpdates();
+    var chapterUpdates = await findChapterUpdates();
     List<ComicViewItem> comicViewItems = [];
-    for (ChapterUpdate chapterUpdate in chapterUpates) {
+    for (ChapterUpdate chapterUpdate in chapterUpdates) {
       var favorite =
           favorites.firstWhere((f) => f.address == chapterUpdate.homeUrl);
       var countDiff =
@@ -101,11 +103,15 @@ class _BooksUpdateFragmentState extends State<_BooksUpdateFragment> {
       setState(() {
         _firstOpen = false;
         _comicViewItems.clear();
-        _refershing = true;
+        _refreshing = true;
       });
     await deleteAllChapterUpdates(); // 删除已存在的更新记录
     // 排队检测更新
     for (var i = 0; i < favorites.length; i++) {
+      if (!_refreshing) {
+        Fluttertoast.showToast(msg: '更新检查已停止');
+        break;
+      }
       var favorite = favorites[i];
       var source = await getSource(id: favorite.sourceId);
       if (source == null) break;
@@ -129,13 +135,14 @@ class _BooksUpdateFragmentState extends State<_BooksUpdateFragment> {
     }
     if (mounted)
       setState(() {
-        _refershing = false;
+        _refreshing = false;
         _progressIndicatorValue = 0.0;
       });
   }
 
   void _handleStopRefresh() async {
-    setState(() => _refershing = false);
+    Fluttertoast.showToast(msg: '更新检查停止中…');
+    setState(() => _refreshing = false);
   }
 
   void _openComicPage(models.Comic comic) async {
@@ -163,11 +170,11 @@ class _BooksUpdateFragmentState extends State<_BooksUpdateFragment> {
 
   @override
   Widget build(BuildContext context) {
-    var refersingView = <Widget>[];
+    var refreshingView = <Widget>[];
     var stopView = <Widget>[];
-    if (_refershing) {
+    if (_refreshing) {
       if (_progressIndicatorValue > 0) // 进度为空时不显示
-        refersingView.add(Positioned(
+        refreshingView.add(Positioned(
           top: 0,
           left: 0,
           right: 0,
@@ -187,7 +194,7 @@ class _BooksUpdateFragmentState extends State<_BooksUpdateFragment> {
     return RefreshIndicator(
       child: Stack(
         children: [
-          ...refersingView,
+          ...refreshingView,
           Positioned.fill(
               child: BooksView(
             _comicViewItems,
