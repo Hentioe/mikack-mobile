@@ -2,6 +2,7 @@ import 'dart:isolate';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:logging/logging.dart';
 import 'package:mikack/models.dart' as models;
@@ -26,12 +27,22 @@ const _pageInfoFontSize = 13.0;
 const _spinkitSize = 35.0;
 const _connectionIndicatorColor = Color.fromARGB(255, 138, 138, 138);
 
+enum ChapterPreviewDirection { prev, next }
+
 class _Read2Page extends StatefulWidget {
-  _Read2Page({this.platform, this.comic, this.chapter});
+  _Read2Page({
+    this.platform,
+    this.comic,
+    this.chapter,
+    this.prevChapter,
+    this.nextChapter,
+  });
 
   final models.Platform platform;
   final models.Comic comic;
   final models.Chapter chapter;
+  final models.Chapter prevChapter;
+  final models.Chapter nextChapter;
 
   @override
   State<StatefulWidget> createState() => _Read2PageState();
@@ -81,7 +92,9 @@ class _Read2PageState extends State<_Read2Page> {
   }
 
   void handlePageChange(int page) {
-    if (page + 1 >= _currentPage)
+    if (page == _currentPage || page == 0 || page == _chapter.pageCount + 1)
+      return;
+    if (page > _currentPage)
       handleNext();
     else
       handlePrev();
@@ -116,7 +129,7 @@ class _Read2PageState extends State<_Read2Page> {
     var created = await compute(
         _createPageIteratorTask, Tuple2(widget.platform, widget.chapter));
     // 初始化页面控制器（未来会根据历史记录跳转页码）
-    pageController = PageController(initialPage: _currentPage - 1);
+    pageController = PageController(initialPage: _currentPage);
     if (!mounted) {
       created.item1.asPageIterator().free();
       log.info('Iterator is freed');
@@ -167,8 +180,6 @@ class _Read2PageState extends State<_Read2Page> {
 
   void handlePrev() {
     if (_currentPage <= 1) return;
-    // 翻页
-    animateToPage(_currentPage - 2);
     // 直接修改页码
     setState(() {
       _currentPage--;
@@ -185,8 +196,6 @@ class _Read2PageState extends State<_Read2Page> {
       // 超出已加载数量，无预加载按页加载
       fetchNextPage(preCount: 0); // 加载页面
     }
-    // 翻页
-    animateToPage(_currentPage);
     setState(() {
       _currentPage++;
     });
@@ -200,6 +209,20 @@ class _Read2PageState extends State<_Read2Page> {
     );
   }
 
+  animateNextPage() {
+    pageController.nextPage(
+      duration: Duration(milliseconds: 80),
+      curve: Curves.easeInCubic,
+    );
+  }
+
+  animatePrevPage() {
+    pageController.previousPage(
+      duration: Duration(milliseconds: 80),
+      curve: Curves.easeInCubic,
+    );
+  }
+
   void _handleTapUp(TapUpDetails details, BuildContext context) {
     if (_loading) return;
     var centerLocation = MediaQuery.of(context).size.width / 2; // 取屏幕的一半长度
@@ -208,15 +231,15 @@ class _Read2PageState extends State<_Read2Page> {
     if (centerLocation > x) {
       // 左屏幕（默认上一页，左手模式相反）
       if (_leftHandMode)
-        animateToPage(_currentPage);
+        animateNextPage();
       else
-        animateToPage(_currentPage - 2);
+        animatePrevPage();
     } else {
       // 右屏幕（默认下一页，左手模式相反）
       if (_leftHandMode)
-        animateToPage(_currentPage - 2);
+        animatePrevPage();
       else
-        animateToPage(_currentPage);
+        animateNextPage();
     }
   }
 
@@ -308,6 +331,48 @@ class _Read2PageState extends State<_Read2Page> {
   final connectingView = const SpinKitPouringHourglass(
       color: _connectionIndicatorColor, size: _spinkitSize);
 
+  final chapterInfoHeaderStyle = TextStyle(
+    fontSize: 19,
+    fontWeight: FontWeight.bold,
+    color: Colors.grey[400],
+  );
+  final chapterInfoStyle = TextStyle(
+    fontSize: 18,
+    color: Colors.grey[400],
+    decoration: TextDecoration.underline,
+  );
+
+  Widget _buildPreviewChapter(ChapterPreviewDirection direction) {
+    var directionText;
+    var previewChapter;
+    switch (direction) {
+      case ChapterPreviewDirection.prev:
+        directionText = '上';
+        previewChapter = widget.prevChapter;
+        break;
+      case ChapterPreviewDirection.next:
+        directionText = '下';
+        previewChapter = widget.nextChapter;
+        break;
+    }
+    if (previewChapter == null)
+      return Center(
+        child: Text('无$directionText一章节信息', style: chapterInfoHeaderStyle),
+      );
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text('$directionText一章：', style: chapterInfoHeaderStyle),
+        SizedBox(height: 10),
+        MaterialButton(
+          child: Text(previewChapter.title, style: chapterInfoStyle),
+          onPressed: () => Navigator.pop(context, previewChapter),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -323,12 +388,20 @@ class _Read2PageState extends State<_Read2Page> {
                   Positioned.fill(
                     child: ExtendedImageGesturePageView.builder(
                       controller: pageController,
-                      itemCount: _chapter.pageCount,
+                      itemCount: _chapter.pageCount + 2,
                       itemBuilder: (ctx, index) {
-                        if (index >= _pages.length) {
+                        if (index == 0) {
+                          // 上一章
+                          return _buildPreviewChapter(
+                              ChapterPreviewDirection.prev);
+                        } else if (index == _chapter.pageCount + 1) {
+                          // 下一章
+                          return _buildPreviewChapter(
+                              ChapterPreviewDirection.next);
+                        } else if (index - 1 >= _pages.length) {
                           return Center(child: connectingView);
                         } else {
-                          return _buildImageView(_pages[index]);
+                          return _buildImageView(_pages[index - 1]);
                         }
                       },
                       onPageChanged: handlePageChange,
@@ -344,17 +417,27 @@ class _Read2PageState extends State<_Read2Page> {
 }
 
 class Read2Page extends BasePage {
-  Read2Page({this.platform, this.comic, this.chapter});
+  Read2Page({
+    this.platform,
+    this.comic,
+    this.chapter,
+    this.prevChapter,
+    this.nextChapter,
+  });
 
   final models.Platform platform;
   final models.Comic comic;
   final models.Chapter chapter;
+  final models.Chapter prevChapter;
+  final models.Chapter nextChapter;
 
   @override
   Widget build(BuildContext context) => _Read2Page(
         platform: platform,
         comic: comic,
         chapter: chapter,
+        prevChapter: prevChapter,
+        nextChapter: nextChapter,
       );
 }
 

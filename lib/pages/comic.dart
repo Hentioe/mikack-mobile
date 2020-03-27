@@ -64,6 +64,13 @@ class _ComicPageState extends State<_ComicPage>
 
   void openReadPage(models.Chapter chapter) {
     setNavigationBarColor(read2PageBackgroundColor);
+    // 查找上一章
+    var tmpChapters =
+        _comic.chapters.where((c) => c.which == chapter.which - 1);
+    var prevChapter = tmpChapters.length == 0 ? null : tmpChapters.first;
+    // 查找下一章
+    tmpChapters = _comic.chapters.where((c) => c.which == chapter.which + 1);
+    var nextChapter = tmpChapters.length == 0 ? null : tmpChapters.first;
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -72,12 +79,18 @@ class _ComicPageState extends State<_ComicPage>
           platform: widget.platform,
           comic: widget.comic,
           chapter: chapter,
+          prevChapter: prevChapter,
+          nextChapter: nextChapter,
         ),
       ),
-    ).then((_) {
-      setSystemUI(primaryColor: primaryColor);
-      fetchReadHistoryLinks();
-      fetchLastHistory();
+    ).then((r) {
+      if (r is models.Chapter)
+        openReadPage(r);
+      else {
+        setSystemUI(primaryColor: primaryColor);
+        fetchReadHistoryLinks();
+        fetchLastHistory();
+      }
     });
   }
 

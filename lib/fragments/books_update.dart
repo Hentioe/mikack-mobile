@@ -63,7 +63,6 @@ class _BooksUpdateFragmentState extends State<_BooksUpdateFragment> {
   List<ComicViewItem> _comicViewItems = [];
   var _refreshing = false;
   var _progressIndicatorValue = 0.0;
-  var _stopped = false;
 
   @override
   void initState() {
