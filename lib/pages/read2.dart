@@ -151,7 +151,11 @@ class _Read2PageState extends State<_Read2Page> {
       setState(() => _pages.add(address));
       // 预缓存图片资源
       precacheImage(
-        ExtendedImage.network(address, headers: _chapter.pageHeaders).image,
+        ExtendedImage.network(
+          address,
+          headers: _chapter.pageHeaders,
+          cache: true,
+        ).image,
         context,
       );
     });
