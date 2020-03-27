@@ -108,10 +108,10 @@ class _ComicPageState extends State<_ComicPage>
   }
 
   void updateLastReadTime() async {
-    var favotite = await getFavorite(address: _comic.url);
-    if (favotite != null) {
-      favotite.lastReadTime = DateTime.now();
-      await updateFavorite(favotite);
+    var favorite = await getFavorite(address: _comic.url);
+    if (favorite != null) {
+      favorite.lastReadTime = DateTime.now();
+      await updateFavorite(favorite);
     }
   }
 
@@ -138,10 +138,12 @@ class _ComicPageState extends State<_ComicPage>
             _comic.chapters != null ? _comic.chapters.length : 0,
       ));
       setState(() => _isFavorite = true);
+      Fluttertoast.showToast(msg: '已添加到书架');
     } else {
       // 取消收藏
       await deleteFavorite(address: _comic.url);
       setState(() => _isFavorite = false);
+      Fluttertoast.showToast(msg: '已从书架移除');
     }
   }
 

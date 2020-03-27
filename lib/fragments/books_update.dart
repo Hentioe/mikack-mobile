@@ -109,7 +109,7 @@ class _BooksUpdateFragmentState extends State<_BooksUpdateFragment> {
     // 排队检测更新
     for (var i = 0; i < favorites.length; i++) {
       if (!_refreshing) {
-        Fluttertoast.showToast(msg: '更新检查已停止');
+        Fluttertoast.showToast(msg: '检查更新已停止');
         break;
       }
       var favorite = favorites[i];
@@ -141,7 +141,7 @@ class _BooksUpdateFragmentState extends State<_BooksUpdateFragment> {
   }
 
   void _handleStopRefresh() async {
-    Fluttertoast.showToast(msg: '更新检查停止中…');
+    Fluttertoast.showToast(msg: '检查更新停止中…');
     setState(() => _refreshing = false);
   }
 
