@@ -68,6 +68,7 @@ class _Read2PageState extends State<_Read2Page> {
       }
     }
     pageController?.dispose();
+    clearGestureDetailsCache();
     super.dispose();
   }
 
@@ -114,9 +115,12 @@ class _Read2PageState extends State<_Read2Page> {
   void createPageIterator() async {
     var created = await compute(
         _createPageIteratorTask, Tuple2(widget.platform, widget.chapter));
+    // 初始化页面控制器（未来会根据历史记录跳转页码）
+    pageController = PageController(initialPage: _currentPage - 1);
     if (!mounted) {
       created.item1.asPageIterator().free();
       log.info('Iterator is freed');
+      pageController.dispose();
       return;
     }
     // 迭代器创建完成隐藏系统 UI
@@ -127,8 +131,6 @@ class _Read2PageState extends State<_Read2Page> {
       _loading = false;
       addHistory(_chapter);
     });
-    // 初始化页面控制器（未来会根据历史记录跳转页码）
-    pageController = PageController(initialPage: _currentPage - 1);
     // 加载第一页
     fetchNextPage();
   }
