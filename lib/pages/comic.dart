@@ -268,6 +268,12 @@ class _ComicPageState extends State<_ComicPage>
   }
 
   @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     List<Widget> tabActions = [];
     switch (_tabIndex) {

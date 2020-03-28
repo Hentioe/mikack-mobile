@@ -123,7 +123,8 @@ class ComicsView extends StatelessWidget {
             color: Colors.blue,
             child: Center(
                 child: Text(
-              '${item.badgeValue > 999 ? 999 : item.badgeValue}', // 最大显示 999
+              '${item.badgeValue > 999 ? 999 : item.badgeValue}',
+              // 最大显示 999
               style:
                   TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             )),

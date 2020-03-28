@@ -178,10 +178,13 @@ class _SearchPageState extends State<_SearchPage> {
     {
       var comics =
           await compute(_searchComicsTask, Tuple2(platform, _keywords));
-      setState(() {
-        _groupedItems
-            .addAll({platform: comics.toViewItems(platform: platform)});
-      });
+      if (mounted)
+        setState(() {
+          _groupedItems
+              .addAll({platform: comics.toViewItems(platform: platform)});
+        });
+      else
+        break;
     }
   }
 
@@ -374,6 +377,12 @@ class _SearchPageState extends State<_SearchPage> {
       _submitted = false;
     });
     editingController.text = _keywords;
+  }
+
+  @override
+  void dispose() {
+    editingController.dispose();
+    super.dispose();
   }
 
   @override

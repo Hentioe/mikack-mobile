@@ -192,6 +192,7 @@ class _MainViewState extends State<MainView> {
   @override
   void dispose() {
     scrollController.dispose();
+    editingController.dispose();
     super.dispose();
   }
 
