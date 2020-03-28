@@ -17,7 +17,7 @@ import 'package:tuple/tuple.dart';
 
 import 'comic.dart';
 
-const searchResultCoverHeight = 160.0;
+const searchResultCoverHeight = 210.0;
 const searchResultCoverWidth = coverRatio * searchResultCoverHeight;
 
 class _SearchPage extends StatefulWidget {
@@ -188,19 +188,33 @@ class _SearchPageState extends State<_SearchPage> {
     }
   }
 
+  // 封面加载指示器
+  final coverLoadingView = const SizedBox(
+    height: comicsViewGridLoadingSize,
+    width: comicsViewGridLoadingSize,
+    child: CircularProgressIndicator(strokeWidth: 2),
+  );
+
   // TODO: 独立漫画卡片小部件，和 ComicsView 共享
   Widget _buildResultView() {
     List<Widget> searchingView = [];
     if (_platforms.length >
         _groupedItems.length + _excludesPlatformDomains.length)
-      searchingView.add(Center(child: CircularProgressIndicator()));
+      searchingView.add(Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: LinearProgressIndicator(
+          value: _groupedItems.length /
+              (_platforms.length - _excludesPlatformDomains.length),
+        ),
+      ));
     if (_groupedItems.length == 0)
       return Center(child: CircularProgressIndicator());
     return Scrollbar(
-      child: ListView(
-        children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
+        children: [
+          ListView(
             children: [
               ..._groupedItems.entries
                   .map((entry) => Column(
@@ -236,7 +250,9 @@ class _SearchPageState extends State<_SearchPage> {
                                   child: Text(
                                     '无结果',
                                     style: TextStyle(
-                                        fontSize: 14, color: Colors.grey[500]),
+                                      fontSize: 12,
+                                      color: Colors.grey[500],
+                                    ),
                                   ),
                                 )
                               : SizedBox(
@@ -263,8 +279,7 @@ class _SearchPageState extends State<_SearchPage> {
                                                   .extendedImageLoadState) {
                                                 case LoadState.loading:
                                                   return Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
+                                                    child: coverLoadingView,
                                                   );
                                                   break;
                                                 case LoadState.failed:
@@ -356,7 +371,7 @@ class _SearchPageState extends State<_SearchPage> {
                   .toList(),
             ],
           ),
-          ...searchingView,
+          ...searchingView
         ],
       ),
     );
