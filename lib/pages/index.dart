@@ -212,8 +212,10 @@ class _MainViewState extends State<MainView> {
                 autofocus: true,
                 onSubmitted: submitSearch,
                 decoration: InputDecoration(
-                    enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white, width: 2))),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white, width: 2),
+                  ),
+                ),
               )
             // 标题
             : Text(widget.platform.name),

@@ -29,7 +29,7 @@ class _TermPageState extends State<_TermPage> {
   }
 
   void fetchTermText() async {
-    var termText = await rootBundle.loadString('terms/$termVersion.md');
+    var termText = await rootBundle.loadString('term/$termVersion.md');
     setState(() => _termText = termText);
   }
 

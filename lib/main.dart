@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/logging.dart';
+import 'package:mikack_mobile/pages/search.dart';
 import 'package:mikack_mobile/pages/term.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -166,7 +167,8 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pop(); // 关闭抽屉
   }
 
-  void _handleSearch() {}
+  void _handleSearch() =>
+      Navigator.push(context, MaterialPageRoute(builder: (_) => SearchPage()));
 
   void _handleLibrariesFilter() {
     var fragment = _drawerItems[_selectedDrawerIndex].fragment;
