@@ -15,12 +15,12 @@ const comicsViewGridLoadingSize = 16.0;
 
 class ComicViewItem {
   final models.Comic comic;
-  final models.Platform platfrom;
+  final models.Platform platform;
   final int badgeValue;
 
   ComicViewItem(
     this.comic, {
-    this.platfrom,
+    this.platform,
     this.badgeValue,
   });
 }
@@ -108,7 +108,7 @@ class ComicsView extends StatelessWidget {
     List<Widget Function(ComicViewItem)> platformView = [];
     if (showPlatform)
       platformView.addAll([
-        (item) => Favicon(item.platfrom, size: 14),
+        (item) => Favicon(item.platform, size: 14),
         (_) => SizedBox(width: 4),
       ]);
     List<Widget Function(ComicViewItem)> badgeView = [];

@@ -24,13 +24,15 @@ extension FavoritesExt on List<Favorite> {
 }
 
 extension ComicsExt on List<Comic> {
-  List<ComicViewItem> toViewItems() {
-    return this.map((c) => c.toViewItem()).toList();
+  List<ComicViewItem> toViewItems({Platform platform, int badgeValue}) {
+    return this
+        .map((c) => c.toViewItem(platform: platform, badgeValue: badgeValue))
+        .toList();
   }
 }
 
 extension ComicExt on Comic {
   ComicViewItem toViewItem({Platform platform, int badgeValue}) {
-    return ComicViewItem(this, platfrom: platform, badgeValue: badgeValue);
+    return ComicViewItem(this, platform: platform, badgeValue: badgeValue);
   }
 }

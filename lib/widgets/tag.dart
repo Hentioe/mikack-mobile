@@ -11,6 +11,7 @@ class _Tag extends StatefulWidget {
   _Tag(
     this.value,
     this.text, {
+    this.color,
     this.selected,
     this.stateful,
     this.stateFixed,
@@ -20,6 +21,7 @@ class _Tag extends StatefulWidget {
 
   final int value;
   final String text;
+  final Color color;
   final bool selected;
   final bool stateful;
   final bool stateFixed;
@@ -72,15 +74,15 @@ class _TagState extends State<_Tag> {
           // 圆角
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: defaultSelectedTagColor),
-            color: selected ? defaultSelectedTagColor : Colors.transparent,
+            border: Border.all(color: widget.color),
+            color: selected ? widget.color : Colors.transparent,
           ),
           padding: defaultTagPadding,
           child: Text(
             widget.text,
             style: TextStyle(
               fontSize: 10,
-              color: selected ? Colors.white : defaultSelectedTagColor,
+              color: selected ? Colors.white : widget.color,
               fontFamily: 'Monospace',
               height: 1.5,
             ),
@@ -94,6 +96,7 @@ class Tag extends StatelessWidget {
   Tag(
     this.value,
     this.text, {
+    this.color = defaultSelectedTagColor,
     this.selected = false,
     this.stateful = false,
     this.stateFixed = false,
@@ -103,6 +106,7 @@ class Tag extends StatelessWidget {
 
   final int value;
   final String text;
+  final Color color;
   final bool selected;
   final bool stateful;
   final bool stateFixed;
@@ -113,6 +117,7 @@ class Tag extends StatelessWidget {
   Widget build(BuildContext context) => _Tag(
         value,
         text,
+        color: color,
         selected: selected,
         stateful: stateful,
         stateFixed: stateFixed,

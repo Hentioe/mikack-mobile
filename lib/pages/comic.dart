@@ -320,6 +320,7 @@ class _ComicPageState extends State<_ComicPage>
       ),
       floatingActionButton: showFloatActionBtn
           ? FloatingActionButton(
+              heroTag: 'startReaddingFab',
               tooltip: '开始阅读',
               child: Icon(Icons.play_arrow),
               onPressed: () => openFirstChapter(context))
