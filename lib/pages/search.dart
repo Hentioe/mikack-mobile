@@ -13,6 +13,7 @@ import 'package:mikack_mobile/widgets/comics_view.dart';
 import 'package:mikack_mobile/widgets/favicon.dart';
 import 'package:mikack_mobile/widgets/tag.dart';
 import 'package:mikack_mobile/ext.dart';
+import 'package:mikack_mobile/widgets/text_hint.dart';
 import 'package:tuple/tuple.dart';
 
 import 'comic.dart';
@@ -59,6 +60,7 @@ class _SearchPageState extends State<_SearchPage> {
         includes.map((v) => models.Tag(v, '')).toList(),
         excludes.map((v) => models.Tag(v, '')).toList(),
       ).where((p) => p.isSearchable).toList();
+      _excludesPlatformDomains.clear();
     });
   }
 
@@ -197,7 +199,12 @@ class _SearchPageState extends State<_SearchPage> {
 
   // TODO: 独立漫画卡片小部件，和 ComicsView 共享
   Widget _buildResultView() {
-    List<Widget> searchingView = [];
+    var participantsCount = _platforms.length - _excludesPlatformDomains.length;
+    if (participantsCount == 0) // 没选择平台
+      return TextHint('未选择任何平台');
+    if (_groupedItems.length == 0) // 载入中（零结果）
+      return Center(child: CircularProgressIndicator());
+    List<Widget> searchingView = []; // 搜索进度指示器
     if (_platforms.length >
         _groupedItems.length + _excludesPlatformDomains.length)
       searchingView.add(Positioned(
@@ -209,8 +216,6 @@ class _SearchPageState extends State<_SearchPage> {
               (_platforms.length - _excludesPlatformDomains.length),
         ),
       ));
-    if (_groupedItems.length == 0)
-      return Center(child: CircularProgressIndicator());
     return Scrollbar(
       child: Stack(
         children: [
