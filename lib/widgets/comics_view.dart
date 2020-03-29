@@ -2,7 +2,6 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/widgets/comic_card.dart';
-import 'package:mikack_mobile/widgets/favicon.dart';
 
 // 长:宽大约为 1.3，是常见漫画网站的封面标准
 // 注意：此处的值是宽/长
@@ -106,32 +105,6 @@ class ComicsView extends StatelessWidget {
 
   // 网格显示
   Widget _buildGridView(BuildContext context) {
-    List<Widget Function(ComicViewItem)> platformView = [];
-    if (showPlatform)
-      platformView.addAll([
-        (item) => Favicon(item.platform, size: 14),
-        (_) => SizedBox(width: 4),
-      ]);
-    List<Widget Function(ComicViewItem)> badgeView = [];
-    if (showBadge)
-      badgeView.add(
-        (item) => Positioned(
-          top: 0,
-          left: 0,
-          child: Container(
-            width: 30,
-            height: 22,
-            color: Colors.blue,
-            child: Center(
-                child: Text(
-              '${item.badgeValue > 999 ? 999 : item.badgeValue}',
-              // 最大显示 999
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            )),
-          ),
-        ),
-      );
     return GridView.count(
       crossAxisCount: 2,
       mainAxisSpacing: comicsViewGridChildSpacing / 2,
