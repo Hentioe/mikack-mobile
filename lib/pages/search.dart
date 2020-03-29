@@ -326,9 +326,9 @@ class _SearchPageState extends State<_SearchPage> {
   @override
   Widget build(BuildContext context) {
     var showElevation = _submitted &&
-            _platforms.length ==
+        (_platforms.length ==
                 _groupedItems.length + _excludesPlatformDomains.length ||
-        _groupedItems.length == 0;
+            _groupedItems.length == 0);
     var actions = <Widget>[];
     Widget body;
     if (_submitted) {
