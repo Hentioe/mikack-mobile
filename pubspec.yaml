@@ -35,6 +35,7 @@ dependencies:
   extended_image: ^0.7.1
   flutter_share: ^1.0.2+1
   logging: ^0.11.4
+  executor: ^2.2.1
 
 #dev_dependencies:
 #  flutter_test:

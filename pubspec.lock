@@ -50,6 +50,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  executor:
+    dependency: "direct main"
+    description:
+      name: executor
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.1"
   extended_image:
     dependency: "direct main"
     description:

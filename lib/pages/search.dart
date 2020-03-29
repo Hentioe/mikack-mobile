@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:executor/executor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -168,6 +169,9 @@ class _SearchPageState extends State<_SearchPage> {
     editingController.clear();
   }
 
+  List<Future<MapEntry<models.Platform, List<ComicViewItem>>>> concurrentQueue =
+      [];
+
   LinkedHashMap<models.Platform, List<ComicViewItem>> _groupedItems =
       LinkedHashMap.from({});
 
@@ -175,19 +179,24 @@ class _SearchPageState extends State<_SearchPage> {
     setState(() {
       _groupedItems.clear();
     });
+    final executor = Executor(concurrency: 6);
     for (models.Platform platform in _platforms
         .where((p) => !_excludesPlatformDomains.contains(p.domain))) // 过滤已排除的
     {
-      var comics =
-          await compute(_searchComicsTask, Tuple2(platform, _keywords));
-      if (mounted)
+      executor.scheduleTask(() async {
+        if (!mounted) return;
+
+        var comics =
+            await compute(_searchComicsTask, Tuple2(platform, _keywords));
+        if (!mounted) return;
         setState(() {
           _groupedItems
               .addAll({platform: comics.toViewItems(platform: platform)});
         });
-      else
-        break;
+      });
     }
+    await executor.join(withWaiting: true);
+    await executor.close();
   }
 
   // 封面加载指示器
