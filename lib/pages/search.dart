@@ -179,7 +179,7 @@ class _SearchPageState extends State<_SearchPage> {
     setState(() {
       _groupedItems.clear();
     });
-    final executor = Executor(concurrency: 6);
+    final executor = Executor(concurrency: 12);
     for (models.Platform platform in _platforms
         .where((p) => !_excludesPlatformDomains.contains(p.domain))) // 过滤已排除的
     {
@@ -270,6 +270,7 @@ class _SearchPageState extends State<_SearchPage> {
                                     '无结果',
                                     style: TextStyle(
                                       fontSize: 12,
+                                      fontStyle: FontStyle.italic,
                                       color: Colors.grey[500],
                                     ),
                                   ),
