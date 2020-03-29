@@ -1,6 +1,7 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:mikack_mobile/widgets/comic_card.dart';
 import 'package:mikack_mobile/widgets/favicon.dart';
 
 // 长:宽大约为 1.3，是常见漫画网站的封面标准
@@ -138,90 +139,14 @@ class ComicsView extends StatelessWidget {
       childAspectRatio: coverRatio,
       padding: EdgeInsets.all(comicsViewGridChildSpacing),
       children: List.generate(items.length, (index) {
-        return Card(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // 图片
-              ExtendedImage.network(
-                items[index].comic.cover,
-                fit: BoxFit.cover,
-                headers: items[index].comic.headers,
-                cache: true,
-                loadStateChanged: (state) {
-                  switch (state.extendedImageLoadState) {
-                    case LoadState.loading:
-                      return Center(
-                        child: loadingView,
-                      );
-                      break;
-                    case LoadState.failed:
-                      return Center(
-                        child: Text(
-                          items[index].comic.title,
-                          style: TextStyle(color: Colors.grey, fontSize: 18),
-                        ),
-                      ); // 加载失败显示标题文本
-                      break;
-                    default:
-                      return null;
-                      break;
-                  }
-                },
-              ),
-              // 徽章（角标）
-              ...badgeView.map((builder) => builder(items[index])).toList(),
-              // 文字
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding:
-                      EdgeInsets.only(left: 5, top: 20, right: 5, bottom: 5),
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                        Color.fromARGB(120, 0, 0, 0),
-                        Colors.transparent,
-                      ])),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      ...platformView
-                          .map((builder) => builder(items[index]))
-                          .toList(),
-                      Flexible(
-                        child: Text(
-                          items[index].comic.title,
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              // 点击事件和效果
-              Positioned.fill(
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () =>
-                        onTap == null ? null : onTap(items[index].comic),
-                    onLongPress: () => onLongPress == null
-                        ? null
-                        : onLongPress(items[index].comic),
-                  ),
-                ),
-              ),
-            ],
-          ),
+        return ComicCard(
+          items[index],
+          fit: StackFit.expand,
+          showBadge: showBadge,
+          showPlatform: showPlatform,
+          onTap: (item) => onTap == null ? null : onTap(item.comic),
+          onLongPress: (item) =>
+              onLongPress == null ? null : onLongPress(item.comic),
         );
       }),
       controller: scrollController,

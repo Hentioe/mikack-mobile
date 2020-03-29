@@ -1,6 +1,5 @@
 import 'dart:collection';
 
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -9,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/pages/base_page.dart';
+import 'package:mikack_mobile/widgets/comic_card.dart';
 import 'package:mikack_mobile/widgets/comics_view.dart';
 import 'package:mikack_mobile/widgets/favicon.dart';
 import 'package:mikack_mobile/widgets/tag.dart';
@@ -197,7 +197,6 @@ class _SearchPageState extends State<_SearchPage> {
     child: CircularProgressIndicator(strokeWidth: 2),
   );
 
-  // TODO: 独立漫画卡片小部件，和 ComicsView 共享
   Widget _buildResultView() {
     var participantsCount = _platforms.length - _excludesPlatformDomains.length;
     if (participantsCount == 0) // 没选择平台
@@ -273,106 +272,18 @@ class _SearchPageState extends State<_SearchPage> {
                                     padding: EdgeInsets.all(searchPageSpacing),
                                     itemCount: entry.value.length,
                                     scrollDirection: Axis.horizontal,
-                                    itemBuilder: (_, index) => Card(
-                                      child: Stack(
-                                        children: [
-                                          // 图片
-                                          ExtendedImage.network(
-                                            entry.value[index].comic.cover,
-                                            fit: BoxFit.cover,
-                                            headers: entry
-                                                .value[index].comic.headers,
-                                            cache: true,
-                                            width: searchResultCoverWidth,
-                                            height: searchResultCoverHeight,
-                                            loadStateChanged: (state) {
-                                              switch (state
-                                                  .extendedImageLoadState) {
-                                                case LoadState.loading:
-                                                  return Center(
-                                                    child: coverLoadingView,
-                                                  );
-                                                  break;
-                                                case LoadState.failed:
-                                                  return Center(
-                                                    child: Text(
-                                                      entry.value[index].comic
-                                                          .title,
-                                                      style: TextStyle(
-                                                          color: Colors.grey,
-                                                          fontSize: 18),
-                                                    ),
-                                                  ); // 加载失败显示标题文本
-                                                  break;
-                                                default:
-                                                  return null;
-                                                  break;
-                                              }
-                                            },
+                                    itemBuilder: (_, index) => ComicCard(
+                                      entry.value[index],
+                                      width: searchResultCoverWidth,
+                                      height: searchResultCoverHeight,
+                                      onTap: (_) => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ComicPage(
+                                            entry.key,
+                                            entry.value[index].comic,
                                           ),
-                                          // 文字
-                                          Positioned(
-                                            bottom: 0,
-                                            left: 0,
-                                            right: 0,
-                                            child: Container(
-                                              padding: EdgeInsets.only(
-                                                  left: 5,
-                                                  top: 20,
-                                                  right: 5,
-                                                  bottom: 5),
-                                              decoration: BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                      begin: Alignment
-                                                          .bottomCenter,
-                                                      end: Alignment.topCenter,
-                                                      colors: [
-                                                    Color.fromARGB(
-                                                        120, 0, 0, 0),
-                                                    Colors.transparent,
-                                                  ])),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Flexible(
-                                                    child: Text(
-                                                      entry.value[index].comic
-                                                          .title,
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          // 点击事件和效果
-                                          Positioned.fill(
-                                            child: Material(
-                                              color: Colors.transparent,
-                                              child: InkWell(
-                                                onTap: () => Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        ComicPage(
-                                                            entry.key,
-                                                            entry.value[index]
-                                                                .comic),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                                        ),
                                       ),
                                     ),
                                   ),
