@@ -204,18 +204,24 @@ class _SearchPageState extends State<_SearchPage> {
       return TextHint('未选择任何平台');
     if (_groupedItems.length == 0) // 载入中（零结果）
       return Center(child: CircularProgressIndicator());
-    List<Widget> searchingView = []; // 搜索进度指示器
+    List<Widget> searchingIndicator = []; // 搜索进度指示器
+    List<Widget> searchingView = []; // 搜索中指示器
     if (_platforms.length >
-        _groupedItems.length + _excludesPlatformDomains.length)
-      searchingView.add(Positioned(
-        bottom: 0,
+        _groupedItems.length + _excludesPlatformDomains.length) {
+      searchingIndicator.add(Positioned(
+        top: 0,
         left: 0,
         right: 0,
         child: LinearProgressIndicator(
-          value: _groupedItems.length /
-              (_platforms.length - _excludesPlatformDomains.length),
+          value: _groupedItems.length / participantsCount,
         ),
       ));
+      searchingView.add(Padding(
+        padding:
+            EdgeInsets.only(top: searchPageSpacing, bottom: searchPageSpacing),
+        child: Center(child: CircularProgressIndicator()),
+      ));
+    }
     return Scrollbar(
       child: Stack(
         children: [
@@ -374,9 +380,10 @@ class _SearchPageState extends State<_SearchPage> {
                         ],
                       ))
                   .toList(),
+              ...searchingView,
             ],
           ),
-          ...searchingView
+          ...searchingIndicator
         ],
       ),
     );
@@ -407,6 +414,10 @@ class _SearchPageState extends State<_SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    var showElevation = _submitted &&
+            _platforms.length ==
+                _groupedItems.length + _excludesPlatformDomains.length ||
+        _groupedItems.length == 0;
     var actions = <Widget>[];
     Widget body;
     if (_submitted) {
@@ -427,7 +438,7 @@ class _SearchPageState extends State<_SearchPage> {
       home: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          elevation: _submitted ? null : 0,
+          elevation: showElevation ? null : 0,
           leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.pop(context)),
@@ -438,6 +449,7 @@ class _SearchPageState extends State<_SearchPage> {
                   textInputAction: TextInputAction.search,
                   controller: editingController,
                   onSubmitted: _handleSubmit,
+                  decoration: InputDecoration(hintText: '全局搜索'),
                 ),
           actions: actions,
         ),
