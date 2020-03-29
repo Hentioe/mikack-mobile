@@ -7,11 +7,9 @@ class TextHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
-      child: Center(
-        child:
-            Text(text, style: TextStyle(fontSize: 18, color: Colors.grey[400])),
-      ),
+    return Center(
+      child:
+          Text(text, style: TextStyle(fontSize: 18, color: Colors.grey[400])),
     );
   }
 }

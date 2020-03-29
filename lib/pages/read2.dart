@@ -378,11 +378,9 @@ class _Read2PageState extends State<_Read2Page> {
     return GestureDetector(
       child: Scaffold(
         backgroundColor: read2PageBackgroundColor,
-        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomInset: _loading,
         body: _loading
-            ? Center(
-                child: TextHint('载入中…'),
-              )
+            ? TextHint('载入中…')
             : Stack(
                 children: [
                   Positioned.fill(
