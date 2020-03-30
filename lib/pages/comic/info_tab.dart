@@ -81,6 +81,22 @@ class InfoTab extends StatelessWidget {
                             comic.cover,
                             width: 100,
                             cache: true,
+                            loadStateChanged: (state) {
+                              switch (state.extendedImageLoadState) {
+                                case LoadState.failed:
+                                  return Center(
+                                    child: Text(
+                                      '图片呢？',
+                                      style: TextStyle(
+                                          color: Colors.grey, fontSize: 18),
+                                    ),
+                                  ); // 加载失败显示标题文本
+                                  break;
+                                default:
+                                  return null;
+                                  break;
+                              }
+                            },
                           ),
                         ),
                         SizedBox(width: 20),

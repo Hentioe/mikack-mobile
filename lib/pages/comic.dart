@@ -101,6 +101,7 @@ class _ComicPageState extends State<_ComicPage>
     var favorite = await getFavorite(address: comic.url);
     if (favorite != null) {
       favorite.latestChaptersCount = comic.chapters.length;
+      if (comic.cover.isNotEmpty) favorite.cover = comic.cover;
       await updateFavorite(favorite);
     }
     // 加载排序设置

@@ -46,6 +46,22 @@ class HistoriesView extends StatelessWidget {
                     height: historiesCoverHeight,
                     width: historiesCoverWidth,
                     cache: true,
+                    loadStateChanged: (state) {
+                      switch (state.extendedImageLoadState) {
+                        case LoadState.failed:
+                          return Center(
+                            child: Text(
+                              '无图',
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 18),
+                            ),
+                          ); // 加载失败显示标题文本
+                          break;
+                        default:
+                          return null;
+                          break;
+                      }
+                    },
                   ),
                   Expanded(
                     child: Column(

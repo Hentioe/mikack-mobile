@@ -227,6 +227,8 @@ class _SearchPageState extends State<_SearchPage> {
 
         var comics =
             await compute(_searchComicsTask, Tuple2(platform, _keywords));
+        var headers = platform.buildBaseHeaders();
+        comics.forEach((c) => c.headers = headers);
         if (!mounted) return;
         setState(() {
           _groupedItems
