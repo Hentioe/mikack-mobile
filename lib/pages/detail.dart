@@ -65,7 +65,10 @@ class DetailPage extends BasePage {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       // 平台图标
-                      Favicon(platform, size: 60),
+                      Hero(
+                        tag: 'favicon-${platform.domain}',
+                        child: Favicon(platform, size: 60),
+                      ),
                       // 平台元数据
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.center,

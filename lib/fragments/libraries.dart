@@ -26,8 +26,11 @@ class LibrariesFragment extends StatelessWidget {
                       BorderRadiusDirectional.all(Radius.circular(2))),
               child: ListTile(
                 leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Favicon(p, size: 30),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Hero(
+                    tag: 'favicon-${p.domain}',
+                    child: Favicon(p, size: 30),
+                  ),
                 ),
                 title: Text(p.name),
                 trailing: OutlineButton(
