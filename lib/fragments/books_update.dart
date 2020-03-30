@@ -1,3 +1,4 @@
+import 'package:executor/executor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -98,40 +99,47 @@ class _BooksUpdateFragmentState extends State<_BooksUpdateFragment> {
 
   Future<void> _handleRefresh() async {
     var favorites = await findFavorites();
-    if (mounted)
-      setState(() {
-        _firstOpen = false;
-        _comicViewItems.clear();
-        _refreshing = true;
-      });
+    setState(() {
+      _firstOpen = false;
+      _comicViewItems.clear();
+      _refreshing = true;
+    });
     await deleteAllChapterUpdates(); // 删除已存在的更新记录
-    // 排队检测更新
-    for (var i = 0; i < favorites.length; i++) {
-      if (!_refreshing) {
-        Fluttertoast.showToast(msg: '检查更新已停止');
-        break;
-      }
-      var favorite = favorites[i];
-      var source = await getSource(id: favorite.sourceId);
-      if (source == null) break;
-      var platform = platformList.firstWhere((p) => p.domain == source.domain);
-      var comic = await compute(
-          _fetchChaptersTask, Tuple2(platform, favorite.toComic()));
-      var countDiff = comic.chapters.length - favorite.latestChaptersCount;
-      if (countDiff > 0) {
-        comic.headers = platform.buildBaseHeaders();
+    // 并发检测更新
+    final executor = Executor(concurrency: 8);
+    var counter = 0;
+    for (var favorite in favorites) {
+      executor.scheduleTask(() async {
+        if (!_refreshing) {
+          Fluttertoast.showToast(msg: '检查更新已停止');
+          return;
+        }
+        var source = await getSource(id: favorite.sourceId);
+        if (source == null) return;
+        var platform =
+            platformList.firstWhere((p) => p.domain == source.domain);
+        var comic = await compute(
+            _fetchChaptersTask, Tuple2(platform, favorite.toComic()));
+        var countDiff = comic.chapters.length - favorite.latestChaptersCount;
+        if (countDiff > 0) {
+          comic.headers = platform.buildBaseHeaders();
+          if (mounted)
+            setState(() => _comicViewItems.add(
+                comic.toViewItem(platform: platform, badgeValue: countDiff)));
+          // 插入更新记录
+          await insertChapterUpdate(ChapterUpdate(
+            comic.url,
+            chaptersCount: comic.chapters.length,
+          ));
+        }
         if (mounted)
-          setState(() => _comicViewItems.add(
-              comic.toViewItem(platform: platform, badgeValue: countDiff)));
-        // 插入更新记录
-        await insertChapterUpdate(ChapterUpdate(
-          comic.url,
-          chaptersCount: comic.chapters.length,
-        ));
-      }
-      if (mounted)
-        setState(() => _progressIndicatorValue = (i + 1) / favorites.length);
+          setState(() {
+            _progressIndicatorValue = ++counter / favorites.length;
+          });
+      });
     }
+    await executor.join(withWaiting: true);
+    await executor.close();
     if (mounted)
       setState(() {
         _refreshing = false;
