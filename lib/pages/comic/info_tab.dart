@@ -75,10 +75,13 @@ class InfoTab extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // 左图
-                        ExtendedImage.network(
-                          comic.cover,
-                          width: 100,
-                          cache: true,
+                        Hero(
+                          tag: 'cover-${comic.url}',
+                          child: ExtendedImage.network(
+                            comic.cover,
+                            width: 100,
+                            cache: true,
+                          ),
                         ),
                         SizedBox(width: 20),
                         // 文字

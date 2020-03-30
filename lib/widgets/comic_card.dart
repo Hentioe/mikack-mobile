@@ -63,34 +63,37 @@ class ComicCard extends StatelessWidget {
       child: Stack(
         fit: fit,
         children: [
-          // 图片
-          ExtendedImage.network(
-            viewItem.comic.cover,
-            width: width,
-            height: height,
-            fit: BoxFit.cover,
-            headers: viewItem.comic.headers,
-            cache: true,
-            loadStateChanged: (state) {
-              switch (state.extendedImageLoadState) {
-                case LoadState.loading:
-                  return Center(
-                    child: comicCoverLoadingView,
-                  );
-                  break;
-                case LoadState.failed:
-                  return Center(
-                    child: Text(
-                      viewItem.comic.title,
-                      style: TextStyle(color: Colors.grey, fontSize: 18),
-                    ),
-                  ); // 加载失败显示标题文本
-                  break;
-                default:
-                  return null;
-                  break;
-              }
-            },
+          // 封面
+          Hero(
+            tag: 'cover-${viewItem.comic.url}',
+            child: ExtendedImage.network(
+              viewItem.comic.cover,
+              width: width,
+              height: height,
+              fit: BoxFit.cover,
+              headers: viewItem.comic.headers,
+              cache: true,
+              loadStateChanged: (state) {
+                switch (state.extendedImageLoadState) {
+                  case LoadState.loading:
+                    return Center(
+                      child: comicCoverLoadingView,
+                    );
+                    break;
+                  case LoadState.failed:
+                    return Center(
+                      child: Text(
+                        viewItem.comic.title,
+                        style: TextStyle(color: Colors.grey, fontSize: 18),
+                      ),
+                    ); // 加载失败显示标题文本
+                    break;
+                  default:
+                    return null;
+                    break;
+                }
+              },
+            ),
           ),
           // 徽章（角标）
           ...badgeView,

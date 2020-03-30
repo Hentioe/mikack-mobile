@@ -107,10 +107,11 @@ class _ComicPageState extends State<_ComicPage>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var chaptersReversed = prefs.getBool(chaptersReversedKey);
     if (chaptersReversed == null) chaptersReversed = false;
-    setState(() {
-      _sortReversed = chaptersReversed;
-      _comic = comic;
-    });
+    if (mounted)
+      setState(() {
+        _sortReversed = chaptersReversed;
+        _comic = comic;
+      });
   }
 
   void fetchLastHistory() async {
