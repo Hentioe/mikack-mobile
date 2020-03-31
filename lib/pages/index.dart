@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/pages/base_page.dart';
 import '../widgets/comics_view.dart';
@@ -89,6 +90,8 @@ class MainView extends StatefulWidget {
   State<StatefulWidget> createState() => _MainViewState();
 }
 
+enum IndexRetry { none, fetch, search }
+
 class _MainViewState extends State<MainView> {
   List<models.Comic> _comics = [];
   var _isViewList = false;
@@ -97,6 +100,8 @@ class _MainViewState extends State<MainView> {
   var _isSearching = false;
   var _isFetchingNext = false;
   var searched = false;
+  String submitKeywords;
+  var _retry = IndexRetry.none;
 
   Map<String, String> headers;
 
@@ -104,6 +109,9 @@ class _MainViewState extends State<MainView> {
 
   void fetchComics({init: false}) async {
     isLoading = true;
+    setState(() {
+      _retry = IndexRetry.none;
+    });
     if (init) {
       // 清理结果，并重置到第一页
       currentPage = 1;
@@ -115,31 +123,46 @@ class _MainViewState extends State<MainView> {
       setState(() {
         _isFetchingNext = true;
       });
-    var comics =
-        await compute(_getComicsTask, Tuple2(widget.platform, currentPage));
-    comics.forEach((c) => c.headers = headers);
-    setState(() {
-      _comics.addAll(comics);
-    });
-    isLoading = false;
-    if (currentPage > 1)
+    try {
+      var comics =
+          await compute(_getComicsTask, Tuple2(widget.platform, currentPage));
+      comics.forEach((c) => c.headers = headers);
       setState(() {
-        _isFetchingNext = false;
+        _comics.addAll(comics);
       });
+      isLoading = false;
+      if (currentPage > 1)
+        setState(() {
+          _isFetchingNext = false;
+        });
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+      setState(() {
+        _retry = IndexRetry.fetch;
+      });
+    }
   }
 
   void searchComics(String keywords) async {
     isLoading = true;
     setState(() {
       _comics.clear();
+      _retry = IndexRetry.none;
     });
-    var comics =
-        await compute(_searchComicsTask, Tuple2(widget.platform, keywords));
-    comics.forEach((c) => c.headers = headers);
-    setState(() {
-      _comics.addAll(comics);
-    });
-    isLoading = false;
+    try {
+      var comics =
+          await compute(_searchComicsTask, Tuple2(widget.platform, keywords));
+      comics.forEach((c) => c.headers = headers);
+      setState(() {
+        _comics.addAll(comics);
+      });
+      isLoading = false;
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+      setState(() {
+        _retry = IndexRetry.search;
+      });
+    }
   }
 
   final ScrollController scrollController = ScrollController();
@@ -168,6 +191,7 @@ class _MainViewState extends State<MainView> {
   // 搜索
   void submitSearch(String keywords) {
     searched = true;
+    submitKeywords = keywords;
     searchComics(keywords);
   }
 
@@ -187,6 +211,19 @@ class _MainViewState extends State<MainView> {
     setState(() {
       _isSearching = !_isSearching;
     });
+  }
+
+  void handleRetry() {
+    switch (_retry) {
+      case IndexRetry.fetch:
+        fetchComics();
+        break;
+      case IndexRetry.search:
+        searchComics(submitKeywords);
+        break;
+      default:
+        break;
+    }
   }
 
   @override
@@ -237,14 +274,17 @@ class _MainViewState extends State<MainView> {
           ),
         ],
       ),
-      body: IndexesView(
-        widget.platform,
-        _isViewList,
-        _comics,
-        scrollController,
-        widget.platform.buildBaseHeaders(),
-        isFetchingNext: _isFetchingNext,
-      ),
+      body: _retry != IndexRetry.none
+          ? Center(
+              child: RaisedButton(child: Text('重试'), onPressed: handleRetry))
+          : IndexesView(
+              widget.platform,
+              _isViewList,
+              _comics,
+              scrollController,
+              widget.platform.buildBaseHeaders(),
+              isFetchingNext: _isFetchingNext,
+            ),
     );
   }
 }

@@ -225,15 +225,23 @@ class _SearchPageState extends State<_SearchPage> {
       executor.scheduleTask(() async {
         if (!mounted) return;
 
-        var comics =
-            await compute(_searchComicsTask, Tuple2(platform, _keywords));
-        var headers = platform.buildBaseHeaders();
-        comics.forEach((c) => c.headers = headers);
-        if (!mounted) return;
-        setState(() {
-          _groupedItems
-              .addAll({platform: comics.toViewItems(platform: platform)});
-        });
+        try {
+          var comics =
+              await compute(_searchComicsTask, Tuple2(platform, _keywords));
+          var headers = platform.buildBaseHeaders();
+          comics.forEach((c) => c.headers = headers);
+          if (!mounted) return;
+          setState(() {
+            _groupedItems
+                .addAll({platform: comics.toViewItems(platform: platform)});
+          });
+        } catch (e) {
+          // 发生错误返回空搜索结果
+          if (!mounted) return;
+          setState(() {
+            _groupedItems.addAll({platform: []});
+          });
+        }
       });
     }
     await executor.join(withWaiting: true);

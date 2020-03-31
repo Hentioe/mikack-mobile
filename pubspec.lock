@@ -170,7 +170,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "4bdc47f7ea4ea9e0f5a91bcb59370ea424d06136"
+      resolved-ref: c7eefec98d922f905774668fb3d2a67c1fb6bdf1
       url: "git@github.com:Hentioe/mikack-dart.git"
     source: git
     version: "0.0.0"
