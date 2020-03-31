@@ -196,11 +196,11 @@ class _SettingsState extends State<_SettingsView> {
   }
 
   Widget _buildStartPageDialog() {
-    return SingleChoiceConfirmationDialog<String>(
+    return SingleChoiceDialog<String>(
       title: Text('选择开始页面'),
-      initialValue: startPages[_selectedPage],
       items: startPages.values.toList(),
-      onSubmitted: (text) {
+      isDividerEnabled: true,
+      onSelected: (text) {
         updateSelectedPage(startPages.inverse[text]);
       },
     );
