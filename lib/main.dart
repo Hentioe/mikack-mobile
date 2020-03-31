@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart' as models;
@@ -17,22 +19,53 @@ import 'pages/settings.dart';
 final List<models.Platform> platformList = platforms();
 const bookshelfSortByKey = 'bookshelf_sort_by';
 
-void main() {
+final drawerItems = LinkedHashMap.from({
+  'default': '系统默认',
+  'bookshelf': '我的书架',
+  'books_update': '书架更新',
+  'libraries': '图书仓库',
+  'histories': '浏览历史',
+});
+
+const defaultDrawerIndex = 0;
+
+Future<int> getDrawerIndex() async {
+  int index = defaultDrawerIndex;
+  var prefs = await SharedPreferences.getInstance();
+  var lockedKey = prefs.getString(startPageKey);
+  if (lockedKey != null && lockedKey != 'default') {
+    var entries = drawerItems.entries.toList();
+    for (var i = 1; i < entries.length; i++) {
+      if (entries[i].key == lockedKey) {
+        index = i - 1;
+        break;
+      }
+    }
+  }
+  return index;
+}
+
+void main() async {
   initLogger();
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp(await getDrawerIndex()));
 }
 
 class MyApp extends BasePage {
+  MyApp(this.drawerIndex);
+
+  final int drawerIndex;
+
   @override
   Widget build(BuildContext context) {
     initSystemUI();
     return MaterialApp(
-      title: 'Mikack Mobile',
+      title: 'Mikack mobile',
       theme: ThemeData(
         // This is the theme
         primarySwatch: primaryColor,
       ),
-      home: MyHomePage(),
+      home: MyHomePage(drawerIndex: drawerIndex),
     );
   }
 }
@@ -50,25 +83,27 @@ class DrawerItem {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key) {
-    startPages.addAll({
-      'default': '系统默认',
-      'bookshelf': '我的书架',
-      'books_update': '书架更新',
-      'libraries': '图书仓库',
-      'histories': '浏览历史',
-    });
+  MyHomePage({Key key, this.drawerIndex}) : super(key: key) {
+    startPages.addEntries(drawerItems.entries.map(
+      (entry) => MapEntry(entry.key, entry.value),
+    ));
   }
 
+  final int drawerIndex;
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MyHomePageState createState() => _MyHomePageState(drawerIndex: drawerIndex);
 }
 
 const headerLogoSize = 65.0;
 const nsfwTagValue = 4;
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedDrawerIndex = 0;
+  _MyHomePageState({drawerIndex = 0}) {
+    this._drawerIndex = drawerIndex;
+  }
+
+  int _drawerIndex;
   List<DrawerItem> _drawerItems = [];
   List<int> includeTags = [];
   bool allowNsfw = false;
@@ -78,36 +113,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    fetchLockedDrawerIndex();
     fetchPlatforms();
     fetchBookshelfSortBy();
     fetchAllowNsfw();
-    checkPermAcceped();
+    checkPermAccept();
     super.initState();
   }
 
-  void checkPermAcceped() async {
+  void checkPermAccept() async {
     var prefs = await SharedPreferences.getInstance();
     var versionStr = prefs.getString(accpetPermVersionKey);
     if (versionStr == null)
       Navigator.push(context,
           MaterialPageRoute(builder: (_) => TermPage(readOnly: false)));
-  }
-
-  void fetchLockedDrawerIndex() async {
-    var prefs = await SharedPreferences.getInstance();
-    var lockedKey = prefs.getString(startPageKey);
-    int index = 0;
-    if (lockedKey != null && lockedKey != 'default') {
-      var drawerItemName = startPages[lockedKey];
-      for (var i = 0; i < _drawerItems.length; i++) {
-        if (_drawerItems[i].title == drawerItemName) {
-          index = i;
-          break;
-        }
-      }
-    }
-    setState(() => _selectedDrawerIndex = index);
   }
 
   void fetchPlatforms() async {
@@ -163,7 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
   );
 
   _onSelectItem(int index) {
-    setState(() => _selectedDrawerIndex = index);
+    setState(() => _drawerIndex = index);
     Navigator.of(context).pop(); // 关闭抽屉
   }
 
@@ -171,7 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Navigator.push(context, MaterialPageRoute(builder: (_) => SearchPage()));
 
   void _handleLibrariesFilter() {
-    var fragment = _drawerItems[_selectedDrawerIndex].fragment;
+    var fragment = _drawerItems[_drawerIndex].fragment;
     if (fragment is LibrariesFragment) {
       fragment
           .openFilter(context,
@@ -252,7 +270,7 @@ class _MyHomePageState extends State<MyHomePage> {
       drawerListView.add(new ListTile(
         leading: new Icon(d.iconData),
         title: new Text(d.title),
-        selected: i == _selectedDrawerIndex,
+        selected: i == _drawerIndex,
         onTap: () => _onSelectItem(i),
       ));
     }
@@ -270,13 +288,13 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           },
         ),
-        title: Text(_drawerItems[_selectedDrawerIndex].title),
+        title: Text(_drawerItems[_drawerIndex].title),
         actions: [
           IconButton(
               tooltip: '打开全局搜索',
               icon: Icon(Icons.search),
               onPressed: _handleSearch),
-          ..._drawerItems[_selectedDrawerIndex].actions
+          ..._drawerItems[_drawerIndex].actions
         ],
       ),
       drawer: Drawer(
@@ -299,7 +317,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      body: _drawerItems[_selectedDrawerIndex].fragment,
+      body: _drawerItems[_drawerIndex].fragment,
     );
   }
 }
