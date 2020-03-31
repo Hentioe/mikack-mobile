@@ -14,8 +14,10 @@ class _ThanksState extends State<_ThanksPage> {
 
   void fetchContent() async {
     var content = await rootBundle.loadString('texts/thanks.md');
-    var sourcesContent =
-        platformList.map((p) => '- ${p.domain}').toList().join('\n');
+    var sourcesContent = platformList
+        .map((p) => '- [${p.domain}](${p.domain})')
+        .toList()
+        .join('\n');
 
     setState(
         () => _content = content.replaceAll('{{sources}}', sourcesContent));
@@ -33,7 +35,23 @@ class _ThanksState extends State<_ThanksPage> {
       appBar: AppBar(
         title: Text('特别鸣谢'),
       ),
-      body: Markdown(data: _content, padding: EdgeInsets.all(20)),
+      body: Markdown(
+        data: _content,
+        padding: EdgeInsets.all(20),
+        styleSheet: MarkdownStyleSheet(
+            blockSpacing: 6,
+            a: TextStyle(
+              fontSize: 13,
+              color: Colors.grey[600],
+              decoration: TextDecoration.underline,
+            ),
+            p: TextStyle(fontSize: 13, color: Colors.grey[900]),
+            strong: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline,
+            )),
+      ),
     );
   }
 }
