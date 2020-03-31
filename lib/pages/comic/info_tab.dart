@@ -86,7 +86,7 @@ class InfoTab extends StatelessWidget {
                                 case LoadState.failed:
                                   return Center(
                                     child: Text(
-                                      '图片呢？',
+                                      '封面',
                                       style: TextStyle(
                                           color: Colors.grey, fontSize: 18),
                                     ),
