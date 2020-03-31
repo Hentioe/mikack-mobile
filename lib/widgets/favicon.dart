@@ -10,7 +10,7 @@ class Favicon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (platform.favicon != null && platform.favicon.isNotEmpty) {
-      var iconAsset = 'images/favicon/${platform.domain}.ico';
+      var iconAsset = 'favicon/${platform.domain}.ico';
       return Image.asset(
         iconAsset,
         width: size,

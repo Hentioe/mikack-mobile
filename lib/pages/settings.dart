@@ -2,7 +2,8 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_dialogs/easy_dialogs.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mikack_mobile/pages/term.dart';
+import 'package:mikack_mobile/pages/terms.dart';
+import 'package:mikack_mobile/pages/thanks.dart';
 import 'package:mikack_mobile/store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -364,11 +365,12 @@ class _SettingsState extends State<_SettingsView> {
             _SettingItem(
               '使用条款',
               onTap: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => TermPage(readOnly: true))),
+                  MaterialPageRoute(builder: (_) => TermsPage(readOnly: true))),
             ),
             _SettingItem(
-              '版本代号',
-              subtitle: '趋近稳定，公测版',
+              '特别鸣谢',
+              onTap: () => Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => ThanksPage())),
             ),
           ],
         ),

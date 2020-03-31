@@ -6,21 +6,21 @@ import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const termVersion = '0.0.1';
-const accpetPermVersionKey = 'accpet_perm_version';
+const acceptPermVersionKey = 'accept_perm_version';
 
-class _TermPage extends StatefulWidget {
-  _TermPage({this.readOnly});
+class _TermsPage extends StatefulWidget {
+  _TermsPage({this.readOnly});
 
   final bool readOnly;
 
   @override
-  State<StatefulWidget> createState() => _TermPageState();
+  State<StatefulWidget> createState() => _TermsPageState();
 }
 
 const xSpacing = 38.0;
 
-class _TermPageState extends State<_TermPage> {
-  var _termText = '载入中……';
+class _TermsPageState extends State<_TermsPage> {
+  var _termContent = '载入中……';
 
   @override
   void initState() {
@@ -29,13 +29,13 @@ class _TermPageState extends State<_TermPage> {
   }
 
   void fetchTermText() async {
-    var termText = await rootBundle.loadString('term/$termVersion.md');
-    setState(() => _termText = termText);
+    var termContent = await rootBundle.loadString('texts/terms.md');
+    setState(() => _termContent = termContent);
   }
 
   void _handleAccept() async {
     var prefs = await SharedPreferences.getInstance();
-    await prefs.setString(accpetPermVersionKey, termVersion);
+    await prefs.setString(acceptPermVersionKey, termVersion);
     showSystemUI();
     Navigator.pop(context);
   }
@@ -80,17 +80,15 @@ class _TermPageState extends State<_TermPage> {
     }
 
     return Container(
-      color: Colors.white,
-      padding: EdgeInsets.only(
-          left: xSpacing,
-          right: xSpacing,
-          top: topPadding,
-          bottom: bottomPadding),
+      padding: EdgeInsets.only(top: topPadding, bottom: bottomPadding),
       child: Column(
         children: [
           ...titleView,
           Expanded(
-            child: Markdown(data: _termText, padding: EdgeInsets.zero),
+            child: Markdown(
+              data: _termContent,
+              padding: EdgeInsets.only(left: xSpacing, right: xSpacing),
+            ),
           ),
           ...choiceView
         ],
@@ -104,8 +102,8 @@ class _TermPageState extends State<_TermPage> {
   }
 }
 
-class TermPage extends BasePage {
-  TermPage({this.readOnly = true});
+class TermsPage extends BasePage {
+  TermsPage({this.readOnly = true});
 
   final bool readOnly;
 
@@ -116,12 +114,12 @@ class TermPage extends BasePage {
       hiddenSystemUI();
       return WillPopScope(
         onWillPop: () async => false,
-        child: _TermPage(readOnly: readOnly),
+        child: _TermsPage(readOnly: readOnly),
       );
     }
     return Scaffold(
       appBar: AppBar(title: Text('使用条款')),
-      body: _TermPage(readOnly: readOnly),
+      body: _TermsPage(readOnly: readOnly),
     );
   }
 }

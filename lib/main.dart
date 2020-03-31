@@ -5,7 +5,7 @@ import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/logging.dart';
 import 'package:mikack_mobile/pages/search.dart';
-import 'package:mikack_mobile/pages/term.dart';
+import 'package:mikack_mobile/pages/terms.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'fragments/libraries.dart';
@@ -122,10 +122,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void checkPermAccept() async {
     var prefs = await SharedPreferences.getInstance();
-    var versionStr = prefs.getString(accpetPermVersionKey);
+    var versionStr = prefs.getString(acceptPermVersionKey);
     if (versionStr == null)
       Navigator.push(context,
-          MaterialPageRoute(builder: (_) => TermPage(readOnly: false)));
+          MaterialPageRoute(builder: (_) => TermsPage(readOnly: false)));
   }
 
   void fetchPlatforms() async {
