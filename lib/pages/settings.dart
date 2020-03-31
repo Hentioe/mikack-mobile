@@ -135,7 +135,7 @@ class _SettingsView extends StatefulWidget {
 class _SettingsState extends State<_SettingsView> {
   final copyrightTextStyle = TextStyle(
     fontSize: 12,
-    color: Colors.grey[400],
+    color: Colors.grey[500],
     fontFamily: 'Monospace',
   );
 
@@ -365,6 +365,10 @@ class _SettingsState extends State<_SettingsView> {
               '使用条款',
               onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => TermPage(readOnly: true))),
+            ),
+            _SettingItem(
+              '版本代号',
+              subtitle: '趋近稳定，公测版',
             ),
           ],
         ),
