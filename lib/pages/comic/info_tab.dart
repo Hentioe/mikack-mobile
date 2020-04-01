@@ -26,16 +26,27 @@ const coverBlurSigma = 3.5;
 const coverMetaHeight = 200.0;
 
 class InfoTab extends StatelessWidget {
-  InfoTab(this.platform, this.comic,
-      {this.isFavorite = false, this.handleFavorite});
+  InfoTab(
+    this.platform,
+    this.comic, {
+    this.error = false,
+    this.isFavorite = false,
+    this.handleFavorite,
+    this.handleRetry,
+  });
 
+  final bool error;
   final models.Platform platform;
   final models.Comic comic;
   final bool isFavorite;
   final void Function() handleFavorite;
+  final void Function() handleRetry;
 
   @override
   Widget build(BuildContext context) {
+    if (error)
+      return Center(
+          child: RaisedButton(child: Text('重试'), onPressed: handleRetry));
     return Stack(
       children: [
         Column(

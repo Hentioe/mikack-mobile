@@ -6,15 +6,18 @@ const groupSpacing = 10000;
 class ChaptersTab extends StatelessWidget {
   ChaptersTab(
     this.comic, {
+    this.error = false,
     this.reversed = false,
     this.lastReadAt,
     this.openReadPage,
     this.handleChapterReadMark,
     this.handleChapterUnReadMark,
     this.handleChaptersReadMark,
+    this.handleRetry,
     this.readHistoryLinks = const [],
   });
 
+  final bool error;
   final bool reversed;
   final String lastReadAt;
   final models.Comic comic;
@@ -22,6 +25,7 @@ class ChaptersTab extends StatelessWidget {
   final void Function(models.Chapter) handleChapterReadMark;
   final void Function(models.Chapter) handleChapterUnReadMark;
   final void Function(List<models.Chapter>) handleChaptersReadMark;
+  final void Function() handleRetry;
   final List<String> readHistoryLinks;
 
   void _handleMorePopupMenuSelect(int value, models.Chapter chapter) async {
@@ -91,6 +95,9 @@ class ChaptersTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (error)
+      return Center(
+          child: RaisedButton(child: Text('重试'), onPressed: handleRetry));
     if (comic.chapters == null)
       return const Center(
         child: CircularProgressIndicator(),

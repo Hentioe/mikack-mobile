@@ -34,6 +34,7 @@ class _ComicPageState extends State<_ComicPage>
   bool _sortReversed = false;
   List<String> _readHistoryLinks = [];
   String _lastReadAt;
+  var _error = false;
 
   @override
   void initState() {
@@ -95,24 +96,35 @@ class _ComicPageState extends State<_ComicPage>
   }
 
   void fetchChapters() async {
-    var comic =
-        await compute(_fetchChaptersTask, Tuple2(widget.platform, _comic));
-    // 更新已收藏的章节数量
-    var favorite = await getFavorite(address: comic.url);
-    if (favorite != null) {
-      favorite.latestChaptersCount = comic.chapters.length;
-      if (comic.cover.isNotEmpty) favorite.cover = comic.cover;
-      await updateFavorite(favorite);
-    }
-    // 加载排序设置
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var chaptersReversed = prefs.getBool(chaptersReversedKey);
-    if (chaptersReversed == null) chaptersReversed = false;
-    if (mounted)
+    if (_error)
       setState(() {
-        _sortReversed = chaptersReversed;
-        _comic = comic;
+        _error = false;
       });
+    try {
+      var comic =
+          await compute(_fetchChaptersTask, Tuple2(widget.platform, _comic));
+      // 更新已收藏的章节数量
+      var favorite = await getFavorite(address: comic.url);
+      if (favorite != null) {
+        favorite.latestChaptersCount = comic.chapters.length;
+        if (comic.cover.isNotEmpty) favorite.cover = comic.cover;
+        await updateFavorite(favorite);
+      }
+      // 加载排序设置
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var chaptersReversed = prefs.getBool(chaptersReversedKey);
+      if (chaptersReversed == null) chaptersReversed = false;
+      if (mounted)
+        setState(() {
+          _sortReversed = chaptersReversed;
+          _comic = comic;
+        });
+    } catch (_) {
+      // 发生错误
+      setState(() {
+        _error = true;
+      });
+    }
   }
 
   void fetchLastHistory() async {
@@ -275,6 +287,10 @@ class _ComicPageState extends State<_ComicPage>
     super.dispose();
   }
 
+  void _handleRetry() {
+    fetchChapters();
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Widget> tabActions = [];
@@ -311,11 +327,14 @@ class _ComicPageState extends State<_ComicPage>
           InfoTab(
             widget.platform,
             _comic,
+            error: _error,
             isFavorite: _isFavorite,
             handleFavorite: _handleFavorite,
+            handleRetry: _handleRetry,
           ),
           ChaptersTab(
             _comic,
+            error: _error,
             reversed: _sortReversed,
             lastReadAt: _lastReadAt,
             readHistoryLinks: _readHistoryLinks,
@@ -323,6 +342,7 @@ class _ComicPageState extends State<_ComicPage>
             handleChapterReadMark: _handleChapterReadMark,
             handleChapterUnReadMark: _handleChapterUnReadMark,
             handleChaptersReadMark: _handleChaptersReadMark,
+            handleRetry: _handleRetry,
           )
         ],
       ),
