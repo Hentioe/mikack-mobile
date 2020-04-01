@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:mikack/mikack.dart';
@@ -48,6 +49,7 @@ Future<int> getDrawerIndex() async {
 void main() async {
   initLogger();
   WidgetsFlutterBinding.ensureInitialized();
+  sleep(Duration(milliseconds: 1000));
   runApp(MyApp(await getDrawerIndex()));
 }
 
