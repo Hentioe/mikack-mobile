@@ -185,9 +185,6 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pop(); // 关闭抽屉
   }
 
-  void _handleSearch() =>
-      Navigator.push(context, MaterialPageRoute(builder: (_) => SearchPage()));
-
   void _handleLibrariesFilter() {
     var fragment = _drawerItems[_drawerIndex].fragment;
     if (fragment is LibrariesFragment) {
@@ -261,6 +258,25 @@ class _MyHomePageState extends State<MyHomePage> {
     ];
   }
 
+  Route _createGlobalSearchRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => SearchPage(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var curve = Curves.ease;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     initDrawerItems();
@@ -291,9 +307,11 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(_drawerItems[_drawerIndex].title),
         actions: [
           IconButton(
-              tooltip: '打开全局搜索',
-              icon: Icon(Icons.search),
-              onPressed: _handleSearch),
+            tooltip: '打开全局搜索',
+            icon: Icon(Icons.search),
+            onPressed: () =>
+                Navigator.of(context).push(_createGlobalSearchRoute()),
+          ),
           ..._drawerItems[_drawerIndex].actions
         ],
       ),
