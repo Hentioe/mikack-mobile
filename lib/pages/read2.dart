@@ -56,6 +56,7 @@ class _Read2PageState extends State<_Read2Page> {
   int _currentPage = 1;
   PageController pageController;
   bool _leftHandMode = false;
+  bool _showToolbar = false;
 
   @override
   void initState() {
@@ -225,10 +226,24 @@ class _Read2PageState extends State<_Read2Page> {
 
   void _handleTapUp(TapUpDetails details, BuildContext context) {
     if (_loading) return;
-    var centerLocation = MediaQuery.of(context).size.width / 2; // 取屏幕的一半长度
+    var centerX = MediaQuery.of(context).size.width / 2;
+    var centerY = MediaQuery.of(context).size.height / 2;
     var x = details.globalPosition.dx;
+    var y = details.globalPosition.dy;
 
-    if (centerLocation > x) {
+    // 中下区域（显示翻页工具栏）
+    if (y > centerY && x > centerX - 100 && x < centerX + 100) {
+      if (!_showToolbar)
+        showSystemUI();
+      else
+        hiddenSystemUI();
+      setState(() {
+        _showToolbar = !_showToolbar;
+      });
+      return;
+    }
+
+    if (centerX > x) {
       // 左屏幕（默认上一页，左手模式相反）
       if (_leftHandMode)
         animateNextPage();
@@ -373,8 +388,55 @@ class _Read2PageState extends State<_Read2Page> {
     );
   }
 
+  void handlePaginationSliderChange(double value) {
+    pageController.jumpToPage(value.toInt());
+    // 因为翻页回调有延迟，强制将页码二次同步
+    setState(() {
+      _currentPage = value.toInt();
+    });
+  }
+
+  Widget _buildChapterInfo() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            _chapter.title,
+            style: TextStyle(color: Colors.white),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<Widget> paginationSlider = [];
+    List<Widget> infoView = [];
+    if (_showToolbar) {
+      paginationSlider.add(Positioned(
+        bottom: 20,
+        left: 0,
+        right: 0,
+        child: Slider(
+          value: _currentPage.toDouble(),
+          min: 1.0,
+          max: _chapter.pageCount.toDouble(),
+          divisions: _chapter.pageCount,
+          label: '$_currentPage',
+          onChanged: handlePaginationSliderChange,
+        ),
+      ));
+      infoView.add(Positioned(
+        top: MediaQuery.of(context).padding.top,
+        left: 0,
+        right: 0,
+        child: _buildChapterInfo(),
+      ));
+    }
     return GestureDetector(
       child: Scaffold(
         backgroundColor: read2PageBackgroundColor,
@@ -405,6 +467,8 @@ class _Read2PageState extends State<_Read2Page> {
                       onPageChanged: handlePageChange,
                     ),
                   ),
+                  ...infoView,
+                  ...paginationSlider,
                   _buildPageInfoView(),
                 ],
               ),
