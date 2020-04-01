@@ -12,6 +12,8 @@ import '../widgets/favicon.dart';
 
 const allowNsfwHint = '未设置允许 NSFW 内容';
 
+const librariesFilterTagFontSize = 10.8;
+
 class LibrariesFragment extends StatelessWidget {
   LibrariesFragment(this.platforms);
 
@@ -60,6 +62,7 @@ class LibrariesFragment extends StatelessWidget {
         .map((t) => Tag(
               t.value,
               t.name,
+              fontSize: librariesFilterTagFontSize,
               stateful: true,
               selected: includes.contains(t.value),
               stateFixed: !allowNsfw && t.value == nsfwTagValue,
@@ -72,6 +75,7 @@ class LibrariesFragment extends StatelessWidget {
         .map((t) => Tag(
               t.value,
               t.name,
+              fontSize: librariesFilterTagFontSize,
               stateful: true,
               selected: excludes.contains(t.value),
               stateFixed: !allowNsfw && t.value == nsfwTagValue,

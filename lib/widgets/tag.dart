@@ -11,6 +11,7 @@ class _Tag extends StatefulWidget {
   _Tag(
     this.value,
     this.text, {
+    this.fontSize,
     this.color,
     this.selected,
     this.stateful,
@@ -19,6 +20,7 @@ class _Tag extends StatefulWidget {
     this.onTap,
   });
 
+  final double fontSize;
   final int value;
   final String text;
   final Color color;
@@ -32,7 +34,7 @@ class _Tag extends StatefulWidget {
   State<StatefulWidget> createState() => _TagState();
 }
 
-class _TagState extends State<_Tag> {
+class _TagState extends State<_Tag> with TickerProviderStateMixin {
   var _selected;
 
   @override
@@ -81,7 +83,7 @@ class _TagState extends State<_Tag> {
           child: Text(
             widget.text,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: widget.fontSize,
               color: selected ? Colors.white : widget.color,
               fontFamily: 'Monospace',
               height: 1.5,
@@ -96,6 +98,7 @@ class Tag extends StatelessWidget {
   Tag(
     this.value,
     this.text, {
+    this.fontSize = 10.0,
     this.color = defaultSelectedTagColor,
     this.selected = false,
     this.stateful = false,
@@ -104,6 +107,7 @@ class Tag extends StatelessWidget {
     this.onTap,
   });
 
+  final double fontSize;
   final int value;
   final String text;
   final Color color;
@@ -117,6 +121,7 @@ class Tag extends StatelessWidget {
   Widget build(BuildContext context) => _Tag(
         value,
         text,
+        fontSize: fontSize,
         color: color,
         selected: selected,
         stateful: stateful,
