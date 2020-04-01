@@ -63,7 +63,7 @@ class MyApp extends BasePage {
       title: 'Mikack mobile',
       theme: ThemeData(
         // This is the theme
-        primarySwatch: primaryColor,
+        primarySwatch: primarySwatch,
       ),
       home: MyHomePage(drawerIndex: drawerIndex),
     );
@@ -168,7 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   final _header = DrawerHeader(
-    decoration: BoxDecoration(color: primaryColor),
+    decoration: BoxDecoration(color: primarySwatch),
     child: Row(
       children: [
         Image.asset(

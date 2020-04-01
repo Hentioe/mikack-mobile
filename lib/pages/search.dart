@@ -184,7 +184,7 @@ class _SearchPageState extends State<_SearchPage> {
                       isContains
                           ? Icons.check_box_outline_blank
                           : Icons.check_box,
-                      color: isContains ? Colors.grey : primaryColor),
+                      color: isContains ? Colors.grey : primarySwatch),
                   onTap: () {
                     if (isContains)
                       setState(() {

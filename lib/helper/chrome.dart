@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 
@@ -16,7 +17,13 @@ void setNavigationBarColor(Color color) {
   );
 }
 
-void setSystemUI({Color primaryColor}) {
-  setNavigationBarColor(primaryColor);
+void setSystemUI({MaterialColor primarySwatch}) {
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: primarySwatch[900],
+      systemNavigationBarColor: primarySwatch,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
   showSystemUI();
 }

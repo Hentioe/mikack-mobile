@@ -2,6 +2,7 @@ import 'dart:isolate';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:logging/logging.dart';
@@ -21,6 +22,7 @@ import 'package:tuple/tuple.dart';
 
 final log = Logger('Read2Page');
 const read2PageBackgroundColor = Color.fromARGB(255, 50, 50, 50);
+const read2PageChapterInfoColor = Color.fromARGB(140, 50, 50, 50);
 const _pageInfoTextColor = Color.fromARGB(255, 255, 255, 255);
 const _pageInfoOutlineColor = Color.fromARGB(255, 0, 0, 0);
 const _pageInfoFontSize = 13.0;
@@ -233,9 +235,14 @@ class _Read2PageState extends State<_Read2Page> {
 
     // 中下区域（显示翻页工具栏）
     if (y > centerY && x > centerX - 100 && x < centerX + 100) {
-      if (!_showToolbar)
+      if (!_showToolbar) {
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
+            statusBarColor: read2PageBackgroundColor.withAlpha(160),
+          ),
+        );
         showSystemUI();
-      else
+      } else
         hiddenSystemUI();
       setState(() {
         _showToolbar = !_showToolbar;
@@ -398,6 +405,16 @@ class _Read2PageState extends State<_Read2Page> {
 
   Widget _buildChapterInfo() {
     return Container(
+      padding: EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+            read2PageBackgroundColor.withAlpha(160),
+            read2PageBackgroundColor.withAlpha(110),
+            Colors.transparent,
+          ])),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -412,24 +429,29 @@ class _Read2PageState extends State<_Read2Page> {
     );
   }
 
+  Widget _buildPaginationSlider() {
+    return Slider(
+      value: _currentPage.toDouble(),
+      min: 1.0,
+      max: _chapter.pageCount.toDouble(),
+      divisions: _chapter.pageCount - 1,
+      label: '$_currentPage',
+      onChanged: handlePaginationSliderChange,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Widget> paginationSlider = [];
     List<Widget> infoView = [];
     if (_showToolbar) {
-      paginationSlider.add(Positioned(
-        bottom: 20,
-        left: 0,
-        right: 0,
-        child: Slider(
-          value: _currentPage.toDouble(),
-          min: 1.0,
-          max: _chapter.pageCount.toDouble(),
-          divisions: _chapter.pageCount,
-          label: '$_currentPage',
-          onChanged: handlePaginationSliderChange,
-        ),
-      ));
+      if (_chapter.pageCount > 1)
+        paginationSlider.add(Positioned(
+          bottom: 20,
+          left: 0,
+          right: 0,
+          child: _buildPaginationSlider(),
+        ));
       infoView.add(Positioned(
         top: MediaQuery.of(context).padding.top,
         left: 0,

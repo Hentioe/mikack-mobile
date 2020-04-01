@@ -137,9 +137,10 @@ class _MainViewState extends State<MainView> {
         });
     } catch (e) {
       Fluttertoast.showToast(msg: e.toString());
-      setState(() {
-        _retry = IndexRetry.fetch;
-      });
+      if (mounted)
+        setState(() {
+          _retry = IndexRetry.fetch;
+        });
     }
   }
 
@@ -159,9 +160,10 @@ class _MainViewState extends State<MainView> {
       isLoading = false;
     } catch (e) {
       Fluttertoast.showToast(msg: e.toString());
-      setState(() {
-        _retry = IndexRetry.search;
-      });
+      if (mounted)
+        setState(() {
+          _retry = IndexRetry.search;
+        });
     }
   }
 

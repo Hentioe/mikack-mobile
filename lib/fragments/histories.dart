@@ -165,7 +165,7 @@ class _MainViewState extends State<MainView> {
             chapter: history.asChapter(),
           ),
         ),
-      ).then((_) => setSystemUI(primaryColor: primaryColor));
+      ).then((_) => setSystemUI(primarySwatch: primarySwatch));
     }
   }
 

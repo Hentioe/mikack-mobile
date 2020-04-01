@@ -118,7 +118,7 @@ class _SettingsCheckBoxIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return value
         ? Icon(Icons.check_box,
-            color: primaryColor, size: _settingsItemTrailingSize)
+            color: primarySwatch, size: _settingsItemTrailingSize)
         : Icon(Icons.check_box_outline_blank, size: _settingsItemTrailingSize);
   }
 }
