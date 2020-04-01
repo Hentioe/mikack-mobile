@@ -304,25 +304,22 @@ class _Read2PageState extends State<_Read2Page> {
         var screenSize = MediaQuery.of(context).size;
         var maxScale = 4.5;
         var initialScale = 1.0;
-        var animationMaxScale = 5.5;
+        var screenHeight = screenSize.height;
         // 如果图片的长：宽比例大于屏幕长：宽比例，则设置独特的缩放值
         // 屏幕：长-3 宽-1
         // 图片：长-5 宽-1
         // (3/1) < (5/1)
-        if ((screenSize.height / screenSize.width) < (img.height / img.width)) {
+        if ((screenHeight / screenSize.width) < (img.height / img.width)) {
           // 计算放大多少倍宽度占满屏幕宽度
           initialScale =
-              screenSize.width / (img.width / (img.height / screenSize.height));
+              screenSize.width / (img.width / (img.height / screenHeight));
           maxScale = initialScale + 1.0;
-          animationMaxScale = maxScale + 1.0;
         }
         return GestureConfig(
-          minScale: 1.0,
           animationMinScale: 0.7,
           maxScale: maxScale,
-          animationMaxScale: animationMaxScale,
           speed: 1.0,
-          inertialSpeed: 100.0,
+          inertialSpeed: 300.0,
           initialScale: initialScale,
           inPageView: true,
           initialAlignment: InitialAlignment.topCenter,
