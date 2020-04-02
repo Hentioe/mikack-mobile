@@ -32,6 +32,8 @@ class OutlineText extends StatelessWidget {
               ..strokeWidth = outlineWidth
               ..color = outlineColor,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         // Solid text as fill.
         Text(
@@ -40,6 +42,8 @@ class OutlineText extends StatelessWidget {
             fontSize: fontSize,
             color: textColor,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
