@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 const defaultTextColor = Color.fromARGB(255, 255, 255, 255);
-const defaultOutlineColor = Color.fromARGB(255, 180, 180, 180);
+const defaultOutlineColor = Color.fromARGB(255, 0, 0, 0);
 
 class OutlineText extends StatelessWidget {
-  OutlineText(this.text,
-      {this.fontSize,
-      this.textColor = defaultTextColor,
-      this.outlineColor = defaultOutlineColor,
-      this.outlineWidth = 1.5});
+  OutlineText(
+    this.text, {
+    this.fontSize,
+    this.textColor = defaultTextColor,
+    this.outlineColor = defaultOutlineColor,
+    this.outlineWidth = 1.5,
+  });
 
   final String text;
   final double fontSize;

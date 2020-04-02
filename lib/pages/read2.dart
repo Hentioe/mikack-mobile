@@ -2,7 +2,6 @@ import 'dart:isolate';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:logging/logging.dart';
@@ -236,11 +235,6 @@ class _Read2PageState extends State<_Read2Page> {
     // 中下区域（显示翻页工具栏）
     if (y > centerY && x > centerX - 100 && x < centerX + 100) {
       if (!_showToolbar) {
-        SystemChrome.setSystemUIOverlayStyle(
-          SystemUiOverlayStyle(
-            statusBarColor: read2PageBackgroundColor.withAlpha(160),
-          ),
-        );
         showSystemUI();
       } else
         hiddenSystemUI();
@@ -402,26 +396,11 @@ class _Read2PageState extends State<_Read2Page> {
 
   Widget _buildChapterInfo() {
     return Container(
-      padding: EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-            read2PageBackgroundColor.withAlpha(160),
-            read2PageBackgroundColor.withAlpha(110),
-            Colors.transparent,
-          ])),
-      child: Column(
+      padding: EdgeInsets.only(bottom: 10, top: 10),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            _chapter.title,
-            style: TextStyle(color: Colors.white),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          )
-        ],
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [OutlineText(_chapter.title)],
       ),
     );
   }

@@ -24,7 +24,6 @@ void setSystemUI({
 }) {
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
-      statusBarColor: primarySwatch[900],
       systemNavigationBarColor: primarySwatch,
       systemNavigationBarIconBrightness: brightness,
     ),
