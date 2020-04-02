@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/logging.dart';
 import 'package:mikack_mobile/pages/search.dart';
 import 'package:mikack_mobile/pages/terms.dart';
@@ -49,8 +50,9 @@ Future<int> getDrawerIndex() async {
 void main() async {
   initLogger();
   WidgetsFlutterBinding.ensureInitialized();
-  sleep(Duration(milliseconds: 1000));
+  sleep(Duration(milliseconds: 800));
   runApp(MyApp(await getDrawerIndex()));
+  setSystemUI();
 }
 
 class MyApp extends BasePage {
