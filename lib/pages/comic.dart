@@ -4,6 +4,7 @@ import 'package:flutter_share/flutter_share.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mikack_mobile/pages/read2.dart';
 import 'package:mikack_mobile/pages/settings.dart';
+import 'package:mikack_mobile/widgets/series_system_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mikack_mobile/helper/chrome.dart';
@@ -64,7 +65,6 @@ class _ComicPageState extends State<_ComicPage>
   }
 
   void openReadPage(models.Chapter chapter) {
-    setNavigationBarColor(read2PageBackgroundColor);
     // 查找上一章
     var tmpChapters =
         _comic.chapters.where((c) => c.which == chapter.which - 1);
@@ -88,7 +88,7 @@ class _ComicPageState extends State<_ComicPage>
       if (r is models.Chapter)
         openReadPage(r);
       else {
-        setSystemUI(primarySwatch: primarySwatch);
+        showSystemUI();
         fetchReadHistoryLinks();
         fetchLastHistory();
       }
@@ -309,50 +309,52 @@ class _ComicPageState extends State<_ComicPage>
     }
     var showFloatActionBtn =
         _comic.chapters != null && _comic.chapters.length == 1;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.comic.title),
-        bottom: TabBar(
-          tabs: const [
-            Tab(text: '信息'),
-            Tab(text: '章节'),
-          ],
-          controller: tabController,
-        ),
-        actions: [...tabActions, _buildMoreMenu()],
-      ),
-      body: TabBarView(
-        controller: tabController,
-        children: [
-          InfoTab(
-            widget.platform,
-            _comic,
-            error: _error,
-            isFavorite: _isFavorite,
-            handleFavorite: _handleFavorite,
-            handleRetry: _handleRetry,
+    return SeriesSystemUI(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.comic.title),
+          bottom: TabBar(
+            tabs: const [
+              Tab(text: '信息'),
+              Tab(text: '章节'),
+            ],
+            controller: tabController,
           ),
-          ChaptersTab(
-            _comic,
-            error: _error,
-            reversed: _sortReversed,
-            lastReadAt: _lastReadAt,
-            readHistoryLinks: _readHistoryLinks,
-            openReadPage: openReadPage,
-            handleChapterReadMark: _handleChapterReadMark,
-            handleChapterUnReadMark: _handleChapterUnReadMark,
-            handleChaptersReadMark: _handleChaptersReadMark,
-            handleRetry: _handleRetry,
-          )
-        ],
+          actions: [...tabActions, _buildMoreMenu()],
+        ),
+        body: TabBarView(
+          controller: tabController,
+          children: [
+            InfoTab(
+              widget.platform,
+              _comic,
+              error: _error,
+              isFavorite: _isFavorite,
+              handleFavorite: _handleFavorite,
+              handleRetry: _handleRetry,
+            ),
+            ChaptersTab(
+              _comic,
+              error: _error,
+              reversed: _sortReversed,
+              lastReadAt: _lastReadAt,
+              readHistoryLinks: _readHistoryLinks,
+              openReadPage: openReadPage,
+              handleChapterReadMark: _handleChapterReadMark,
+              handleChapterUnReadMark: _handleChapterUnReadMark,
+              handleChaptersReadMark: _handleChaptersReadMark,
+              handleRetry: _handleRetry,
+            )
+          ],
+        ),
+        floatingActionButton: showFloatActionBtn
+            ? FloatingActionButton(
+                heroTag: 'startReaddingFab',
+                tooltip: '开始阅读',
+                child: Icon(Icons.play_arrow),
+                onPressed: () => openFirstChapter(context))
+            : null,
       ),
-      floatingActionButton: showFloatActionBtn
-          ? FloatingActionButton(
-              heroTag: 'startReaddingFab',
-              tooltip: '开始阅读',
-              child: Icon(Icons.play_arrow),
-              onPressed: () => openFirstChapter(context))
-          : null,
     );
   }
 }

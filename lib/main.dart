@@ -8,6 +8,7 @@ import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/logging.dart';
 import 'package:mikack_mobile/pages/search.dart';
 import 'package:mikack_mobile/pages/terms.dart';
+import 'package:mikack_mobile/widgets/series_system_ui.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'fragments/libraries.dart';
@@ -52,7 +53,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   sleep(Duration(milliseconds: 800));
   runApp(MyApp(await getDrawerIndex()));
-  setSystemUI();
 }
 
 class MyApp extends BasePage {
@@ -262,25 +262,25 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   // 由于导航栏颜色问题暂时无法解决，放弃自定义页面路由动画
-//  Route _createGlobalSearchRoute() {
-//    return PageRouteBuilder(
-//      barrierColor: Colors.white,
-//      pageBuilder: (context, animation, secondaryAnimation) => SearchPage(),
-//      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-//        var begin = Offset(0.0, 1.0);
-//        var end = Offset.zero;
-//        var curve = Curves.ease;
-//
-//        var tween =
-//            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-//
-//        return SlideTransition(
-//          position: animation.drive(tween),
-//          child: child,
-//        );
-//      },
-//    );
-//  }
+  Route _createGlobalSearchRoute() {
+    return PageRouteBuilder(
+      barrierColor: Colors.white,
+      pageBuilder: (context, animation, secondaryAnimation) => SearchPage(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var curve = Curves.ease;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -296,51 +296,53 @@ class _MyHomePageState extends State<MyHomePage> {
       ));
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-              tooltip: '打开导航菜单',
-            );
-          },
-        ),
-        title: Text(_drawerItems[_drawerIndex].title),
-        actions: [
-          IconButton(
-            tooltip: '打开全局搜索',
-            icon: Icon(Icons.search),
-            onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => SearchPage())),
+    return SeriesSystemUI(
+      child: Scaffold(
+        appBar: AppBar(
+          leading: Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+                tooltip: '打开导航菜单',
+              );
+            },
           ),
-          ..._drawerItems[_drawerIndex].actions
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            _header,
-            Column(
-              children: drawerListView,
+          title: Text(_drawerItems[_drawerIndex].title),
+          actions: [
+            IconButton(
+              tooltip: '打开全局搜索',
+              icon: Icon(Icons.search),
+              onPressed: () =>
+                  Navigator.of(context).push(_createGlobalSearchRoute()),
             ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('设置'),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => SettingsPage()),
-              ).then((_) => fetchAllowNsfw()), // 设置页面返回后刷新可能变更的数据
-            ),
+            ..._drawerItems[_drawerIndex].actions
           ],
         ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              _header,
+              Column(
+                children: drawerListView,
+              ),
+              Divider(),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('设置'),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => SettingsPage()),
+                ).then((_) => fetchAllowNsfw()), // 设置页面返回后刷新可能变更的数据
+              ),
+            ],
+          ),
+        ),
+        body: _drawerItems[_drawerIndex].fragment,
       ),
-      body: _drawerItems[_drawerIndex].fragment,
     );
   }
 }

@@ -155,7 +155,6 @@ class _MainViewState extends State<MainView> {
     var platform =
         platformList.firstWhere((p) => p.domain == history.source.domain);
     if (platform != null) {
-      setNavigationBarColor(read2PageBackgroundColor);
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -165,7 +164,7 @@ class _MainViewState extends State<MainView> {
             chapter: history.asChapter(),
           ),
         ),
-      ).then((_) => setSystemUI(primarySwatch: primarySwatch));
+      ).then((_) => showSystemUI());
     }
   }
 

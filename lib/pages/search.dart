@@ -15,6 +15,7 @@ import 'package:mikack_mobile/pages/settings.dart';
 import 'package:mikack_mobile/widgets/comic_card.dart';
 import 'package:mikack_mobile/widgets/comics_view.dart';
 import 'package:mikack_mobile/widgets/favicon.dart';
+import 'package:mikack_mobile/widgets/series_system_ui.dart';
 import 'package:mikack_mobile/widgets/tag.dart';
 import 'package:mikack_mobile/ext.dart';
 import 'package:mikack_mobile/widgets/text_hint.dart';
@@ -403,27 +404,29 @@ class _SearchPageState extends State<_SearchPage> {
       // 过滤视图
       body = _buildFilterView();
     }
-    return MaterialApp(
-      theme: appBarTheme(),
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          elevation: showElevation ? null : 0,
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context)),
-          title: _submitted
-              ? Text('$_keywords')
-              : TextField(
-                  autofocus: true,
-                  textInputAction: TextInputAction.search,
-                  controller: editingController,
-                  onSubmitted: _handleSubmit,
-                  decoration: InputDecoration(hintText: '全局搜索'),
-                ),
-          actions: actions,
+    return SeriesSystemUI(
+      child: MaterialApp(
+        theme: appBarTheme(),
+        home: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            elevation: showElevation ? null : 0,
+            leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () => Navigator.pop(context)),
+            title: _submitted
+                ? Text('$_keywords')
+                : TextField(
+                    autofocus: true,
+                    textInputAction: TextInputAction.search,
+                    controller: editingController,
+                    onSubmitted: _handleSubmit,
+                    decoration: InputDecoration(hintText: '全局搜索'),
+                  ),
+            actions: actions,
+          ),
+          body: body,
         ),
-        body: body,
       ),
     );
   }

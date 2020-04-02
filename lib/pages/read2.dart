@@ -2,6 +2,7 @@ import 'dart:isolate';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:logging/logging.dart';
@@ -264,10 +265,12 @@ class _Read2PageState extends State<_Read2Page> {
     var pageInfo =
         _chapter == null ? '' : '$_currentPage/${_chapter.pageCount}';
     return Positioned(
-      bottom: 2,
+      bottom: 0,
       left: 0,
       right: 0,
       child: Container(
+        color: _showToolbar ? Colors.black : null,
+        height: 20,
         child: Center(
           child: OutlineText(
             pageInfo,
@@ -394,25 +397,64 @@ class _Read2PageState extends State<_Read2Page> {
     });
   }
 
-  Widget _buildChapterInfo() {
+  Widget _buildChapterInfoView() {
     return Container(
+      color: Colors.black,
       padding: EdgeInsets.only(bottom: 10, top: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [OutlineText(_chapter.title)],
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(kMinInteractiveDimension / 2),
+            child: Material(
+              color: Colors.transparent,
+              child: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ),
+          SizedBox(width: 10),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.comic.title.isEmpty ? '阅读历史' : widget.comic.title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.fade,
+              ),
+              SizedBox(height: 4),
+              Text(
+                _chapter.title,
+                style: TextStyle(color: Colors.grey[300], fontSize: 14),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildPaginationSlider() {
-    return Slider(
-      value: _currentPage.toDouble(),
-      min: 1.0,
-      max: _chapter.pageCount.toDouble(),
-      divisions: _chapter.pageCount - 1,
-      label: '$_currentPage',
-      onChanged: handlePaginationSliderChange,
+    return Container(
+      color: Colors.black,
+      child: Slider(
+        inactiveColor: Colors.white,
+        activeColor: Colors.white,
+        value: _currentPage.toDouble(),
+        min: 1.0,
+        max: _chapter.pageCount.toDouble(),
+        label: '$_currentPage',
+        onChanged: handlePaginationSliderChange,
+      ),
     );
   }
 
@@ -423,7 +465,7 @@ class _Read2PageState extends State<_Read2Page> {
     if (_showToolbar) {
       if (_chapter.pageCount > 1)
         paginationSlider.add(Positioned(
-          bottom: 20,
+          bottom: 19,
           left: 0,
           right: 0,
           child: _buildPaginationSlider(),
@@ -432,46 +474,60 @@ class _Read2PageState extends State<_Read2Page> {
         top: MediaQuery.of(context).padding.top,
         left: 0,
         right: 0,
-        child: _buildChapterInfo(),
+        child: _buildChapterInfoView(),
       ));
     }
-    return GestureDetector(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.black,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.black,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
       child: Scaffold(
         backgroundColor: read2PageBackgroundColor,
         resizeToAvoidBottomInset: _loading,
         body: _loading
-            ? TextHint('载入中…')
-            : Stack(
-                children: [
-                  Positioned.fill(
-                    child: ExtendedImageGesturePageView.builder(
-                      controller: pageController,
-                      itemCount: _chapter.pageCount + 2,
-                      itemBuilder: (ctx, index) {
-                        if (index == 0) {
-                          // 上一章
-                          return _buildPreviewChapter(
-                              ChapterPreviewDirection.prev);
-                        } else if (index == _chapter.pageCount + 1) {
-                          // 下一章
-                          return _buildPreviewChapter(
-                              ChapterPreviewDirection.next);
-                        } else if (index - 1 >= _pages.length) {
-                          return Center(child: connectingView);
-                        } else {
-                          return _buildImageView(_pages[index - 1]);
-                        }
-                      },
-                      onPageChanged: handlePageChange,
+            ? Container(
+                padding:
+                    EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                child: TextHint('载入中…'),
+              )
+            : GestureDetector(
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      top:
+                          _showToolbar ? MediaQuery.of(context).padding.top : 0,
+                      child: ExtendedImageGesturePageView.builder(
+                        controller: pageController,
+                        itemCount: _chapter.pageCount + 2,
+                        itemBuilder: (ctx, index) {
+                          if (index == 0) {
+                            // 上一章
+                            return _buildPreviewChapter(
+                                ChapterPreviewDirection.prev);
+                          } else if (index == _chapter.pageCount + 1) {
+                            // 下一章
+                            return _buildPreviewChapter(
+                                ChapterPreviewDirection.next);
+                          } else if (index - 1 >= _pages.length) {
+                            return Center(child: connectingView);
+                          } else {
+                            return _buildImageView(_pages[index - 1]);
+                          }
+                        },
+                        onPageChanged: handlePageChange,
+                      ),
                     ),
-                  ),
-                  ...infoView,
-                  ...paginationSlider,
-                  _buildPageInfoView(),
-                ],
+                    ...infoView,
+                    ...paginationSlider,
+                    _buildPageInfoView(),
+                  ],
+                ),
+                onTapUp: (detail) => _handleTapUp(detail, context),
               ),
       ),
-      onTapUp: (detail) => _handleTapUp(detail, context),
     );
   }
 }
