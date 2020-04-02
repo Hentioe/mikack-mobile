@@ -365,7 +365,6 @@ class ComicPage extends BasePage {
 
   @override
   Widget build(BuildContext context) {
-    initSystemUI();
     return _ComicPage(platform, comic);
   }
 }

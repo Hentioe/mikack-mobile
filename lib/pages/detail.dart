@@ -123,7 +123,6 @@ class DetailPage extends BasePage {
 
   @override
   Widget build(BuildContext context) {
-    initSystemUI();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

@@ -429,7 +429,7 @@ class _SearchPageState extends State<_SearchPage> {
   }
 }
 
-class SearchPage extends StatelessWidget {
+class SearchPage extends BasePage {
   @override
   Widget build(BuildContext context) => _SearchPage();
 }

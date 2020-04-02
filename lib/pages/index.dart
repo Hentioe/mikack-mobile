@@ -298,7 +298,6 @@ class IndexPage extends BasePage {
 
   @override
   Widget build(BuildContext context) {
-    initSystemUI();
     return MainView(platform);
   }
 }

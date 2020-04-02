@@ -62,7 +62,6 @@ class MyApp extends BasePage {
 
   @override
   Widget build(BuildContext context) {
-    initSystemUI();
     return MaterialApp(
       title: 'Mikack mobile',
       theme: ThemeData(
@@ -262,24 +261,26 @@ class _MyHomePageState extends State<MyHomePage> {
     ];
   }
 
-  Route _createGlobalSearchRoute() {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => SearchPage(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var curve = Curves.ease;
-
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
-      },
-    );
-  }
+  // 由于导航栏颜色问题暂时无法解决，放弃自定义页面路由动画
+//  Route _createGlobalSearchRoute() {
+//    return PageRouteBuilder(
+//      barrierColor: Colors.white,
+//      pageBuilder: (context, animation, secondaryAnimation) => SearchPage(),
+//      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+//        var begin = Offset(0.0, 1.0);
+//        var end = Offset.zero;
+//        var curve = Curves.ease;
+//
+//        var tween =
+//            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+//
+//        return SlideTransition(
+//          position: animation.drive(tween),
+//          child: child,
+//        );
+//      },
+//    );
+//  }
 
   @override
   Widget build(BuildContext context) {
@@ -313,8 +314,8 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
             tooltip: '打开全局搜索',
             icon: Icon(Icons.search),
-            onPressed: () =>
-                Navigator.of(context).push(_createGlobalSearchRoute()),
+            onPressed: () => Navigator.push(
+                context, MaterialPageRoute(builder: (_) => SearchPage())),
           ),
           ..._drawerItems[_drawerIndex].actions
         ],
