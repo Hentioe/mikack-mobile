@@ -2,7 +2,6 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mikack_mobile/fragments/bookshelf.dart';
 import 'package:mikack_mobile/helper/chrome.dart';
-import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:mikack_mobile/pages/read2.dart';
 import 'package:mikack_mobile/store.dart';
 import 'package:mikack_mobile/widgets/comics_view.dart' show coverRatio;
@@ -164,7 +163,10 @@ class _MainViewState extends State<MainView> {
             chapter: history.asChapter(),
           ),
         ),
-      ).then((_) => showSystemUI());
+      ).then((_) {
+        restoreStatusBarColor();
+        showSystemUI();
+      });
     }
   }
 
@@ -181,7 +183,7 @@ class _MainViewState extends State<MainView> {
       }
       history.source = source;
     }
-    setState(() => _histories = histories);
+    if (mounted) setState(() => _histories = histories);
   }
 
   @override

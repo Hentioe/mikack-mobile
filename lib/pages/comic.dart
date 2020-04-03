@@ -88,6 +88,7 @@ class _ComicPageState extends State<_ComicPage>
       if (r is models.Chapter)
         openReadPage(r);
       else {
+        restoreStatusBarColor();
         showSystemUI();
         fetchReadHistoryLinks();
         fetchLastHistory();
