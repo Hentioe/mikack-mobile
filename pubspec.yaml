@@ -21,6 +21,9 @@ dependencies:
     sdk: flutter
   mikack:
     git: git@github.com:Hentioe/mikack-dart.git
+  equatable: ^1.1.1
+  bloc: ^3.0.0
+  flutter_bloc: ^3.2.0
   tuple: ^1.0.3
   synchronized: ^2.2.0
   flutter_spinkit: ^4.1.2

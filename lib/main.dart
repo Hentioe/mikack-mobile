@@ -1,22 +1,22 @@
 import 'dart:collection';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart' as models;
-import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/logging.dart';
 import 'package:mikack_mobile/pages/search.dart';
 import 'package:mikack_mobile/pages/terms.dart';
+import 'package:mikack_mobile/src/fragments.dart';
 import 'package:mikack_mobile/widgets/series_system_ui.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'fragments/libraries.dart';
 import 'fragments/bookshelf.dart';
 import 'fragments/books_update.dart';
 import 'fragments/histories.dart';
 import 'pages/base_page.dart';
 import 'pages/settings.dart';
+import 'src/blocs.dart';
 
 // 全部平台列表
 final List<models.Platform> platformList = platforms();
@@ -68,7 +68,14 @@ class MyApp extends BasePage {
         // This is the theme
         primarySwatch: primarySwatch,
       ),
-      home: MyHomePage(drawerIndex: drawerIndex),
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider<LibrariesBloc>(
+            create: (_) => LibrariesBloc(),
+          )
+        ],
+        child: MyHomePage(drawerIndex: drawerIndex),
+      ),
     );
   }
 }
@@ -108,15 +115,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int _drawerIndex;
   List<DrawerItem> _drawerItems = [];
-  List<int> includeTags = [];
+  List<int> _includeTags = [];
+  List<int> _excludesTags = [nsfwTagValue];
   bool allowNsfw = false;
-  List<int> excludesTags = [nsfwTagValue];
-  List<models.Platform> _platforms = [];
   BookshelfSortBy _bookshelfSortBy = BookshelfSortBy.readAt;
 
   @override
   void initState() {
-    fetchPlatforms();
     fetchBookshelfSortBy();
     fetchAllowNsfw();
     checkPermAccept();
@@ -129,15 +134,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (versionStr == null)
       Navigator.push(context,
           MaterialPageRoute(builder: (_) => TermsPage(readOnly: false)));
-  }
-
-  void fetchPlatforms() async {
-    setState(() {
-      _platforms = findPlatforms(
-        includeTags.map((v) => models.Tag(v, '')).toList(),
-        excludesTags.map((v) => models.Tag(v, '')).toList(),
-      );
-    });
   }
 
   void fetchBookshelfSortBy() async {
@@ -155,19 +151,19 @@ class _MyHomePageState extends State<MyHomePage> {
     allowNsfw = isAllow;
     if (isAllow) {
       // 如果启用，则排除并重写载入
-      if (excludesTags.contains(nsfwTagValue)) {
-        excludesTags.remove(nsfwTagValue);
-        fetchPlatforms();
+      if (_excludesTags.contains(nsfwTagValue)) {
+        _excludesTags.remove(nsfwTagValue);
       }
     } else {
       // 没启用，添加排除标签并删除包含标签
-      if (!excludesTags.contains(nsfwTagValue)) {
-        excludesTags.add(nsfwTagValue);
-        if (includeTags.contains(nsfwTagValue))
-          includeTags.remove(nsfwTagValue);
-        fetchPlatforms();
+      if (!_excludesTags.contains(nsfwTagValue)) {
+        _excludesTags.add(nsfwTagValue);
+        if (_includeTags.contains(nsfwTagValue))
+          _includeTags.remove(nsfwTagValue);
       }
     }
+    BlocProvider.of<LibrariesBloc>(context).add(LibrariesFiltersUpdatedEvent(
+        includes: _includeTags, excludes: _excludesTags));
   }
 
   final _header = DrawerHeader(
@@ -189,24 +185,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _handleLibrariesFilter() {
-    var fragment = _drawerItems[_drawerIndex].fragment;
-    if (fragment is LibrariesFragment) {
-      fragment
-          .openFilter(context,
-              includes: includeTags,
-              excludes: excludesTags,
-              allowNsfw: allowNsfw)
-          .then((filters) {
-        var includes = filters.item1;
-        var excludes = filters.item2;
+    LibrariesFragment2.openFilter(context,
+            includes: _includeTags,
+            excludes: _excludesTags,
+            allowNsfw: allowNsfw)
+        .then((filters) {
+      var includes = filters.item1;
+      var excludes = filters.item2;
 
-        setState(() {
-          includeTags = includes;
-          excludesTags = excludes;
-        });
-        fetchPlatforms();
+      setState(() {
+        _includeTags = includes;
+        _excludesTags = excludes;
       });
-    }
+      BlocProvider.of<LibrariesBloc>(context).add(
+          LibrariesFiltersUpdatedEvent(includes: includes, excludes: excludes));
+    });
   }
 
   Widget _buildBookshelfSortMenuView() {
@@ -249,7 +242,7 @@ class _MyHomePageState extends State<MyHomePage> {
       DrawerItem(
         '图书仓库',
         Icons.store,
-        LibrariesFragment(_platforms),
+        LibrariesFragment2(),
         actions: [
           IconButton(
               tooltip: '打开过滤菜单',
