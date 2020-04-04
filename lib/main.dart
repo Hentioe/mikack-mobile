@@ -8,11 +8,11 @@ import 'package:mikack_mobile/logging.dart';
 import 'package:mikack_mobile/pages/search.dart';
 import 'package:mikack_mobile/pages/terms.dart';
 import 'package:mikack_mobile/src/fragments.dart';
+import 'package:mikack_mobile/src/fragments/updates_fragment.dart';
 import 'package:mikack_mobile/widgets/series_system_ui.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'fragments/bookshelf.dart';
-import 'fragments/books_update.dart';
 import 'fragments/histories.dart';
 import 'pages/base_page.dart';
 import 'pages/settings.dart';
@@ -72,7 +72,10 @@ class MyApp extends BasePage {
         providers: [
           BlocProvider<LibrariesBloc>(
             create: (_) => LibrariesBloc(),
-          )
+          ),
+          BlocProvider<UpdatesBloc>(
+            create: (_) => UpdatesBloc(),
+          ),
         ],
         child: MyHomePage(drawerIndex: drawerIndex),
       ),
@@ -122,10 +125,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    initDrawerItems();
     fetchBookshelfSortBy();
     fetchAllowNsfw();
     checkPermAccept();
+    sendFragmentEvent();
     super.initState();
+  }
+
+  /// 根据 fragment 类型发送事件（当内容页为纯 StatelessWidget 时需要）
+  void sendFragmentEvent() {
+    switch (_drawerItems[_drawerIndex].fragment.runtimeType) {
+      case UpdatesFragment2:
+        BlocProvider.of<UpdatesBloc>(context).add(UpdatesEvent.localRequest);
+        break;
+    }
   }
 
   void checkPermAccept() async {
@@ -182,6 +196,8 @@ class _MyHomePageState extends State<MyHomePage> {
   _onSelectItem(int index) {
     setState(() => _drawerIndex = index);
     Navigator.of(context).pop(); // 关闭抽屉
+    // 发送事件
+    sendFragmentEvent();
   }
 
   void _handleLibrariesFilter() {
@@ -238,7 +254,7 @@ class _MyHomePageState extends State<MyHomePage> {
         BookshelfFragment(sortBy: _bookshelfSortBy),
         actions: [_buildBookshelfSortMenuView()],
       ),
-      DrawerItem('书架更新', Icons.fiber_new, BooksUpdateFragment()),
+      DrawerItem('书架更新', Icons.fiber_new, UpdatesFragment2()),
       DrawerItem(
         '图书仓库',
         Icons.store,
@@ -277,7 +293,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    initDrawerItems();
     var drawerListView = <Widget>[];
     for (var i = 0; i < _drawerItems.length; i++) {
       var d = _drawerItems[i];
