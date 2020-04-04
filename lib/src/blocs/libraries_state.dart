@@ -7,11 +7,25 @@ abstract class LibrariesState extends Equatable {
   List<Object> get props => [];
 }
 
-class LibrariesFilteredState extends LibrariesState {
-  LibrariesFilteredState({@required this.list});
+class LibrariesGroupedListState extends LibrariesState {
+  LibrariesGroupedListState({
+    @required this.fixedList,
+    @required this.filteredList,
+  });
 
-  final List<Platform> list;
+  final List<Platform> fixedList;
+  final List<Platform> filteredList;
 
   @override
-  List<Object> get props => [list];
+  List<Object> get props => [fixedList, filteredList];
+
+  LibrariesGroupedListState copyWith(
+      {List<Platform> fixedList, List<Platform> filteredList}) {
+    return LibrariesGroupedListState(
+      fixedList: fixedList ?? this.fixedList,
+      filteredList: filteredList ?? this.filteredList,
+    );
+  }
+
+  int allCount() => fixedList.length + filteredList.length;
 }

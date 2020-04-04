@@ -17,6 +17,15 @@ extension PlatformExt on Platform {
   }
 }
 
+extension PlatformsExt on List<Platform> {
+  bool containsDomain(String domain) {
+    for (Platform platform in this) {
+      if (platform.domain == domain) return true;
+    }
+    return false;
+  }
+}
+
 extension FavoritesExt on List<Favorite> {
   List<Comic> toComicList() {
     return this.map((f) => f.toComic()).toList();

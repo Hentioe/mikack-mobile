@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:mikack_mobile/widgets/text_hint.dart';
 import 'package:tuple/tuple.dart';
 
 import '../../pages/detail.dart';
@@ -12,7 +13,7 @@ import '../../pages/index.dart';
 import '../../src/blocs.dart';
 import '../../widgets/favicon.dart';
 import '../../widgets/tag.dart';
-import '../../main.dart' show nsfwTagValue;
+import '../../main.dart' show nsfwTagValue, platformList;
 
 const _rootSpacing = 15.0;
 const _librariesFilterTagFontSize = 10.8;
@@ -25,7 +26,7 @@ class LibrariesFragment2 extends StatelessWidget {
     excludes = const <int>[],
   }) : super(key: key);
 
-  /// 打开过滤器弹窗，用于响应主屏幕应用栏的过滤 action 触摸事件。（理论上 MainPage 全局可用）
+  /// 打开过滤器弹窗，用于响应主屏幕应用栏的过滤 action 触摸事件。
   /// 返回将包含选择的完整条件的 Future
   /// TODO: 取消也需返回内容，避免长期引用导致的内存泄漏
   static Future<Tuple2<List<int>, List<int>>> openFilter(
@@ -133,21 +134,46 @@ class LibrariesFragment2 extends StatelessWidget {
       (models.Platform platform) => Navigator.push(context,
           MaterialPageRoute(builder: (context) => DetailPage(platform)));
 
+  void Function(models.Platform, List<models.Platform>, bool)
+      _handleItemLongTap(BuildContext context) => (models.Platform platform,
+              List<models.Platform> filteredList, bool fromFixed) =>
+          BlocProvider.of<LibrariesBloc>(context)
+              .add(LibrariesFixedUpdatedEvent(
+            platform: platform,
+            filteredList: filteredList,
+            fromFixed: fromFixed,
+          ));
+
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: EdgeInsets.all(_rootSpacing),
-      children: [
-        BlocBuilder<LibrariesBloc, LibrariesState>(
-          condition: (prevState, state) => state is LibrariesFilteredState,
-          builder: (context, state) => _Group(
-            title: '全部',
-            platforms: (state as LibrariesFilteredState).list,
-            handleItemTap: _handleItemTap(context),
-            handleItemDetail: _handleItemDetail(context),
-          ),
-        )
-      ],
+    return BlocBuilder<LibrariesBloc, LibrariesState>(
+      condition: (prevState, state) => state is LibrariesGroupedListState,
+      builder: (context, state) {
+        return ListView(
+          padding: EdgeInsets.all(_rootSpacing),
+          children: [
+            if (state is LibrariesGroupedListState) ...[
+              _Group(
+                title: '已固定',
+                platforms: state.fixedList,
+                emptyHint: '长按固定于此',
+                handleItemTap: _handleItemTap(context),
+                handleItemDetail: _handleItemDetail(context),
+                handleItemLongPress: _handleItemLongTap(context),
+              ),
+              SizedBox(height: 20),
+              _Group(
+                title: state.allCount() == platformList.length ? '全部' : '已过滤',
+                platforms: state.filteredList,
+                showDomain: true,
+                handleItemTap: _handleItemTap(context),
+                handleItemDetail: _handleItemDetail(context),
+                handleItemLongPress: _handleItemLongTap(context),
+              ),
+            ]
+          ],
+        );
+      },
     );
   }
 }
@@ -156,19 +182,24 @@ class _Group extends StatelessWidget {
   _Group({
     @required this.title,
     this.platforms = const [],
+    this.showDomain = false,
+    this.emptyHint = '空列表',
     this.handleItemTap,
     this.handleItemDetail,
+    this.handleItemLongPress,
   });
 
   final String title;
   final List<models.Platform> platforms;
+  final bool showDomain;
+  final String emptyHint;
   final void Function(models.Platform) handleItemTap;
   final void Function(models.Platform) handleItemDetail;
+  final void Function(
+          models.Platform, List<models.Platform> filteredList, bool fromFixed)
+      handleItemLongPress;
 
-  Widget _buildPlatformItemView(
-    models.Platform platform, {
-    showDomain = true,
-  }) {
+  Widget _buildPlatformItemView(models.Platform platform) {
     return Container(
       decoration: BoxDecoration(
         border: platforms.last.domain != platform.domain
@@ -195,6 +226,8 @@ class _Group extends StatelessWidget {
           onPressed: () => handleItemDetail(platform),
         ),
         onTap: () => handleItemTap(platform),
+        onLongPress: () =>
+            handleItemLongPress(platform, platforms, title == '已固定'),
       ),
     );
   }
@@ -204,15 +237,17 @@ class _Group extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$title (${platforms.length})',
-            style: TextStyle(color: Colors.grey[500], fontSize: 14)),
-        SizedBox(height: 20),
-        Card(
-          margin: EdgeInsets.zero,
-          child: Column(
-            children: platforms.map((p) => _buildPlatformItemView(p)).toList(),
-          ),
-        )
+        Text('$title', style: TextStyle(color: Colors.grey[500], fontSize: 14)),
+        SizedBox(height: 10),
+        platforms.length == 0
+            ? TextHint(emptyHint, color: Colors.grey[350]) // 空列表提示
+            : Card(
+                margin: EdgeInsets.zero,
+                child: Column(
+                  children:
+                      platforms.map((p) => _buildPlatformItemView(p)).toList(),
+                ),
+              )
       ],
     );
   }
