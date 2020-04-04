@@ -163,8 +163,10 @@ class LibrariesFragment2 extends StatelessWidget {
               ),
               SizedBox(height: 20),
               _Group(
-                title: state.allCount() == platformList.length ? '全部' : '已过滤',
-                platforms: state.filteredList,
+                title: state.filteredList.length == platformList.length
+                    ? '全部'
+                    : '已过滤',
+                platforms: state.fixedHiddenFilteredList,
                 showDomain: true,
                 handleItemTap: _handleItemTap(context),
                 handleItemDetail: _handleItemDetail(context),

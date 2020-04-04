@@ -1,9 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart';
+import 'package:mikack_mobile/store.dart';
 import 'libraries_event.dart';
 import 'libraries_state.dart';
 
+import '../../main.dart' show platformList;
 import '../../ext.dart';
 
 class LibrariesBloc extends Bloc<LibrariesEvent, LibrariesState> {
@@ -22,15 +24,19 @@ class LibrariesBloc extends Bloc<LibrariesEvent, LibrariesState> {
         );
         if (state is LibrariesGroupedListState) {
           var castedState = state as LibrariesGroupedListState;
-          // 删除已固定的内容
-          filteredList.removeWhere(
-              (p) => castedState.fixedList.containsDomain(p.domain));
-          yield castedState.copyWith(filteredList: filteredList);
-        } else {
-          // 从数据库查找固定列表
-          // TODO: 查库
-          yield LibrariesGroupedListState(
-              fixedList: [], filteredList: filteredList);
+          // 如果固定列表为空，查询图源
+          List<Platform> fixedList = [...castedState.fixedList];
+          if (fixedList.length == 0) {
+            // 从数据库查找已固定的图源列表
+            var fixedSources = await findSources(isFixed: true);
+            // 从全部平台中匹配对应的数据
+            fixedList = platformList
+                .where((p) => fixedSources.containsDomain(p.domain))
+                .toList();
+          }
+
+          yield castedState.copyWith(
+              fixedList: fixedList, filteredList: filteredList);
         }
         break;
       case LibrariesFixedUpdatedEvent: // 已固定列表更新
@@ -40,16 +46,15 @@ class LibrariesBloc extends Bloc<LibrariesEvent, LibrariesState> {
           var filteredList = [...castedState.filteredList];
           var fixedList = [...castedState.fixedList];
           var targetPlatform = castedEvent.platform;
+          var source = await targetPlatform.toSavedSource();
           if (!castedEvent.fromFixed) {
             // 固定平台
-            // TODO: 更新数据库
+            await updateSource(source..isFixed = true);
             fixedList.add(targetPlatform);
-            filteredList.remove(targetPlatform);
           } else {
             // 移除固定
-            // TODO: 更新数据
+            await updateSource(source..isFixed = false);
             fixedList.remove(targetPlatform);
-            filteredList.add(targetPlatform);
           }
           yield castedState.copyWith(
               fixedList: fixedList, filteredList: filteredList);

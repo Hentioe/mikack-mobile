@@ -2,7 +2,7 @@ import 'store.dart';
 
 void testStore() async {
   if (const bool.fromEnvironment("dart.vm.product")) return;
-  await dangerouslyDestory();
+  await dangerouslyDestroy();
   await insertSource(Source(domain: 'www.google.com', name: '谷歌'));
   var sources = await findSources();
   print(sources);

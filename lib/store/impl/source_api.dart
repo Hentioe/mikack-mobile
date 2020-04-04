@@ -8,10 +8,25 @@ Future<void> insertSource(Source source) async {
   source.id = id;
 }
 
-Future<List<Source>> findSources() async {
+Future<List<Source>> findSources({bool isFixed}) async {
   final db = await database();
 
-  final List<Map<String, dynamic>> maps = await db.query(Source.tableName);
+  String where;
+  var whereArgs = <dynamic>[];
+
+  if (isFixed != null) {
+    where = 'is_fixed = ?';
+    if (isFixed)
+      whereArgs.add(1);
+    else
+      whereArgs.add(0);
+  }
+
+  final List<Map<String, dynamic>> maps = await db.query(
+    Source.tableName,
+    where: where,
+    whereArgs: whereArgs,
+  );
 
   return maps.map((map) => Source.fromMap(map)).toList();
 }

@@ -4,16 +4,18 @@ class Source {
   int id;
   String domain;
   String name;
+  bool isFixed;
 
   static final String tableName = "sources";
 
-  Source({this.id, this.domain, this.name});
+  Source({this.id, this.domain, this.name, this.isFixed = false});
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'domain': domain,
       'name': name,
+      'is_fixed': isFixed ? 1 : 0,
     };
   }
 
@@ -22,11 +24,12 @@ class Source {
       id: map['id'],
       domain: map['domain'],
       name: map['name'],
+      isFixed: map['is_fixed'] == 1 ? true : false,
     );
   }
 
   String toString() {
-    return 'Source(id: $id, domain: $domain, name: $name)';
+    return 'Source(id: $id, domain: $domain, name: $name, isFixed: $isFixed)';
   }
 }
 

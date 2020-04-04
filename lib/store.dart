@@ -7,8 +7,11 @@ export './store/models.dart';
 const dbFile = 'mikack.db';
 
 // 图源表结构
-const latestSourceTableStructure =
-    'id INTEGER PRIMARY KEY AUTOINCREMENT, domain TEXT NOT NULL, name TEXT NOT NULL';
+const latestSourceTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+    'domain TEXT NOT NULL,' // 域名
+    'name TEXT NOT NULL,' // 名称
+    'is_fixed INTEGER NOT NULL,' // 是否固定
+    'CHECK (is_fixed IN (0,1))'; // 确保 `is_fixed` 为布尔值
 
 // 阅读历史表结构
 const latestHistoryTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
@@ -48,6 +51,8 @@ List<String> tableStructureMigrationSqlGen(
   var newTableName = '${tableName}_new_tmp_name';
   var columnsStr = columns.join(',');
   return [
+    // 关闭外键
+    'PRAGMA foreign_keys=OFF;',
     // 创建最新结构的临时表（包含检查约束）
     'CREATE TABLE $newTableName($tableStructure);',
     // 复制数据
@@ -55,12 +60,15 @@ List<String> tableStructureMigrationSqlGen(
     // 删除旧表
     'DROP TABLE $tableName;',
     // 更新临时表名
-    'ALTER TABLE $newTableName RENAME TO $tableName;'
+    'ALTER TABLE $newTableName RENAME TO $tableName;',
+    // 开启外键
+    'PRAGMA foreign_keys=ON;',
   ];
 }
 
-Future<void> multiExecInTrans(Transaction tnx, List<String> sqls) async {
-  for (String sql in sqls) {
+Future<void> multiExecInTrans(
+    Transaction tnx, List<String> sqlStatements) async {
+  for (String sql in sqlStatements) {
     await tnx.execute(sql);
   }
 }
@@ -70,7 +78,7 @@ Future<Database> database() async {
   return openDatabase(
     join(databasePath, dbFile),
     onConfigure: (db) async {
-      await db.execute('PRAGMA foreign_keys=ON;'); // 启用外键
+//      await db.execute('PRAGMA foreign_keys=ON;'); // 启用外键
     },
     onCreate: (db, version) async {
       await db.transaction((tnx) async {
@@ -158,13 +166,28 @@ Future<Database> database() async {
               'CREATE TABLE chapter_updates($latestChapterUpdateStructure);',
             ]);
           });
+          break;
+        case 6:
+          // 给图源添加“是否固定”字段，并将已存在的数据设为否（值为 0）
+          await db.transaction((tnx) async {
+            await multiExecInTrans(tnx, [
+              // 添加`显示状态`列
+              'ALTER TABLE sources ADD is_fixed INTEGER NULL;',
+              // 填补空数据
+              'UPDATE sources SET is_fixed = 0;',
+              // 迁移表结构（包含非空和检查约束）
+              ...tableStructureMigrationSqlGen(
+                  'sources', latestSourceTableStructure),
+            ]);
+          });
+          break;
       }
     },
-    version: 6,
+    version: 7,
   );
 }
 
-Future<void> dangerouslyDestory() async {
+Future<void> dangerouslyDestroy() async {
   var databasePath = await getDatabasesPath();
   return deleteDatabase(join(databasePath, dbFile));
 }
