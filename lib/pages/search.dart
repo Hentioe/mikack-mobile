@@ -108,6 +108,7 @@ class _SearchPageState extends State<_SearchPage> {
         .map((t) => Tag(
               t.value,
               t.name,
+              fontSize: 11.5,
               stateful: true,
               selected: includes.contains(t.value),
               stateFixed: !_allowNsfw && t.value == nsfwTagValue,
@@ -122,6 +123,7 @@ class _SearchPageState extends State<_SearchPage> {
         .map((t) => Tag(
               t.value,
               t.name,
+              fontSize: 11.5,
               stateful: true,
               selected: excludes.contains(t.value),
               stateFixed: !_allowNsfw && t.value == nsfwTagValue,
@@ -148,6 +150,7 @@ class _SearchPageState extends State<_SearchPage> {
               SizedBox(height: 16),
               Wrap(
                 spacing: 8,
+                runSpacing: 8,
                 children: includesTags,
               ),
               SizedBox(height: 16),
@@ -158,6 +161,7 @@ class _SearchPageState extends State<_SearchPage> {
               SizedBox(height: 16),
               Wrap(
                 spacing: 8,
+                runSpacing: 8,
                 children: excludesTags,
               ),
               SizedBox(height: 16),

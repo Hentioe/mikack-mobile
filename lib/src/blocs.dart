@@ -4,3 +4,6 @@ export 'blocs/libraries_state.dart';
 export 'blocs/updates_bloc.dart';
 export 'blocs/updates_event.dart';
 export 'blocs/updates_state.dart';
+export 'blocs/bookshelf_bloc.dart';
+export 'blocs/bookshelf_event.dart';
+export 'blocs/bookshelf_state.dart';

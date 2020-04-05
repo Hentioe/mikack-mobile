@@ -8,15 +8,16 @@ import 'package:mikack_mobile/logging.dart';
 import 'package:mikack_mobile/pages/search.dart';
 import 'package:mikack_mobile/pages/terms.dart';
 import 'package:mikack_mobile/src/fragments.dart';
+import 'package:mikack_mobile/src/fragments/bookshelf_fragment.dart';
 import 'package:mikack_mobile/src/fragments/updates_fragment.dart';
 import 'package:mikack_mobile/widgets/series_system_ui.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'fragments/bookshelf.dart';
 import 'fragments/histories.dart';
 import 'pages/base_page.dart';
 import 'pages/settings.dart';
 import 'src/blocs.dart';
+import 'src/models.dart';
 
 // 全部平台列表
 final List<models.Platform> platformList = platforms();
@@ -70,11 +71,14 @@ class MyApp extends BasePage {
       ),
       home: MultiBlocProvider(
         providers: [
-          BlocProvider<LibrariesBloc>(
-            create: (_) => LibrariesBloc(),
+          BlocProvider<BookshelfBloc>(
+            create: (_) => BookshelfBloc(),
           ),
           BlocProvider<UpdatesBloc>(
             create: (_) => UpdatesBloc(),
+          ),
+          BlocProvider<LibrariesBloc>(
+            create: (_) => LibrariesBloc(),
           ),
         ],
         child: MyHomePage(drawerIndex: drawerIndex),
@@ -121,12 +125,10 @@ class _MyHomePageState extends State<MyHomePage> {
   List<int> _includeTags = [];
   List<int> _excludesTags = [nsfwTagValue];
   bool allowNsfw = false;
-  BookshelfSortBy _bookshelfSortBy = BookshelfSortBy.readAt;
 
   @override
   void initState() {
     initDrawerItems();
-    fetchBookshelfSortBy();
     fetchAllowNsfw();
     checkPermAccept();
     sendFragmentEvent();
@@ -139,6 +141,10 @@ class _MyHomePageState extends State<MyHomePage> {
       case UpdatesFragment2:
         BlocProvider.of<UpdatesBloc>(context).add(UpdatesRequestEvent.local());
         break;
+      case BookshelfFragment2:
+        BlocProvider.of<BookshelfBloc>(context)
+            .add(BookshelfRequestEvent.sortByDefault());
+        break;
     }
   }
 
@@ -148,14 +154,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (versionStr == null)
       Navigator.push(context,
           MaterialPageRoute(builder: (_) => TermsPage(readOnly: false)));
-  }
-
-  void fetchBookshelfSortBy() async {
-    var prefs = await SharedPreferences.getInstance();
-    var sortBy = parseBookshelfSortBy(prefs.getString(bookshelfSortByKey));
-    if (sortBy != _bookshelfSortBy) {
-      setState(() => _bookshelfSortBy = sortBy);
-    }
   }
 
   void fetchAllowNsfw() async {
@@ -219,39 +217,44 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildBookshelfSortMenuView() {
-    return PopupMenuButton<BookshelfSortBy>(
-      tooltip: '修改排序方式',
-      icon: Icon(Icons.sort),
-      onSelected: updateBookshelfSortBy,
-      itemBuilder: (BuildContext context) => [
-        CheckedPopupMenuItem(
-          checked: _bookshelfSortBy == BookshelfSortBy.readAt,
-          enabled: _bookshelfSortBy != BookshelfSortBy.readAt,
-          value: BookshelfSortBy.readAt,
-          child: Text('上次阅读时间'),
-        ),
-        CheckedPopupMenuItem(
-          checked: _bookshelfSortBy == BookshelfSortBy.insertedAt,
-          enabled: _bookshelfSortBy != BookshelfSortBy.insertedAt,
-          value: BookshelfSortBy.insertedAt,
-          child: Text('最初添加时间'),
-        ),
-      ],
+    return BlocBuilder<BookshelfBloc, BookshelfState>(
+      builder: (context, state) {
+        var castedState = state as BookshelfLoadedState;
+        return PopupMenuButton<BookshelfSortBy>(
+          tooltip: '修改排序方式',
+          icon: Icon(Icons.sort),
+          onSelected: (sortBy) => BlocProvider.of<BookshelfBloc>(context)
+              .add(BookshelfRequestEvent(sortBy: sortBy)),
+          itemBuilder: (BuildContext context) => [
+            CheckedPopupMenuItem(
+              checked: castedState.sortBy == BookshelfSortBy.readAt,
+              enabled: castedState.sortBy != BookshelfSortBy.readAt,
+              value: BookshelfSortBy.readAt,
+              child: Text('上次阅读时间'),
+            ),
+            CheckedPopupMenuItem(
+              checked: castedState.sortBy == BookshelfSortBy.insertedAt,
+              enabled: castedState.sortBy != BookshelfSortBy.insertedAt,
+              value: BookshelfSortBy.insertedAt,
+              child: Text('最初添加时间'),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  void updateBookshelfSortBy(BookshelfSortBy sortBy) async {
-    var prefs = await SharedPreferences.getInstance();
-    await prefs.setString(bookshelfSortByKey, sortBy.value());
-    setState(() => _bookshelfSortBy = sortBy);
-  }
+  void openGlobalSearchPage() =>
+      Navigator.of(context).push(_createGlobalSearchRoute());
 
   void initDrawerItems() {
     _drawerItems = [
       DrawerItem(
         '我的书架',
         Icons.class_,
-        BookshelfFragment(sortBy: _bookshelfSortBy),
+        BookshelfFragment2(
+            openLibrariesPage: () => setState(() => _drawerIndex = 2),
+            openGlobalSearchPage: openGlobalSearchPage),
         actions: [_buildBookshelfSortMenuView()],
       ),
       DrawerItem('书架更新', Icons.fiber_new, UpdatesFragment2()),
@@ -323,8 +326,7 @@ class _MyHomePageState extends State<MyHomePage> {
             IconButton(
               tooltip: '打开全局搜索',
               icon: Icon(Icons.search),
-              onPressed: () =>
-                  Navigator.of(context).push(_createGlobalSearchRoute()),
+              onPressed: openGlobalSearchPage,
             ),
             ..._drawerItems[_drawerIndex].actions
           ],

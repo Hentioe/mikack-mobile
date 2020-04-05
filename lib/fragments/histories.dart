@@ -1,11 +1,12 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:mikack_mobile/fragments/bookshelf.dart';
 import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/pages/read2.dart';
 import 'package:mikack_mobile/store.dart';
 import 'package:mikack_mobile/widgets/comics_view.dart' show coverRatio;
 import '../ext.dart';
+
+import '../src/platform_list.dart';
 
 const historiesCoverWidth = 90.0;
 const historiesCoverHeight = historiesCoverWidth / coverRatio;

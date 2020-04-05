@@ -1,9 +1,10 @@
-import 'package:mikack_mobile/fragments/bookshelf.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../store.dart';
 import '../models.dart';
 import '../helper.dart';
+
+import '../../src/models.dart';
 
 Future<void> insertFavorite(Favorite favorite) async {
   final db = await database();
