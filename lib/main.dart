@@ -137,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void sendFragmentEvent() {
     switch (_drawerItems[_drawerIndex].fragment.runtimeType) {
       case UpdatesFragment2:
-        BlocProvider.of<UpdatesBloc>(context).add(UpdatesEvent.localRequest);
+        BlocProvider.of<UpdatesBloc>(context).add(UpdatesRequestEvent.local());
         break;
     }
   }

@@ -21,31 +21,51 @@ class UpdatesBloc extends Bloc<UpdatesEvent, UpdatesState> {
   @override
   UpdatesState get initialState => UpdatesLocalLoadedState(viewItems: const []);
 
+  bool _isStopped = false;
+
   @override
   Stream<UpdatesState> mapEventToState(UpdatesEvent event) async* {
-    switch (event) {
-      case UpdatesEvent.localRequest: // 请求本地数据
-        var viewItems = await getLocalUpdates();
-        yield UpdatesLocalLoadedState(viewItems: viewItems);
-        break;
-      case UpdatesEvent.remoteRequest: // 请求远程数据
-        // 删除已存在的更新记录
-        await deleteAllChapterUpdates();
-        var favorites = await findFavorites();
-        // 输出一个带总数的初始状态
-        yield UpdatesRemoteLoadedState(
-            viewItems: const [], total: favorites.length);
-        // 依次输出全部检查结果
-        await for (var viewItem in checkAllUpdates(favorites)) {
-          if (viewItem == null)
-            yield (state as UpdatesRemoteLoadedState).progressIncrement();
-          else
-            yield (state as UpdatesRemoteLoadedState).pushWith(viewItem);
+    switch (event.runtimeType) {
+      case UpdatesRequestEvent: // 请求类型的事件
+        var castedEvent = event as UpdatesRequestEvent;
+        switch (castedEvent.type) {
+          case UpdatesRequestEventTypes.localRequest: // 请求本地数据
+            var viewItems = await getLocalUpdates();
+            yield UpdatesLocalLoadedState(viewItems: viewItems);
+            break;
+          case UpdatesRequestEventTypes.remoteRequest: // 请求远程数据
+            _isStopped = false;
+            // 删除已存在的更新记录
+            await deleteAllChapterUpdates();
+            var favorites = await findFavorites();
+            // 输出一个带总数的初始状态
+            yield UpdatesRemoteLoadedState(
+                viewItems: const [], total: favorites.length);
+            checkAllUpdates(favorites).forEach((task) {
+              task.then((viewItem) {
+                if (!_isStopped) add(UpdatesLoadedEvent(viewItem: viewItem));
+              });
+            });
+
+            break;
+          case UpdatesRequestEventTypes.stopRefreshRequest: // 停止刷新
+            _isStopped = true;
+            yield (state as UpdatesRemoteLoadedState).completedAhead();
+            break;
         }
         break;
-      case UpdatesEvent.stopRefresh: // 停止刷新
-        // TODO: 刷新导致流阻塞，无法及时接收事件，待研究和解决
-//        yield (state as UpdatesRemoteLoadedState).completedAhead();
+      case UpdatesLoadedEvent: // 装载数据事件（一般于内部使用）
+        var castedEvent = event as UpdatesLoadedEvent;
+        if (_isStopped) {
+          yield (state as UpdatesRemoteLoadedState).completedAhead();
+        } else if (!(state as UpdatesRemoteLoadedState).isCompleted) {
+          // 提前完成的状态不应该进入这里
+          if (castedEvent.viewItem == null)
+            yield (state as UpdatesRemoteLoadedState).progressIncrement();
+          else
+            yield (state as UpdatesRemoteLoadedState)
+                .pushWith(castedEvent.viewItem);
+        }
         break;
     }
   }
@@ -78,31 +98,16 @@ class UpdatesBloc extends Bloc<UpdatesEvent, UpdatesState> {
     return comicViewItems;
   }
 
-  Stream<ComicViewItem> checkAllUpdates(List<Favorite> favorites) {
+  List<Future<ComicViewItem>> checkAllUpdates(List<Favorite> favorites) {
     // 并发检测更新
     final executor = Executor(concurrency: 8);
-    var controller = StreamController<ComicViewItem>();
-    var counter = 0;
-    var outValue = (ComicViewItem viewItem) async {
-      controller.add(viewItem);
-      counter++;
-      if (counter == favorites.length) {
-        controller.close();
-        log.info('Task output stream is closed.');
-        await executor.close();
-        // TODO: close 方法导致阻塞，无法执行后续日志输出。原因待调查。
-        log.info('Task executor is closed.');
-      }
-    };
-    var outNull = () async => await outValue(null);
+    var taskList = <Future<ComicViewItem>>[];
     for (var i = 0; i < favorites.length; i++) {
       var favorite = favorites[i];
-      executor.scheduleTask(() async {
+      var task = executor.scheduleTask(() async {
+        if (_isStopped) return null;
         var source = await getSource(id: favorite.sourceId);
-        if (source == null) {
-          await outNull();
-          return;
-        }
+        if (source == null) return null;
         var platform =
             platformList.firstWhere((p) => p.domain == source.domain);
         try {
@@ -117,16 +122,17 @@ class UpdatesBloc extends Bloc<UpdatesEvent, UpdatesState> {
               chaptersCount: comic.chapters.length,
             ));
             // 输出结果
-            await outValue(
-                comic.toViewItem(platform: platform, badgeValue: countDiff));
+            return comic.toViewItem(platform: platform, badgeValue: countDiff);
           } else
-            await outNull();
+            return null;
         } catch (_) {
-          await outNull();
+          return null;
         }
       });
+      taskList.add(task);
     }
-    return controller.stream;
+
+    return taskList;
   }
 
   @override

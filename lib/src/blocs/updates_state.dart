@@ -48,7 +48,7 @@ class UpdatesRemoteLoadedState extends UpdatesState {
     return UpdatesRemoteLoadedState(
       viewItems: viewItems ?? this.viewItems,
       total: total ?? this.total,
-      progress: progress ?? this.progress + 1,
+      progress: progress ?? this.progress,
     );
   }
 }

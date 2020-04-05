@@ -35,11 +35,11 @@ class _CenterHint extends StatelessWidget {
 
 class UpdatesFragment2 extends StatelessWidget {
   Future<void> Function() _handleRefresh(BuildContext context) => () async =>
-      BlocProvider.of<UpdatesBloc>(context).add(UpdatesEvent.remoteRequest);
+      BlocProvider.of<UpdatesBloc>(context).add(UpdatesRequestEvent.remote());
 
-//  Future<void> Function() _handleStopRefresh(BuildContext context) =>
-//      () async =>
-//          BlocProvider.of<UpdatesBloc>(context).add(UpdatesEvent.stopRefresh);
+  Future<void> Function() _handleStopRefresh(BuildContext context) =>
+      () async => BlocProvider.of<UpdatesBloc>(context)
+          .add(UpdatesRequestEvent.stopRefresh());
 
   void Function(Comic) _handleOpenComicPage(BuildContext context) =>
       (Comic comic) async {
@@ -67,7 +67,7 @@ class UpdatesFragment2 extends StatelessWidget {
             builder: (context) => ComicPage(platform, comic),
           ),
         ).then((_) => BlocProvider.of<UpdatesBloc>(context)
-            .add(UpdatesEvent.localRequest));
+            .add(UpdatesRequestEvent.local()));
       };
 
   @override
@@ -92,8 +92,8 @@ class UpdatesFragment2 extends StatelessWidget {
           var remoteState = state as UpdatesRemoteLoadedState;
           var children = <Widget>[];
           // 主体内容
-          if (remoteState.progress == 0 ||
-              (!remoteState.isCompleted && remoteState.viewItems.length == 0))
+          if (!remoteState.isCompleted &&
+              (remoteState.progress == 0 || remoteState.viewItems.length == 0))
             children.add(_CenterHint('正在检查更新…'));
           else if (remoteState.isCompleted && remoteState.viewItems.length == 0)
             children.add(_CenterHint('暂未发现更新'));
@@ -107,7 +107,7 @@ class UpdatesFragment2 extends StatelessWidget {
               ),
             ));
           // 加载进度指示器
-          if (remoteState.progress != remoteState.total) {
+          if (!remoteState.isCompleted) {
             if (remoteState.progress > 0)
               children.add(Positioned(
                 bottom: 0,
@@ -125,16 +125,16 @@ class UpdatesFragment2 extends StatelessWidget {
               ));
           }
           // 停止更新浮动按钮
-//          if (remoteState.progress != remoteState.total)
-//            children.add(Positioned(
-//              bottom: 15,
-//              right: 15,
-//              child: FloatingActionButton(
-//                tooltip: '停止更新',
-//                child: Icon(Icons.stop),
-//                onPressed: _handleStopRefresh(context),
-//              ),
-//            ));
+          if (!remoteState.isCompleted)
+            children.add(Positioned(
+              bottom: 15,
+              right: 15,
+              child: FloatingActionButton(
+                tooltip: '停止更新',
+                child: Icon(Icons.stop),
+                onPressed: _handleStopRefresh(context),
+              ),
+            ));
           return Stack(
             children: children,
           );

@@ -8,8 +8,8 @@ Future<void> insertChapterUpdate(ChapterUpdate chapterUpdate) async {
 Future<List<ChapterUpdate>> findChapterUpdates() async {
   final db = await database();
 
-  final List<Map<String, dynamic>> maps =
-      await db.query(ChapterUpdate.tableName);
+  final List<Map<String, dynamic>> maps = await db
+      .query(ChapterUpdate.tableName, orderBy: 'datetime(inserted_at) DESC');
 
   return maps.map((map) => ChapterUpdate.fromMap(map)).toList();
 }
