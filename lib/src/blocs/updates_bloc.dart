@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:executor/executor.dart';
 import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 import 'package:mikack/models.dart';
 import 'package:tuple/tuple.dart';
 import 'updates_event.dart';
@@ -11,6 +14,8 @@ import '../../store/models.dart';
 import '../../widgets/comics_view.dart';
 import '../../main.dart';
 import '../../ext.dart';
+
+final log = Logger('UpdatesBloc');
 
 class UpdatesBloc extends Bloc<UpdatesEvent, UpdatesState> {
   @override
@@ -73,13 +78,31 @@ class UpdatesBloc extends Bloc<UpdatesEvent, UpdatesState> {
     return comicViewItems;
   }
 
-  Stream<ComicViewItem> checkAllUpdates(List<Favorite> favorites) async* {
+  Stream<ComicViewItem> checkAllUpdates(List<Favorite> favorites) {
     // 并发检测更新
     final executor = Executor(concurrency: 8);
-    for (var favorite in favorites) {
-      var task = await executor.scheduleTask(() async* {
+    var controller = StreamController<ComicViewItem>();
+    var counter = 0;
+    var outValue = (ComicViewItem viewItem) async {
+      controller.add(viewItem);
+      counter++;
+      if (counter == favorites.length) {
+        controller.close();
+        log.info('Task output stream is closed.');
+        await executor.close();
+        // TODO: close 方法导致阻塞，无法执行后续日志输出。原因待调查。
+        log.info('Task executor is closed.');
+      }
+    };
+    var outNull = () async => await outValue(null);
+    for (var i = 0; i < favorites.length; i++) {
+      var favorite = favorites[i];
+      executor.scheduleTask(() async {
         var source = await getSource(id: favorite.sourceId);
-        if (source == null) yield null;
+        if (source == null) {
+          await outNull();
+          return;
+        }
         var platform =
             platformList.firstWhere((p) => p.domain == source.domain);
         try {
@@ -88,26 +111,22 @@ class UpdatesBloc extends Bloc<UpdatesEvent, UpdatesState> {
           var countDiff = comic.chapters.length - favorite.latestChaptersCount;
           if (countDiff > 0) {
             comic.headers = platform.buildBaseHeaders();
-            // 返回一个
-            yield comic.toViewItem(platform: platform, badgeValue: countDiff);
             // 插入更新记录
             await insertChapterUpdate(ChapterUpdate(
               comic.url,
               chaptersCount: comic.chapters.length,
             ));
-          } else {
-            yield null;
-          }
+            // 输出结果
+            await outValue(
+                comic.toViewItem(platform: platform, badgeValue: countDiff));
+          } else
+            await outNull();
         } catch (_) {
-          yield null;
+          await outNull();
         }
       });
-      await for (var r in task) {
-        yield r;
-      }
     }
-    await executor.join(withWaiting: true);
-    await executor.close();
+    return controller.stream;
   }
 
   @override
