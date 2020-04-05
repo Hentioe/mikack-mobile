@@ -59,6 +59,7 @@ class _Read2PageState extends State<_Read2Page> {
   PageController pageController;
   bool _leftHandMode = false;
   bool _showToolbar = false;
+  bool _createPageIteratorFailed = false;
 
   @override
   void initState() {
@@ -129,26 +130,35 @@ class _Read2PageState extends State<_Read2Page> {
   }
 
   void createPageIterator() async {
-    var created = await compute(
-        _createPageIteratorTask, Tuple2(widget.platform, widget.chapter));
-    // 初始化页面控制器（未来会根据历史记录跳转页码）
-    pageController = PageController(initialPage: _currentPage);
-    if (!mounted) {
-      created.item1.asPageIterator().free();
-      log.info('Iterator is freed');
-      pageController.dispose();
-      return;
-    }
-    // 迭代器创建完成隐藏系统 UI
-    hiddenSystemUI();
     setState(() {
-      _pageIterator = created.item1.asPageIterator();
-      _chapter = created.item2;
-      _loading = false;
-      addHistory(_chapter);
+      _createPageIteratorFailed = false;
     });
-    // 加载第一页
-    fetchNextPage();
+    try {
+      var created = await compute(
+          _createPageIteratorTask, Tuple2(widget.platform, widget.chapter));
+      // 初始化页面控制器（未来会根据历史记录跳转页码）
+      pageController = PageController(initialPage: _currentPage);
+      if (!mounted) {
+        created.item1.asPageIterator().free();
+        log.info('Iterator is freed');
+        pageController.dispose();
+        return;
+      }
+      // 迭代器创建完成隐藏系统 UI
+      hiddenSystemUI();
+      setState(() {
+        _pageIterator = created.item1.asPageIterator();
+        _chapter = created.item2;
+        _loading = false;
+        addHistory(_chapter);
+      });
+      // 加载第一页
+      fetchNextPage();
+    } catch (_) {
+      setState(() {
+        _createPageIteratorFailed = true;
+      });
+    }
   }
 
   final lock = Lock(); // 同步调用迭代器（必须）
@@ -491,7 +501,13 @@ class _Read2PageState extends State<_Read2Page> {
             ? Container(
                 padding:
                     EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                child: TextHint('载入中…'),
+                child: _createPageIteratorFailed
+                    ? Center(
+                        child: RaisedButton(
+                            child: Text('重试'),
+                            onPressed: () => createPageIterator()),
+                      )
+                    : TextHint('载入中…'),
               )
             : GestureDetector(
                 child: Stack(
