@@ -1,9 +1,11 @@
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mikack/models.dart';
+import 'package:mikack_mobile/pages/base_page.dart';
 
 import '../blocs.dart';
 import '../platform_list.dart';
@@ -11,12 +13,13 @@ import '../../widgets/comics_view.dart';
 import '../../store.dart';
 import '../../pages/comic.dart';
 import '../../ext.dart';
+import '../../widgets/text_hint.dart';
 
-final _defaultTextStyle = TextStyle(fontSize: 18, color: Colors.grey[500]);
-const _hintTextFontSize = 16.0;
+final _defaultTextStyle = TextStyle(fontSize: 13.5, color: Colors.grey[400]);
+const _hintTextFontSize = 14.5;
 const _hintButtonFontWeight = FontWeight.bold;
 final _hintTextStyle =
-    TextStyle(fontSize: _hintTextFontSize, color: Colors.grey[600]);
+    TextStyle(fontSize: _hintTextFontSize, color: Colors.grey[400]);
 final _librariesHintButtonTextStyle = TextStyle(
     fontSize: _hintTextFontSize,
     color: Colors.greenAccent,
@@ -60,7 +63,7 @@ class BookshelfFragment2 extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ComicPage(platform, comic),
+            builder: (_) => ComicPage(platform, comic, appContext: context),
           ),
         ).then((_) => BlocProvider.of<BookshelfBloc>(context)
             .add(BookshelfRequestEvent.sortByDefault()));
@@ -72,53 +75,62 @@ class BookshelfFragment2 extends StatelessWidget {
         builder: (context, state) {
       var loadedState = state as BookshelfLoadedState;
 
-      if (loadedState.viewItems.length == 0)
-        return Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '书架空空如也',
-                style: _defaultTextStyle,
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '您可以来',
-                    style: _hintTextStyle,
-                  ),
-                  MaterialButton(
-                    padding: EdgeInsets.zero,
-                    child: Text(
-                      '图书仓库',
-                      style: _librariesHintButtonTextStyle,
+      if (loadedState.viewItems.length == 0) {
+        if (loadedState.sortBy != null)
+          return Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset('assets/empty_box.svg',
+                    width: 64, color: primarySwatch[200]),
+                Text(
+                  '收藏是空的耶',
+                  style: _defaultTextStyle,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '您可以来',
+                      style: _hintTextStyle,
                     ),
-                    onPressed: openLibrariesPage,
-                  ),
-                  Text(
-                    '看看或',
-                    style: _hintTextStyle,
-                  ),
-                  MaterialButton(
-                    padding: EdgeInsets.zero,
-                    child: Text(
-                      '全局搜索',
-                      style: _globalSearchHintButtonTextStyle,
+                    MaterialButton(
+                      padding: EdgeInsets.zero,
+                      minWidth: 70,
+                      child: Text(
+                        '图书仓库',
+                        style: _librariesHintButtonTextStyle,
+                      ),
+                      onPressed: openLibrariesPage,
                     ),
-                    onPressed: openGlobalSearchPage,
-                  ),
-                  Text(
-                    '找找',
-                    style: _hintTextStyle,
-                  ),
-                ],
-              )
-            ],
-          ),
-        );
+                    Text(
+                      '看看或',
+                      style: _hintTextStyle,
+                    ),
+                    MaterialButton(
+                      padding: EdgeInsets.zero,
+                      minWidth: 70,
+                      child: Text(
+                        '全局搜索',
+                        style: _globalSearchHintButtonTextStyle,
+                      ),
+                      onPressed: openGlobalSearchPage,
+                    ),
+                    Text(
+                      '找找',
+                      style: _hintTextStyle,
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        else
+          TextHint('书架图书读取中…');
+      }
+
       return ComicsView(
         loadedState.viewItems,
         showPlatform: true,

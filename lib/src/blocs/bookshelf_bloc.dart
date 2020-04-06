@@ -17,17 +17,28 @@ class BookshelfBloc extends Bloc<BookshelfEvent, BookshelfState> {
         sortBy: null,
       );
 
+  BookshelfSortBy lastSortBy;
+
   @override
   Stream<BookshelfState> mapEventToState(BookshelfEvent event) async* {
     switch (event.runtimeType) {
       case BookshelfRequestEvent: // 请求数据
         var castedEvent = event as BookshelfRequestEvent;
-        var prefs = await SharedPreferences.getInstance();
         var sortBy = castedEvent.sortBy;
-        if (sortBy == null)
-          sortBy = parseBookshelfSortBy(prefs.getString(bookshelfSortByKey));
-        else
+        if (sortBy == null) {
+          if (lastSortBy == null) {
+            // 初次默认排序，读取排序配置
+            var prefs = await SharedPreferences.getInstance();
+            sortBy = parseBookshelfSortBy(prefs.getString(bookshelfSortByKey));
+            lastSortBy = sortBy;
+          } else // 直接返回上次排序方式
+            sortBy = lastSortBy;
+        } else {
+          // 设置排序方式
+          var prefs = await SharedPreferences.getInstance();
           prefs.setString(bookshelfSortByKey, sortBy.value());
+          lastSortBy = sortBy;
+        }
 
         yield await getLoadedState(sortBy);
         break;

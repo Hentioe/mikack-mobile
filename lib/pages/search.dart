@@ -28,14 +28,18 @@ import 'comic.dart';
 const searchResultCoverHeight = 210.0;
 const searchResultCoverWidth = coverRatio * searchResultCoverHeight;
 
-class _SearchPage extends StatefulWidget {
+class SearchPage extends StatefulWidget {
+  final BuildContext appContext;
+
+  SearchPage({this.appContext});
+
   @override
   State<StatefulWidget> createState() => _SearchPageState();
 }
 
 const searchPageSpacing = 18.0;
 
-class _SearchPageState extends State<_SearchPage> {
+class _SearchPageState extends State<SearchPage> {
   var _submitted = false;
   String _keywords;
   List<models.Platform> _platforms =
@@ -344,9 +348,10 @@ class _SearchPageState extends State<_SearchPage> {
                                       onTap: (_) => Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => ComicPage(
+                                          builder: (_) => ComicPage(
                                             entry.key,
                                             entry.value[index].comic,
+                                            appContext: widget.appContext,
                                           ),
                                         ),
                                       ),
@@ -435,11 +440,6 @@ class _SearchPageState extends State<_SearchPage> {
       ),
     );
   }
-}
-
-class SearchPage extends BasePage {
-  @override
-  Widget build(BuildContext context) => _SearchPage();
 }
 
 List<models.Comic> _searchComicsTask(Tuple2<models.Platform, String> args) {

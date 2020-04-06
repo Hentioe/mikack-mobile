@@ -1,5 +1,7 @@
+import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mikack_mobile/pages/read2.dart';
@@ -8,25 +10,27 @@ import 'package:mikack_mobile/widgets/series_system_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mikack_mobile/helper/chrome.dart';
-import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:mikack_mobile/store.dart';
 import 'package:tuple/tuple.dart';
 import 'package:mikack/models.dart' as models;
 import 'comic/info_tab.dart';
 import 'comic/chapters_tab.dart';
-import '../ext.dart';
 
-class _ComicPage extends StatefulWidget {
-  _ComicPage(this.platform, this.comic);
+import '../ext.dart';
+import '../src/blocs.dart';
+
+class ComicPage extends StatefulWidget {
+  ComicPage(this.platform, this.comic, {this.appContext});
 
   final models.Platform platform;
   final models.Comic comic;
+  final BuildContext appContext;
 
   @override
   State<StatefulWidget> createState() => _ComicPageState();
 }
 
-class _ComicPageState extends State<_ComicPage>
+class _ComicPageState extends State<ComicPage>
     with SingleTickerProviderStateMixin {
   TabController tabController;
   models.Comic _comic;
@@ -162,17 +166,21 @@ class _ComicPageState extends State<_ComicPage>
         name: _comic.title,
         address: _comic.url,
         cover: _comic.cover,
-        latestChaptersCount:
-            _comic.chapters != null ? _comic.chapters.length : 0,
+        latestChaptersCount: _comic.chapters?.length ?? 0,
+        lastReadTime: DateTime.now(),
       ));
       setState(() => _isFavorite = true);
-      Fluttertoast.showToast(msg: '已添加到书架');
+      Fluttertoast.showToast(msg: '已添加至书架');
     } else {
       // 取消收藏
       await deleteFavorite(address: _comic.url);
       setState(() => _isFavorite = false);
-      Fluttertoast.showToast(msg: '已从书架移除');
+      Fluttertoast.showToast(msg: '已从书架删除');
     }
+
+    widget.appContext
+        ?.bloc<BookshelfBloc>()
+        ?.add(BookshelfRequestEvent.sortByDefault());
   }
 
   static final moreMenus = {'在浏览器中打开': 1, '清空已阅读记录': 2};
@@ -357,18 +365,6 @@ class _ComicPageState extends State<_ComicPage>
             : null,
       ),
     );
-  }
-}
-
-class ComicPage extends BasePage {
-  ComicPage(this.platform, this.comic);
-
-  final models.Platform platform;
-  final models.Comic comic;
-
-  @override
-  Widget build(BuildContext context) {
-    return _ComicPage(platform, comic);
   }
 }
 

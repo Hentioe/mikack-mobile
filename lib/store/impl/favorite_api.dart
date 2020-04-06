@@ -18,18 +18,16 @@ Future<List<Favorite>> findFavorites(
 
   // 默认按上次阅读时间降序
   var column = 'last_read_time';
-  var order = 'DESC';
   switch (sortBy) {
     case BookshelfSortBy.readAt:
       break;
     case BookshelfSortBy.insertedAt:
       column = 'inserted_at';
-      order = 'ASC'; // 插入时间升序排列
       break;
   }
 
   final List<Map<String, dynamic>> maps =
-      await db.query(Favorite.tableName, orderBy: 'datetime($column) $order');
+      await db.query(Favorite.tableName, orderBy: 'datetime($column) DESC');
 
   return maps.map((map) => Favorite.fromMap(map)).toList();
 }

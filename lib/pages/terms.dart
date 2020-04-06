@@ -29,7 +29,7 @@ class _TermsViewState extends State<_TermsView> {
   }
 
   void fetchTermText() async {
-    var termContent = await rootBundle.loadString('texts/terms.md');
+    var termContent = await rootBundle.loadString('assets/text/terms.md');
     setState(() => _termContent = termContent);
   }
 
@@ -107,7 +107,7 @@ class _TermsViewState extends State<_TermsView> {
                 blockSpacing: 10,
                 a: TextStyle(
                   fontSize: 13,
-                  color: Colors.grey[600],
+                  color: Colors.blueAccent[700],
                   decoration: TextDecoration.underline,
                 ),
                 p: TextStyle(fontSize: 13, color: Colors.grey[900]),

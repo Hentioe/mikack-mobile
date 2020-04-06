@@ -183,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
     child: Row(
       children: [
         Image.asset(
-          'images/logo.png',
+          'assets/logo.png',
           width: headerLogoSize,
           height: headerLogoSize,
         )
@@ -236,7 +236,7 @@ class _MyHomePageState extends State<MyHomePage> {
               checked: castedState.sortBy == BookshelfSortBy.insertedAt,
               enabled: castedState.sortBy != BookshelfSortBy.insertedAt,
               value: BookshelfSortBy.insertedAt,
-              child: Text('最初添加时间'),
+              child: Text('最近添加时间'),
             ),
           ],
         );
@@ -277,7 +277,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Route _createGlobalSearchRoute() {
     return PageRouteBuilder(
       barrierColor: Colors.white,
-      pageBuilder: (context, animation, secondaryAnimation) => SearchPage(),
+      pageBuilder: (_, animation, secondaryAnimation) =>
+          SearchPage(appContext: context),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = Offset(0.0, 1.0);
         var end = Offset.zero;

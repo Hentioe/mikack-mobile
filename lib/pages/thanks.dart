@@ -13,7 +13,7 @@ class _ThanksState extends State<_ThanksPage> {
   var _content = '载入中……';
 
   void fetchContent() async {
-    var content = await rootBundle.loadString('texts/thanks.md');
+    var content = await rootBundle.loadString('assets/text/thanks.md');
     var sourcesContent = platformList
         .map((p) => '- [${p.domain}](${p.domain})')
         .toList()
@@ -42,7 +42,7 @@ class _ThanksState extends State<_ThanksPage> {
             blockSpacing: 6,
             a: TextStyle(
               fontSize: 13,
-              color: Colors.grey[600],
+              color: Colors.grey[700],
               decoration: TextDecoration.underline,
             ),
             p: TextStyle(fontSize: 13, color: Colors.grey[900]),

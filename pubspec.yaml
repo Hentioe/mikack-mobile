@@ -39,6 +39,7 @@ dependencies:
   flutter_share: ^1.0.2+1
   logging: ^0.11.4
   executor: ^2.2.1
+  flutter_svg: ^0.17.3+1
 
 #dev_dependencies:
 #  flutter_test:
@@ -57,9 +58,9 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - images/
-    - favicon/
-    - texts/
+    - assets/
+    - assets/favicon/
+    - assets/text/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
