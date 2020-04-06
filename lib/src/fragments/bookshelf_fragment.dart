@@ -15,18 +15,18 @@ import '../../pages/comic.dart';
 import '../../ext.dart';
 import '../../widgets/text_hint.dart';
 
-final _defaultTextStyle = TextStyle(fontSize: 13.5, color: Colors.grey[400]);
+final _defaultTextStyle = TextStyle(fontSize: 15.5, color: Colors.grey[400]);
 const _hintTextFontSize = 14.5;
 const _hintButtonFontWeight = FontWeight.bold;
 final _hintTextStyle =
-    TextStyle(fontSize: _hintTextFontSize, color: Colors.grey[400]);
+    TextStyle(fontSize: _hintTextFontSize, color: Colors.grey[500]);
 final _librariesHintButtonTextStyle = TextStyle(
     fontSize: _hintTextFontSize,
-    color: Colors.greenAccent,
+    color: Colors.green[300],
     fontWeight: _hintButtonFontWeight);
 final _globalSearchHintButtonTextStyle = TextStyle(
     fontSize: _hintTextFontSize,
-    color: Colors.purpleAccent,
+    color: Colors.purple[300],
     fontWeight: _hintButtonFontWeight);
 
 class BookshelfFragment2 extends StatelessWidget {
@@ -88,6 +88,7 @@ class BookshelfFragment2 extends StatelessWidget {
                   '收藏是空的耶',
                   style: _defaultTextStyle,
                 ),
+                Divider(color: Colors.grey[400], indent: 120, endIndent: 120),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
