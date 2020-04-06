@@ -8,11 +8,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart' as models;
-import 'package:mikack_mobile/main.dart' show nsfwTagValue;
 import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:mikack_mobile/pages/settings.dart';
-import 'package:mikack_mobile/src/fragments/libraries_fragment.dart'
-    show allowNsfwHint;
 import 'package:mikack_mobile/widgets/comic_card.dart';
 import 'package:mikack_mobile/widgets/comics_view.dart';
 import 'package:mikack_mobile/widgets/favicon.dart';
@@ -23,7 +20,10 @@ import 'package:mikack_mobile/widgets/text_hint.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuple/tuple.dart';
 
+import '../src/values.dart';
 import 'comic.dart';
+
+const _allowNsfwHint = '未在设置中允许 NSFW 内容';
 
 const searchResultCoverHeight = 210.0;
 const searchResultCoverWidth = coverRatio * searchResultCoverHeight;
@@ -116,7 +116,7 @@ class _SearchPageState extends State<SearchPage> {
               stateful: true,
               selected: includes.contains(t.value),
               stateFixed: !_allowNsfw && t.value == nsfwTagValue,
-              stateFixedReason: allowNsfwHint,
+              stateFixedReason: _allowNsfwHint,
               onTap: (value, selected) {
                 selected ? includes.add(value) : includes.remove(value);
                 updatePlatforms();
@@ -131,7 +131,7 @@ class _SearchPageState extends State<SearchPage> {
               stateful: true,
               selected: excludes.contains(t.value),
               stateFixed: !_allowNsfw && t.value == nsfwTagValue,
-              stateFixedReason: allowNsfwHint,
+              stateFixedReason: _allowNsfwHint,
               onTap: (value, selected) {
                 selected ? excludes.add(value) : excludes.remove(value);
                 updatePlatforms();

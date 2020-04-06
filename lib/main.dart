@@ -15,6 +15,8 @@ import 'pages/settings.dart';
 import 'src/fragments.dart';
 import 'src/blocs.dart';
 import 'src/models.dart';
+import 'src/values.dart';
+import 'src/dialogs/libraries_filters_dialog.dart';
 
 const bookshelfSortByKey = 'bookshelf_sort_by';
 
@@ -108,7 +110,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 const headerLogoSize = 65.0;
-const nsfwTagValue = 4;
 
 class _MyHomePageState extends State<MyHomePage> {
   _MyHomePageState({drawerIndex = 0}) {
@@ -194,7 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _handleLibrariesFilter() {
-    LibrariesFragment2.openFilter(context,
+    openLibrariesFiltersDialog(context,
             includes: _includeTags,
             excludes: _excludesTags,
             allowNsfw: allowNsfw)
