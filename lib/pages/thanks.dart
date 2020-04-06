@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:mikack_mobile/main.dart' show platformList;
-import 'package:mikack_mobile/pages/base_page.dart';
+
+import '../src/platform_list.dart';
 
 class _ThanksPage extends StatefulWidget {
   @override
@@ -56,7 +56,7 @@ class _ThanksState extends State<_ThanksPage> {
   }
 }
 
-class ThanksPage extends BasePage {
+class ThanksPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _ThanksPage();
 }

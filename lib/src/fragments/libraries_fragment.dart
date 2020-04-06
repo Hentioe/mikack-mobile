@@ -13,7 +13,8 @@ import '../../pages/index.dart';
 import '../../src/blocs.dart';
 import '../../widgets/favicon.dart';
 import '../../widgets/tag.dart';
-import '../../main.dart' show nsfwTagValue, platformList;
+import '../platform_list.dart';
+import '../../main.dart' show nsfwTagValue;
 
 const _rootSpacing = 15.0;
 const _librariesFilterTagFontSize = 10.8;

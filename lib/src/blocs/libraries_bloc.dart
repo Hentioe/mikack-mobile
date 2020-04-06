@@ -5,7 +5,7 @@ import 'package:mikack_mobile/store.dart';
 import 'libraries_event.dart';
 import 'libraries_state.dart';
 
-import '../../main.dart' show platformList;
+import '../platform_list.dart';
 import '../../ext.dart';
 
 class LibrariesBloc extends Bloc<LibrariesEvent, LibrariesState> {

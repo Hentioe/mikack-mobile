@@ -2,25 +2,20 @@ import 'dart:collection';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mikack/mikack.dart';
-import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/logging.dart';
 import 'package:mikack_mobile/pages/search.dart';
 import 'package:mikack_mobile/pages/terms.dart';
-import 'package:mikack_mobile/src/fragments.dart';
-import 'package:mikack_mobile/src/fragments/bookshelf_fragment.dart';
-import 'package:mikack_mobile/src/fragments/updates_fragment.dart';
 import 'package:mikack_mobile/widgets/series_system_ui.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'fragments/histories.dart';
 import 'pages/base_page.dart';
 import 'pages/settings.dart';
+import 'src/fragments.dart';
 import 'src/blocs.dart';
 import 'src/models.dart';
 
-// 全部平台列表
-final List<models.Platform> platformList = platforms();
 const bookshelfSortByKey = 'bookshelf_sort_by';
 
 final drawerItems = LinkedHashMap.from({

@@ -9,10 +9,10 @@ import 'package:tuple/tuple.dart';
 import 'updates_event.dart';
 import 'updates_state.dart';
 
+import '../platform_list.dart';
 import '../../store/impl.dart';
 import '../../store/models.dart';
 import '../../widgets/comics_view.dart';
-import '../../main.dart';
 import '../../ext.dart';
 
 final log = Logger('UpdatesBloc');

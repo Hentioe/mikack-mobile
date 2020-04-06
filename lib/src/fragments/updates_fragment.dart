@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mikack/models.dart';
 
+import '../platform_list.dart';
 import '../blocs.dart';
 import '../../pages/comic.dart';
-import '../../main.dart' show platformList;
 import '../../store.dart';
 import '../../widgets/comics_view.dart';
 import '../../widgets/text_hint.dart';
