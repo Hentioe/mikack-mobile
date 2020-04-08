@@ -1,6 +1,9 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_dialogs/easy_dialogs.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:github_releases/github_releases.dart';
 import 'package:mikack_mobile/pages/terms.dart';
@@ -133,12 +136,16 @@ const leftHandModeKey = 'left_mode';
 const allowNsfwKey = 'allow_nsfw';
 const chaptersReversedKey = 'chapters_reversed';
 
-class _SettingsView extends StatefulWidget {
+class SettingsPage extends StatefulWidget {
+  final BuildContext appContext;
+
+  SettingsPage({this.appContext});
+
   @override
-  State<StatefulWidget> createState() => _SettingsState();
+  State<StatefulWidget> createState() => _SettingsPageState();
 }
 
-class _SettingsState extends State<_SettingsView> {
+class _SettingsPageState extends State<SettingsPage> {
   final copyrightTextStyle = TextStyle(
     fontSize: 12,
     color: Colors.grey[500],
@@ -168,7 +175,7 @@ class _SettingsState extends State<_SettingsView> {
   void fetchPackageInfo() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
-      _version = packageInfo.version;
+      _version = '${packageInfo.version}-${packageInfo.buildNumber}';
     });
   }
 
@@ -301,14 +308,61 @@ class _SettingsState extends State<_SettingsView> {
     );
   }
 
+  bool isNewestVersion(String tagName) {
+    return 'v$_version' != tagName;
+  }
+
   void _handleCheckUpdate() async {
     Fluttertoast.showToast(msg: '检查更新中，请稍等…');
     var releases = await getReleases(_repoOwner, _repoName);
-    if (releases.length == 0) {
+    if (releases.length == 0 || !isNewestVersion(releases.first.tagName)) {
       Fluttertoast.showToast(msg: '暂未发现更新');
     } else {
       var lastRelease = releases.first;
-      Fluttertoast.showToast(msg: '有新版本：${lastRelease.tagName}');
+      showModalBottomSheet(
+        context: widget.appContext,
+        builder: (context) => Container(
+          child: Column(
+            children: <Widget>[
+              SizedBox(height: 10),
+              Text('发现新版：${lastRelease.tagName}',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Divider(indent: 80, endIndent: 80, color: Colors.grey[400]),
+              Expanded(
+                child: Markdown(data: lastRelease.body),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+//                  Expanded(
+//                    child: MaterialButton(
+//                      child: Text('跳过此版本',
+//                          style: TextStyle(color: Colors.grey[500])),
+//                      onPressed: () {},
+//                    ),
+//                  ),
+                  Expanded(
+                    child: MaterialButton(
+                      child: Text(
+                        '下载新版本',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      onPressed: () {
+                        if (lastRelease.assets.isEmpty) {
+                          Fluttertoast.showToast(msg: '没有找到更新附件，也许是作者忘上传了～');
+                        } else {
+                          launchUrl(
+                              lastRelease.assets.first.browserDownloadUrl);
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
     }
   }
 
@@ -419,20 +473,13 @@ class _SettingsState extends State<_SettingsView> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [_buildContentView()],
-    );
-  }
-}
-
-class SettingsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('设置'),
       ),
-      body: _SettingsView(),
+      body: ListView(
+        children: [_buildContentView()],
+      ),
     );
   }
 }

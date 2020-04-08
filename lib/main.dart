@@ -341,7 +341,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 title: Text('设置'),
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => SettingsPage()),
+                  MaterialPageRoute(
+                      builder: (_) => SettingsPage(appContext: context)),
                 ).then((_) => fetchAllowNsfw()), // 设置页面返回后刷新可能变更的数据
               ),
             ],
