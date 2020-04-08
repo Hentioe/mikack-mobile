@@ -2,19 +2,24 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_dialogs/easy_dialogs.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:github_releases/github_releases.dart';
 import 'package:mikack_mobile/pages/terms.dart';
 import 'package:mikack_mobile/pages/thanks.dart';
 import 'package:mikack_mobile/store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../pages/base_page.dart';
+import 'package:package_info/package_info.dart';
+
+import '../src/values.dart';
 import '../main.dart' show startPages;
 
+const _repoOwner = 'Hentioe';
+const _repoName = 'mikack';
 const _settingsItemSpacing = 16.0;
 const _settingsPadding = 18.0;
 const _settingsItemTrailingSize = 20.0;
 
-const settingsRepoUrl = 'https://github.com/Hentioe/mikack-mobile';
+const settingsRepoUrl = 'https://github.com/$_repoOwner/$_repoName';
 const settingsGroupUrl = 'https://t.me/mikack';
 
 class _SettingItem extends StatelessWidget {
@@ -142,6 +147,7 @@ class _SettingsState extends State<_SettingsView> {
 
   @override
   void initState() {
+    fetchPackageInfo();
     fetchSelectedPage();
     fetchLeftHandMode();
     fetchAllowNsfw();
@@ -157,6 +163,14 @@ class _SettingsState extends State<_SettingsView> {
   var _chaptersReversed = false;
   var _historitesTotal = 0;
   var _favoritesTotal = 0;
+  var _version = 'Unknown';
+
+  void fetchPackageInfo() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _version = packageInfo.version;
+    });
+  }
 
   void fetchSelectedPage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -287,6 +301,17 @@ class _SettingsState extends State<_SettingsView> {
     );
   }
 
+  void _handleCheckUpdate() async {
+    Fluttertoast.showToast(msg: '检查更新中，请稍等…');
+    var releases = await getReleases(_repoOwner, _repoName);
+    if (releases.length == 0) {
+      Fluttertoast.showToast(msg: '暂未发现更新');
+    } else {
+      var lastRelease = releases.first;
+      Fluttertoast.showToast(msg: '有新版本：${lastRelease.tagName}');
+    }
+  }
+
   Widget _buildContentView() {
     return Column(
       children: [
@@ -361,7 +386,7 @@ class _SettingsState extends State<_SettingsView> {
         _SettingItemGroup(
           '关于',
           children: [
-            _SettingItem('检查更新'),
+            _SettingItem('检查更新', subtitle: _version, onTap: _handleCheckUpdate),
             _SettingItem(
               '使用条款',
               onTap: () => Navigator.push(context,
@@ -400,7 +425,7 @@ class _SettingsState extends State<_SettingsView> {
   }
 }
 
-class SettingsPage extends BasePage {
+class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

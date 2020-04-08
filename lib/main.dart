@@ -10,7 +10,6 @@ import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'fragments/histories.dart';
-import 'pages/base_page.dart';
 import 'pages/settings.dart';
 import 'src/fragments.dart';
 import 'src/blocs.dart';
@@ -53,7 +52,7 @@ void main() async {
   runApp(MyApp(await getDrawerIndex()));
 }
 
-class MyApp extends BasePage {
+class MyApp extends StatelessWidget {
   MyApp(this.drawerIndex);
 
   final int drawerIndex;

@@ -9,7 +9,6 @@ import 'package:logging/logging.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:mikack_mobile/helper/compute_ext.dart';
-import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:mikack_mobile/pages/settings.dart';
 import 'package:mikack_mobile/store/impl/history_api.dart';
 import 'package:mikack_mobile/store/models.dart';
@@ -548,7 +547,7 @@ class _Read2PageState extends State<_Read2Page> {
   }
 }
 
-class Read2Page extends BasePage {
+class Read2Page extends StatelessWidget {
   Read2Page({
     this.platform,
     this.comic,

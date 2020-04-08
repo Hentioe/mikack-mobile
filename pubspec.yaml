@@ -11,7 +11,7 @@ description: Mikack Mobile Client
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 0.1.0+1
 
 environment:
   sdk: ">=2.6.0 <3.0.0"
@@ -21,6 +21,8 @@ dependencies:
     sdk: flutter
   mikack:
     git: git@github.com:Hentioe/mikack-dart.git
+  github_releases:
+    git: git@github.com:Hentioe/github_releases.dart.git
   equatable: ^1.1.1
   bloc: ^3.0.0
   flutter_bloc: ^3.2.0
@@ -40,6 +42,7 @@ dependencies:
   logging: ^0.11.4
   executor: ^2.2.1
   flutter_svg: ^0.17.3+1
+  package_info: ^0.4.0+16
 
 #dev_dependencies:
 #  flutter_test:

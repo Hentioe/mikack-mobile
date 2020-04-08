@@ -50,6 +50,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.4"
+  dio:
+    dependency: transitive
+    description:
+      name: dio
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.9"
   easy_dialogs:
     dependency: "direct main"
     description:
@@ -144,6 +151,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.1.3"
+  github_releases:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: ebbdbcc5b3e1b2355af08a6a54c21dbc5722d628
+      url: "git@github.com:Hentioe/github_releases.dart.git"
+    source: git
+    version: "0.0.0"
   http:
     dependency: transitive
     description:
@@ -209,6 +225,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.4"
+  package_info:
+    dependency: "direct main"
+    description:
+      name: package_info
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.0+16"
   path:
     dependency: "direct main"
     description:

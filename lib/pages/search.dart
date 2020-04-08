@@ -8,7 +8,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mikack/mikack.dart';
 import 'package:mikack/models.dart' as models;
-import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:mikack_mobile/pages/settings.dart';
 import 'package:mikack_mobile/widgets/comic_card.dart';
 import 'package:mikack_mobile/widgets/comics_view.dart';

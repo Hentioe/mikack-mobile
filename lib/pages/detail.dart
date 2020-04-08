@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
-import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:mikack_mobile/widgets/favicon.dart';
 import 'package:mikack_mobile/widgets/text_hint.dart';
 import '../widgets/tag.dart';
@@ -39,7 +38,7 @@ class FeatureStatus extends StatelessWidget {
   }
 }
 
-class DetailPage extends BasePage {
+class DetailPage extends StatelessWidget {
   DetailPage(this.platform);
 
   final models.Platform platform;

@@ -5,7 +5,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mikack/models.dart';
-import 'package:mikack_mobile/pages/base_page.dart';
 
 import '../blocs.dart';
 import '../platform_list.dart';
@@ -14,6 +13,7 @@ import '../../store.dart';
 import '../../pages/comic.dart';
 import '../../ext.dart';
 import '../../widgets/text_hint.dart';
+import '../values.dart';
 
 final _defaultTextStyle = TextStyle(fontSize: 15.5, color: Colors.grey[400]);
 const _hintTextFontSize = 14.5;

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:mikack_mobile/helper/chrome.dart';
-import 'package:mikack_mobile/pages/base_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const termVersion = '0.0.1';
@@ -132,7 +131,7 @@ class _TermsViewState extends State<_TermsView> {
   }
 }
 
-class TermsPage extends BasePage {
+class TermsPage extends StatelessWidget {
   TermsPage({this.readOnly = true});
 
   final bool readOnly;
