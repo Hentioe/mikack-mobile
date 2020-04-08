@@ -107,7 +107,6 @@ class _TermsViewState extends State<_TermsView> {
                 a: TextStyle(
                   fontSize: 13,
                   color: Colors.blueAccent[700],
-                  decoration: TextDecoration.underline,
                 ),
                 p: TextStyle(fontSize: 13, color: Colors.grey[900]),
                 h1: TextStyle(fontSize: 16, color: Colors.black),
