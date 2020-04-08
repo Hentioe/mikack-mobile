@@ -17,7 +17,7 @@ import '../src/values.dart';
 import '../main.dart' show startPages;
 
 const _repoOwner = 'Hentioe';
-const _repoName = 'mikack';
+const _repoName = 'mikack-mobile';
 const _settingsItemSpacing = 16.0;
 const _settingsPadding = 18.0;
 const _settingsItemTrailingSize = 20.0;
