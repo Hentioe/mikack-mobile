@@ -14,7 +14,7 @@ class ChaptersTab extends StatelessWidget {
     this.handleChapterUnReadMark,
     this.handleChaptersReadMark,
     this.handleRetry,
-    this.readHistoryLinks = const [],
+    this.readHistoryAddresses = const [],
   });
 
   final bool error;
@@ -26,7 +26,7 @@ class ChaptersTab extends StatelessWidget {
   final void Function(models.Chapter) handleChapterUnReadMark;
   final void Function(List<models.Chapter>) handleChaptersReadMark;
   final void Function() handleRetry;
-  final List<String> readHistoryLinks;
+  final List<String> readHistoryAddresses;
 
   void _handleMorePopupMenuSelect(int value, models.Chapter chapter) async {
     switch (value) {
@@ -53,12 +53,12 @@ class ChaptersTab extends StatelessWidget {
       onSelected: (value) => _handleMorePopupMenuSelect(value, chapter),
       itemBuilder: (BuildContext context) => [
         PopupMenuItem(
-          enabled: !readHistoryLinks.contains(chapter.url),
+          enabled: !readHistoryAddresses.contains(chapter.url),
           value: 0,
           child: Text('标记已读'),
         ),
         PopupMenuItem(
-          enabled: readHistoryLinks.contains(chapter.url),
+          enabled: readHistoryAddresses.contains(chapter.url),
           value: 1,
           child: Text('标记未读'),
         ),
@@ -74,7 +74,7 @@ class ChaptersTab extends StatelessWidget {
       {whichAt = 0, List<List<models.Chapter>> reversedGroup}) {
     var group = <models.Chapter>[];
     for (models.Chapter c in chapters) {
-      if (c.which > whichAt * groupSpacing &&
+      if (c.which >= whichAt * groupSpacing &&
           c.which < (whichAt + 1) * groupSpacing)
         group.add(c);
       else
@@ -111,7 +111,7 @@ class ChaptersTab extends StatelessWidget {
                   title: Text(
                     c.title,
                     style: TextStyle(
-                      color: readHistoryLinks.contains(c.url)
+                      color: readHistoryAddresses.contains(c.url)
                           ? Colors.grey[500]
                           : Colors.black,
                     ),

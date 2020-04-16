@@ -4,7 +4,7 @@ import 'package:flutter/painting.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mikack/models.dart' as models;
 import '../widgets/comics_view.dart';
-import 'comic.dart';
+import '../src/pages/comic_page.dart';
 import 'package:tuple/tuple.dart';
 import '../ext.dart';
 
@@ -40,7 +40,8 @@ class _IndexViewState extends State<IndexesView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ComicPage(widget.platform, comic),
+        builder: (context) =>
+            ComicPage2(platform: widget.platform, comic: comic),
       ),
     );
   }

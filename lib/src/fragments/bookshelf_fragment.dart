@@ -8,9 +8,9 @@ import 'package:mikack/models.dart';
 
 import '../blocs.dart';
 import '../platform_list.dart';
+import '../pages/comic_page.dart';
 import '../../widgets/comics_view.dart';
 import '../../store.dart';
-import '../../pages/comic.dart';
 import '../../ext.dart';
 import '../../widgets/text_hint.dart';
 import '../values.dart';
@@ -63,7 +63,8 @@ class BookshelfFragment2 extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => ComicPage(platform, comic, appContext: context),
+            builder: (_) => ComicPage2(
+                platform: platform, comic: comic, appContext: context),
           ),
         ).then((_) => BlocProvider.of<BookshelfBloc>(context)
             .add(BookshelfRequestEvent.sortByDefault()));

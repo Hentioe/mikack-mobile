@@ -7,3 +7,6 @@ export 'blocs/updates_state.dart';
 export 'blocs/bookshelf_bloc.dart';
 export 'blocs/bookshelf_event.dart';
 export 'blocs/bookshelf_state.dart';
+export 'blocs/comic_bloc.dart';
+export 'blocs/comic_event.dart';
+export 'blocs/comic_state.dart';

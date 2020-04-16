@@ -5,7 +5,7 @@ import 'package:mikack/models.dart';
 
 import '../platform_list.dart';
 import '../blocs.dart';
-import '../../pages/comic.dart';
+import '../pages/comic_page.dart';
 import '../../store.dart';
 import '../../widgets/comics_view.dart';
 import '../../widgets/text_hint.dart';
@@ -64,7 +64,7 @@ class UpdatesFragment2 extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ComicPage(platform, comic),
+            builder: (context) => ComicPage2(platform: platform, comic: comic),
           ),
         ).then((_) => BlocProvider.of<UpdatesBloc>(context)
             .add(UpdatesRequestEvent.local()));

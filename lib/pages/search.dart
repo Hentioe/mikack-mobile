@@ -20,7 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuple/tuple.dart';
 
 import '../src/values.dart';
-import 'comic.dart';
+import '../src/pages/comic_page.dart';
 
 const _allowNsfwHint = '未在设置中允许 NSFW 内容';
 
@@ -347,9 +347,9 @@ class _SearchPageState extends State<SearchPage> {
                                       onTap: (_) => Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) => ComicPage(
-                                            entry.key,
-                                            entry.value[index].comic,
+                                          builder: (_) => ComicPage2(
+                                            platform: entry.key,
+                                            comic: entry.value[index].comic,
                                             appContext: widget.appContext,
                                           ),
                                         ),
