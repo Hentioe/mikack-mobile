@@ -96,10 +96,6 @@ class ComicPage2State extends State<ComicPage2>
 
   void _handleFavorite({bool isCancel}) async {
     bloc.add(ComicFavoriteEvent(isCancel: isCancel));
-    // 刷新收藏列表
-    widget.appContext
-        ?.bloc<BookshelfBloc>()
-        ?.add(BookshelfRequestEvent.sortByDefault());
   }
 
   Function(models.Chapter) _handleOpenReadPage(
@@ -183,6 +179,10 @@ class ComicPage2State extends State<ComicPage2>
           var castedState = state as ComicLoadedState;
           var msg = castedState.isFavorite ? '已添加至书架' : '已从书架删除';
           Fluttertoast.showToast(msg: msg);
+          // 刷新收藏列表
+          widget.appContext
+              ?.bloc<BookshelfBloc>()
+              ?.add(BookshelfRequestEvent.sortByDefault());
         },
         child: BlocBuilder<ComicBloc, ComicState>(
           bloc: bloc,

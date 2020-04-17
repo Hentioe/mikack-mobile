@@ -66,8 +66,7 @@ class BookshelfFragment2 extends StatelessWidget {
             builder: (_) => ComicPage2(
                 platform: platform, comic: comic, appContext: context),
           ),
-        ).then((_) => BlocProvider.of<BookshelfBloc>(context)
-            .add(BookshelfRequestEvent.sortByDefault()));
+        );
       };
 
   @override
