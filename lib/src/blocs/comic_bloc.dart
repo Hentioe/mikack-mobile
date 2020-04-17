@@ -37,6 +37,8 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
         // 读取：是否收藏
         var favorite = await getFavorite(address: comic.url);
         var isFavorite = favorite != null;
+        if (favorite != null) // 更新最后阅读时间
+          await updateFavorite(favorite..lastReadTime = DateTime.now());
         // 读取：上次阅读位置
         var lastReadHistory = await getLastHistory(comic.url);
         var lastReadChapterAddress = lastReadHistory?.address;
