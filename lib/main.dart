@@ -9,7 +9,6 @@ import 'package:mikack_mobile/widgets/series_system_ui.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'fragments/histories.dart';
 import 'pages/settings.dart';
 import 'src/fragments.dart';
 import 'src/blocs.dart';
@@ -76,6 +75,9 @@ class MyApp extends StatelessWidget {
           BlocProvider<LibrariesBloc>(
             create: (_) => LibrariesBloc(),
           ),
+          BlocProvider<HistoriesBloc>(
+            create: (_) => HistoriesBloc(),
+          ),
         ],
         child: MyHomePage(drawerIndex: drawerIndex),
       ),
@@ -130,7 +132,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  /// 根据 fragment 类型发送事件（当内容页为纯 StatelessWidget 时需要）
+  /// 根据 fragment 类型发送事件（当内容页为 StatelessWidget 时需要）
+  /// TODO: 在已存在数据的情况下避免重复刷新
   void sendFragmentEvent() {
     switch (_drawerItems[_drawerIndex].fragment.runtimeType) {
       case UpdatesFragment2:
@@ -139,6 +142,9 @@ class _MyHomePageState extends State<MyHomePage> {
       case BookshelfFragment2:
         BlocProvider.of<BookshelfBloc>(context)
             .add(BookshelfRequestEvent.sortByDefault());
+        break;
+      case HistoriesFragment2:
+        BlocProvider.of<HistoriesBloc>(context).add(HistoriesRequestEvent());
         break;
     }
   }
@@ -264,7 +270,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: _handleLibrariesFilter)
         ],
       ),
-      DrawerItem('浏览历史', Icons.history, HistoriesFragment()),
+      DrawerItem('浏览历史', Icons.history, HistoriesFragment2()),
     ];
   }
 

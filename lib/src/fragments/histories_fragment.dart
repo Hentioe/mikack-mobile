@@ -1,22 +1,45 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:mikack_mobile/helper/chrome.dart';
-import 'package:mikack_mobile/pages/read2.dart';
-import 'package:mikack_mobile/store.dart';
-import 'package:mikack_mobile/widgets/comics_view.dart' show coverRatio;
-import '../ext.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../src/platform_list.dart';
+import '../blocs.dart';
+import '../values.dart';
+import '../../store.dart';
+import '../platform_list.dart';
+import '../../pages/read2.dart';
+import '../../helper/chrome.dart';
 
-const historiesCoverWidth = 90.0;
-const historiesCoverHeight = historiesCoverWidth / coverRatio;
+const _historiesCoverWidth = 90.0;
+const _historiesCoverHeight = _historiesCoverWidth / coverRatio;
 
-class HistoriesView extends StatelessWidget {
-  HistoriesView(this.histories, {this.handleRemove, this.handleContinue});
+class HistoriesFragment2 extends StatelessWidget {
+  Function() _handleRemove(BuildContext context, History history) =>
+      () => BlocProvider.of<HistoriesBloc>(context)
+          .add(HistoriesRemoveEvent(history: history));
 
-  final List<History> histories;
-  final void Function(History) handleRemove;
-  final void Function(History) handleContinue;
+  Function() _handleOpenHistory(BuildContext context, History history) =>
+      () async {
+        var platform =
+            platformList.firstWhere((p) => p.domain == history.source.domain);
+        if (platform != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Read2Page(
+                platform: platform,
+                comic: history.asComic(),
+                chapter: history.asChapter(),
+              ),
+            ),
+          ).then((_) {
+            // 返回后恢复系统 UI 并重新请求数据
+            restoreStatusBarColor();
+            showSystemUI();
+            BlocProvider.of<HistoriesBloc>(context)
+                .add(HistoriesRequestEvent());
+          });
+        }
+      };
 
   Widget _buildEmptyView() {
     return Center(
@@ -30,21 +53,21 @@ class HistoriesView extends StatelessWidget {
   final cardShape = const RoundedRectangleBorder(
       borderRadius: BorderRadiusDirectional.all(Radius.circular(1)));
 
-  Widget _buildListView() {
+  Widget _buildListView(BuildContext context, List<History> histories) {
     return ListView(
       children: histories
           .map(
-            (h) => Card(
+            (history) => Card(
               shape: cardShape,
               elevation: 1.5,
               child: Row(
                 children: [
                   ExtendedImage.network(
-                    h.cover,
-                    headers: h.headers,
+                    history.cover,
+                    headers: history.headers,
                     fit: BoxFit.cover,
-                    height: historiesCoverHeight,
-                    width: historiesCoverWidth,
+                    height: _historiesCoverHeight,
+                    width: _historiesCoverWidth,
                     cache: true,
                     loadStateChanged: (state) {
                       switch (state.extendedImageLoadState) {
@@ -68,7 +91,7 @@ class HistoriesView extends StatelessWidget {
                       children: [
                         ListTile(
                           title: Text(
-                            h.title,
+                            history.title,
                             maxLines: 2,
                             overflow: TextOverflow.clip,
                             style: TextStyle(
@@ -79,7 +102,7 @@ class HistoriesView extends StatelessWidget {
                           subtitle: Wrap(
                             children: [
                               Text(
-                                '${h.source.name}',
+                                '${history.source.name}',
                                 style: TextStyle(color: Colors.black),
                               ),
                             ],
@@ -94,14 +117,14 @@ class HistoriesView extends StatelessWidget {
                                 '移除',
                                 style: TextStyle(color: Colors.redAccent),
                               ),
-                              onPressed: () => handleRemove(h),
+                              onPressed: _handleRemove(context, history),
                             ),
                             FlatButton(
                               child: const Text(
                                 '继续阅读',
                                 style: TextStyle(color: Colors.blueAccent),
                               ),
-                              onPressed: () => handleContinue(h),
+                              onPressed: _handleOpenHistory(context, history),
                             ),
                           ],
                         )
@@ -118,88 +141,16 @@ class HistoriesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget view;
-    if (histories.length == 0)
-      view = _buildEmptyView();
-    else
-      view = _buildListView();
-    return Scrollbar(
-      child: view,
+    return BlocBuilder<HistoriesBloc, HistoriesState>(
+      builder: (context, state) {
+        var castedState = state as HistoriesLoadedState;
+        if (castedState.histories.isEmpty)
+          return _buildEmptyView();
+        else
+          return Scrollbar(
+            child: _buildListView(context, castedState.histories),
+          );
+      },
     );
-  }
-}
-
-class MainView extends StatefulWidget {
-  MainView() : super(key: UniqueKey());
-
-  @override
-  State<StatefulWidget> createState() => _MainViewState();
-}
-
-class _MainViewState extends State<MainView> {
-  List _histories = <History>[];
-
-  @override
-  void initState() {
-    // 读取浏览记录
-    fetchHistories();
-    super.initState();
-  }
-
-  void removeHistory(History history) async {
-    await deleteHistory(id: history.id);
-    fetchHistories();
-  }
-
-  void openHistory(History history) async {
-    var platform =
-        platformList.firstWhere((p) => p.domain == history.source.domain);
-    if (platform != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Read2Page(
-            platform: platform,
-            comic: history.asComic(),
-            chapter: history.asChapter(),
-          ),
-        ),
-      ).then((_) {
-        restoreStatusBarColor();
-        showSystemUI();
-      });
-    }
-  }
-
-  void fetchHistories() async {
-    var histories = await findHistories();
-    for (History history in histories) {
-      var source = await getSource(id: history.sourceId);
-      if (source == null) {
-        source = Source(name: '已失效的图源');
-      } else {
-        var platform =
-            platformList.firstWhere((p) => p.domain == source.domain);
-        history.headers = platform.buildBaseHeaders();
-      }
-      history.source = source;
-    }
-    if (mounted) setState(() => _histories = histories);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return HistoriesView(
-      _histories,
-      handleRemove: removeHistory,
-      handleContinue: openHistory,
-    );
-  }
-}
-
-class HistoriesFragment extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MainView();
   }
 }

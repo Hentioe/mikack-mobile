@@ -10,3 +10,6 @@ export 'blocs/bookshelf_state.dart';
 export 'blocs/comic_bloc.dart';
 export 'blocs/comic_event.dart';
 export 'blocs/comic_state.dart';
+export 'blocs/histories_bloc.dart';
+export 'blocs/histories_event.dart';
+export 'blocs/histories_state.dart';

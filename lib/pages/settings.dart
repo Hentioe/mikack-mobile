@@ -12,7 +12,9 @@ import 'package:mikack_mobile/store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info/package_info.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../src/blocs.dart';
 import '../src/values.dart';
 import '../main.dart' show startPages;
 
@@ -168,7 +170,7 @@ class _SettingsPageState extends State<SettingsPage> {
   var _leftHandMode = false;
   var _allowNsfw = false;
   var _chaptersReversed = false;
-  var _historitesTotal = 0;
+  var _historiesTotal = 0;
   var _favoritesTotal = 0;
   var _version = 'Unknown';
 
@@ -258,13 +260,14 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void fetchHistoriesTotal() async {
     var total = await getHistoriesTotal();
-    setState(() => _historitesTotal = total);
+    setState(() => _historiesTotal = total);
   }
 
   void _handleHistoriesClean() async {
     await deleteAllHistories();
     fetchHistoriesTotal();
     Fluttertoast.showToast(msg: '历史记录已清空');
+    widget.appContext?.bloc<HistoriesBloc>()?.add(HistoriesRequestEvent());
   }
 
   void fetchFavoritesTotal() async {
@@ -410,8 +413,8 @@ class _SettingsPageState extends State<SettingsPage> {
               onTap: _handleCachedImageClean,
             ),
             _SettingItem('清空历史记录',
-                subtitle: _historitesTotal > 0
-                    ? '存在 $_historitesTotal 条可见历史'
+                subtitle: _historiesTotal > 0
+                    ? '存在 $_historiesTotal 条可见历史'
                     : '没有阅读记录',
                 onTap: () => _handleHistoriesClean()),
             _SettingItem('清空书架收藏',

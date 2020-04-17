@@ -2,10 +2,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:mikack_mobile/widgets/comic_card.dart';
-
-// 长:宽大约为 1.3，是常见漫画网站的封面标准
-// 注意：此处的值是宽/长
-const coverRatio = 180 / 240;
+import '../src/values.dart';
 
 const viewListCoverHeight = 56.0;
 const viewListCoverWidth = viewListCoverHeight * coverRatio;
