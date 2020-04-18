@@ -28,7 +28,7 @@ class ComicLoadedState extends ComicState {
 
   @override
   List<Object> get props =>
-      [tabIndex, comic, isFavorite, reversed, readHistoryAddresses];
+      [tabIndex, error, comic, isFavorite, reversed, readHistoryAddresses];
 
   ComicLoadedState copyWith({
     int tabIndex,

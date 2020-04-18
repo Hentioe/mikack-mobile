@@ -69,6 +69,9 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
           add(ComicFetchErrorEvent());
         });
         break;
+      case ComicFetchErrorEvent: // 加载错误
+        yield (state as ComicLoadedState).copyWith(error: true);
+        break;
       case ComicTabChangedEvent: // 标签页切换
         var castedEvent = event as ComicTabChangedEvent;
         yield (state as ComicLoadedState).copyWith(tabIndex: castedEvent.index);
