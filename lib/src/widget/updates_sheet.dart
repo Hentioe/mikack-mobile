@@ -3,14 +3,13 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:install_plugin/install_plugin.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
 import 'package:github_releases/github_models.dart';
-import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_install_apk/flutter_install_apk.dart';
 
 import '../values.dart';
 
@@ -53,7 +52,7 @@ class _UpdatesSheetState extends State<UpdatesSheet> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Text('下载中', style: TextStyle(fontSize: 18)),
+            Text('更新中', style: TextStyle(fontSize: 18)),
             LinearProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(primarySwatch),
               backgroundColor: Colors.white,
@@ -95,9 +94,7 @@ class _UpdatesSheetState extends State<UpdatesSheet> {
       );
       file.writeAsBytes(resp.data);
     }
-    InstallPlugin.installApk(
-            file.path, (await PackageInfo.fromPlatform()).packageName)
-        .then((_) => _pd?.hide());
+    FlutterInstallApk.installApk(file.path).then((_) => _pd?.hide());
   }
 
   @override

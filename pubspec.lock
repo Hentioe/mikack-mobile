@@ -111,13 +111,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.2.0"
+  flutter_install_apk:
+    dependency: "direct main"
+    description:
+      name: flutter_install_apk
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1"
   flutter_markdown:
     dependency: "direct main"
     description:
       name: flutter_markdown
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.4"
+    version: "0.3.5"
   flutter_share:
     dependency: "direct main"
     description:
@@ -181,13 +188,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.1.4"
-  install_plugin:
-    dependency: "direct main"
-    description:
-      name: install_plugin
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.1"
   logging:
     dependency: "direct main"
     description:
