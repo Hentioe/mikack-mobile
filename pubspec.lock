@@ -51,7 +51,7 @@ packages:
     source: hosted
     version: "2.1.4"
   dio:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: dio
       url: "https://pub.dartlang.org"
@@ -91,7 +91,7 @@ packages:
       name: extended_image_library
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.2.1"
+    version: "0.2.2"
   ffi:
     dependency: transitive
     description:
@@ -138,7 +138,7 @@ packages:
       name: flutter_svg
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.17.3+1"
+    version: "0.17.4"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -181,6 +181,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.1.4"
+  install_plugin:
+    dependency: "direct main"
+    description:
+      name: install_plugin
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   logging:
     dependency: "direct main"
     description:
@@ -238,7 +245,7 @@ packages:
       name: path
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.6.4"
+    version: "1.7.0"
   path_drawing:
     dependency: transitive
     description:
@@ -254,7 +261,7 @@ packages:
     source: hosted
     version: "0.1.4"
   path_provider:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path_provider
       url: "https://pub.dartlang.org"
@@ -302,13 +309,22 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
+  progress_dialog:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: custom
+      resolved-ref: "34614c5f2dcdfb8aabf6b24fcd26dd3775871ffe"
+      url: "git@github.com:Hentioe/progress_dialog.git"
+    source: git
+    version: "1.2.2"
   provider:
     dependency: transitive
     description:
       name: provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.4"
+    version: "4.0.5"
   quiver:
     dependency: "direct main"
     description:

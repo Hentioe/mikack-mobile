@@ -1,7 +1,6 @@
 import 'package:easy_dialogs/easy_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:github_releases/github_releases.dart';
 import 'package:package_info/package_info.dart';
@@ -13,6 +12,7 @@ import '../../main.dart' show startPages;
 import '../../ext.dart';
 import '../../pages/terms.dart';
 import '../../pages/thanks.dart';
+import '../widget/updates_sheet.dart';
 
 const _settingsItemSpacing = 16.0;
 const _settingsPadding = 18.0;
@@ -88,49 +88,7 @@ class _SettingsPageState extends State<SettingsPage2> {
           var lastRelease = releases.first;
           showModalBottomSheet(
             context: widget.appContext,
-            builder: (context) => Container(
-              child: Column(
-                children: <Widget>[
-                  SizedBox(height: 10),
-                  Text('发现新版：${lastRelease.tagName}',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Divider(indent: 80, endIndent: 80, color: Colors.grey[400]),
-                  Expanded(
-                    child: Markdown(data: lastRelease.body),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-//                  Expanded(
-//                    child: MaterialButton(
-//                      child: Text('跳过此版本',
-//                          style: TextStyle(color: Colors.grey[500])),
-//                      onPressed: () {},
-//                    ),
-//                  ),
-                      Expanded(
-                        child: MaterialButton(
-                          child: Text(
-                            '下载新版本',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                          onPressed: () {
-                            if (lastRelease.assets.isEmpty) {
-                              Fluttertoast.showToast(
-                                  msg: '没有找到更新附件，也许是作者忘上传了～');
-                            } else {
-                              launchUrl(
-                                  lastRelease.assets.first.browserDownloadUrl);
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            builder: (context) => UpdatesSheet(release: lastRelease),
           );
         }
       };

@@ -23,6 +23,10 @@ dependencies:
     git: git@github.com:Hentioe/mikack-dart.git
   github_releases:
     git: git@github.com:Hentioe/github_releases.dart.git
+  progress_dialog:
+    git:
+      url: git@github.com:Hentioe/progress_dialog.git
+      ref: custom
   equatable: ^1.1.1
   bloc: ^3.0.0
   flutter_bloc: ^3.2.0
@@ -43,6 +47,9 @@ dependencies:
   executor: ^2.2.1
   flutter_svg: ^0.17.3+1
   package_info: ^0.4.0+16
+  dio: ^3.0.9
+  path_provider: ^1.6.5
+  install_plugin: ^2.0.1
 
 #dev_dependencies:
 #  flutter_test:
