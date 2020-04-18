@@ -19,7 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuple/tuple.dart';
 
 import '../src/values.dart';
-import '../src/pages/comic_page.dart';
+import '../src/page/comic_page.dart';
 
 const _allowNsfwHint = '未在设置中允许 NSFW 内容';
 

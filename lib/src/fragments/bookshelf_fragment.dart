@@ -8,7 +8,7 @@ import 'package:mikack/models.dart';
 
 import '../blocs.dart';
 import '../platform_list.dart';
-import '../pages/comic_page.dart';
+import '../page/comic_page.dart';
 import '../../widgets/comics_view.dart';
 import '../../store.dart';
 import '../../ext.dart';

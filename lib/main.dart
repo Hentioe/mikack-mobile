@@ -9,12 +9,12 @@ import 'package:mikack_mobile/widgets/series_system_ui.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'src/pages/settings_page.dart';
+import 'src/page/settings_page.dart';
 import 'src/fragments.dart';
 import 'src/blocs.dart';
 import 'src/models.dart';
 import 'src/values.dart';
-import 'src/dialogs/libraries_filters_dialog.dart';
+import 'src/dialog/libraries_filters_dialog.dart';
 
 const bookshelfSortByKey = 'bookshelf_sort_by';
 

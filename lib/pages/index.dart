@@ -4,7 +4,7 @@ import 'package:flutter/painting.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mikack/models.dart' as models;
 import '../widgets/comics_view.dart';
-import '../src/pages/comic_page.dart';
+import '../src/page/comic_page.dart';
 import 'package:tuple/tuple.dart';
 import '../ext.dart';
 

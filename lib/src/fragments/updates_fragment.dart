@@ -5,7 +5,7 @@ import 'package:mikack/models.dart';
 
 import '../platform_list.dart';
 import '../blocs.dart';
-import '../pages/comic_page.dart';
+import '../page/comic_page.dart';
 import '../../store.dart';
 import '../../widgets/comics_view.dart';
 import '../../widgets/text_hint.dart';
