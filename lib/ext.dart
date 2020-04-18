@@ -1,5 +1,7 @@
 import 'package:mikack/models.dart';
-import 'package:mikack_mobile/widgets/comics_view.dart';
+import 'package:package_info/package_info.dart';
+
+import 'widgets/comics_view.dart';
 import 'store.dart';
 
 extension PlatformExt on Platform {
@@ -52,5 +54,12 @@ extension ComicsExt on List<Comic> {
 extension ComicExt on Comic {
   ComicViewItem toViewItem({Platform platform, int badgeValue}) {
     return ComicViewItem(this, platform: platform, badgeValue: badgeValue);
+  }
+}
+
+extension PackageInfoExt on PackageInfo {
+  String tagging() {
+    if (this == null) return 'Unknown';
+    return '${this.version}-${this.buildNumber}';
   }
 }

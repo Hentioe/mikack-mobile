@@ -13,3 +13,6 @@ export 'blocs/comic_state.dart';
 export 'blocs/histories_bloc.dart';
 export 'blocs/histories_event.dart';
 export 'blocs/histories_state.dart';
+export 'blocs/settings_bloc.dart';
+export 'blocs/settings_event.dart';
+export 'blocs/settings_state.dart';

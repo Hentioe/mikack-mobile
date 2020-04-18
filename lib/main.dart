@@ -9,7 +9,7 @@ import 'package:mikack_mobile/widgets/series_system_ui.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'pages/settings.dart';
+import 'src/pages/settings_page.dart';
 import 'src/fragments.dart';
 import 'src/blocs.dart';
 import 'src/models.dart';
@@ -348,7 +348,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => SettingsPage(appContext: context)),
+                      builder: (_) => SettingsPage2(appContext: context)),
                 ).then((_) => fetchAllowNsfw()), // 设置页面返回后刷新可能变更的数据
               ),
             ],
