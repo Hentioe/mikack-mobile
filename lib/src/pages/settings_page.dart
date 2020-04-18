@@ -155,9 +155,14 @@ class _SettingsPageState extends State<SettingsPage2> {
                 }
                 return false;
               },
-              listener: (context, state) => Fluttertoast.showToast(
-                msg: '历史记录已清空',
-              ),
+              listener: (context, state) {
+                Fluttertoast.showToast(
+                  msg: '历史记录已清空',
+                );
+                widget.appContext
+                    ?.bloc<HistoriesBloc>()
+                    ?.add(HistoriesRequestEvent());
+              },
             ),
             BlocListener<SettingsBloc, SettingsState>(
               bloc: bloc,
@@ -169,9 +174,14 @@ class _SettingsPageState extends State<SettingsPage2> {
                 }
                 return false;
               },
-              listener: (context, state) => Fluttertoast.showToast(
-                msg: '书架已清空',
-              ),
+              listener: (context, state) {
+                Fluttertoast.showToast(
+                  msg: '书架已清空',
+                );
+                widget.appContext
+                    ?.bloc<BookshelfBloc>()
+                    ?.add(BookshelfRequestEvent.sortByDefault());
+              },
             ),
           ],
           child: BlocBuilder<SettingsBloc, SettingsState>(

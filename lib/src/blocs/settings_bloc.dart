@@ -77,7 +77,6 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         }
         break;
       case SettingsCleanupRequestEvent: // 数据清空
-        print(1);
         final castedEvent = event as SettingsCleanupRequestEvent;
         final castedState = state as SettingsLoadedSate;
         switch (castedEvent.cleanupType) {
