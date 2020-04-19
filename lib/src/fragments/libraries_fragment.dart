@@ -1,12 +1,12 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 
+import '../page/index_page.dart';
 import '../page/detail_page.dart';
-import '../../pages/index.dart';
-import '../../src/blocs.dart';
+import '../blocs.dart';
 import '../widget/favicon.dart';
 import '../widget/text_hint.dart';
 import '../platform_list.dart';
@@ -18,7 +18,7 @@ class LibrariesFragment2 extends StatelessWidget {
 
   void Function(models.Platform) _handleItemTap(BuildContext context) =>
       (models.Platform platform) => Navigator.push(context,
-          MaterialPageRoute(builder: (context) => IndexPage(platform)));
+          MaterialPageRoute(builder: (context) => IndexPage2(platform)));
 
   void Function(models.Platform) _handleItemDetail(BuildContext context) =>
       (models.Platform platform) => Navigator.push(context,
@@ -129,7 +129,7 @@ class _Group extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$title', style: TextStyle(color: Colors.grey[500], fontSize: 14)),
+        Text('$title', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
         SizedBox(height: 10),
         platforms.length == 0
             ? TextHint(emptyHint, color: Colors.grey[350]) // 空列表提示

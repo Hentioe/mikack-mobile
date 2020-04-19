@@ -16,3 +16,6 @@ export 'blocs/histories_state.dart';
 export 'blocs/settings_bloc.dart';
 export 'blocs/settings_event.dart';
 export 'blocs/settings_state.dart';
+export 'blocs/index_bloc.dart';
+export 'blocs/index_event.dart';
+export 'blocs/index_state.dart';
