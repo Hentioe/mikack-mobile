@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:mikack_mobile/helper/chrome.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../helper/chrome.dart';
 
 const termVersion = '0.0.1';
 const acceptPermVersionKey = 'accept_perm_version';

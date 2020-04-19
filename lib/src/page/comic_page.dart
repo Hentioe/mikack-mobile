@@ -6,12 +6,12 @@ import 'package:mikack/models.dart' as models;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../blocs.dart';
-import '../../widgets/series_system_ui.dart';
+import '../widget/series_system_ui.dart';
 import './comic_tabs/info_tab.dart';
 import './comic_tabs/chapters_tab.dart';
 
 import '../../pages/read2.dart';
-import '../../helper/chrome.dart';
+import '../helper/chrome.dart';
 
 class ComicPage2 extends StatefulWidget {
   final models.Platform platform;

@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:mikack/models.dart';
 
-import '../../ext.dart';
+import '../ext.dart';
 
 abstract class LibrariesState extends Equatable {
   @override

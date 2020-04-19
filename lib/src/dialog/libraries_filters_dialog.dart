@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mikack/mikack.dart';
 import 'package:tuple/tuple.dart';
 
-import '../../widgets/tag.dart';
+import '../widget/tag.dart';
 import '../values.dart';
 
 const _librariesFilterTagFontSize = 10.8;

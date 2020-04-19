@@ -12,8 +12,8 @@ import 'updates_state.dart';
 import '../platform_list.dart';
 import '../../store/impl.dart';
 import '../../store/models.dart';
-import '../../widgets/comics_view.dart';
-import '../../ext.dart';
+import '../widget/comics_view.dart';
+import '../ext.dart';
 
 final log = Logger('UpdatesBloc');
 

@@ -7,18 +7,18 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:logging/logging.dart';
 import 'package:mikack/models.dart' as models;
-import 'package:mikack_mobile/helper/chrome.dart';
-import 'package:mikack_mobile/helper/compute_ext.dart';
 import 'package:mikack_mobile/store/impl/history_api.dart';
 import 'package:mikack_mobile/store/models.dart';
-import 'package:mikack_mobile/widgets/outline_text.dart';
-import 'package:mikack_mobile/widgets/text_hint.dart';
-import 'package:mikack_mobile/ext.dart';
+import 'package:mikack_mobile/src/widget/outline_text.dart';
+import 'package:mikack_mobile/src/widget/text_hint.dart';
+import 'package:mikack_mobile/src/ext.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:tuple/tuple.dart';
 
 import '../src/values.dart';
+import '../src/helper/chrome.dart';
+import '../src/helper/compute_ext.dart';
 
 final log = Logger('Read2Page');
 const read2PageBackgroundColor = Color.fromARGB(255, 50, 50, 50);

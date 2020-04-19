@@ -1,8 +1,8 @@
 import 'package:mikack/models.dart';
 import 'package:package_info/package_info.dart';
 
-import 'widgets/comics_view.dart';
-import 'store.dart';
+import 'widget/comics_view.dart' show ComicViewItem;
+import '../store.dart';
 
 extension PlatformExt on Platform {
   Future<Source> toSavedSource() async {

@@ -9,10 +9,10 @@ import 'package:mikack/models.dart';
 import '../blocs.dart';
 import '../platform_list.dart';
 import '../page/comic_page.dart';
-import '../../widgets/comics_view.dart';
+import '../widget/comics_view.dart';
 import '../../store.dart';
-import '../../ext.dart';
-import '../../widgets/text_hint.dart';
+import '../ext.dart';
+import '../widget/text_hint.dart';
 
 final _defaultTextStyle = TextStyle(fontSize: 15.5, color: Colors.grey[400]);
 const _hintTextFontSize = 14.5;

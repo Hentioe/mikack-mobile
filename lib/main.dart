@@ -2,10 +2,10 @@ import 'dart:collection';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mikack_mobile/logging.dart';
+import 'package:mikack_mobile/src/logging.dart';
 import 'package:mikack_mobile/pages/search.dart';
-import 'package:mikack_mobile/pages/terms.dart';
-import 'package:mikack_mobile/widgets/series_system_ui.dart';
+import 'package:mikack_mobile/src/page/terms_page.dart';
+import 'package:mikack_mobile/src/widget/series_system_ui.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

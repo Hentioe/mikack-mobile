@@ -4,7 +4,7 @@ import 'histories_event.dart';
 import 'histories_state.dart';
 import '../../store.dart';
 import '../platform_list.dart';
-import '../../ext.dart';
+import '../ext.dart';
 
 class HistoriesBloc extends Bloc<HistoriesEvent, HistoriesState> {
   @override

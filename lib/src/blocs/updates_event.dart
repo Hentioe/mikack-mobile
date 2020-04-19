@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
-import 'package:mikack_mobile/widgets/comics_view.dart';
+import 'package:mikack_mobile/src/widget/comics_view.dart';
 
 abstract class UpdatesEvent extends Equatable {
   @override

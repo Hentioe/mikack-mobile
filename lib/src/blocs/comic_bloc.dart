@@ -9,7 +9,7 @@ import 'comic_event.dart';
 import 'comic_state.dart';
 import '../../store.dart';
 import '../values.dart';
-import '../../ext.dart';
+import '../ext.dart';
 
 class ComicBloc extends Bloc<ComicEvent, ComicState> {
   final models.Platform platform;

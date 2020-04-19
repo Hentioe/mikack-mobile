@@ -7,7 +7,7 @@ import '../values.dart';
 import '../../store.dart';
 import '../platform_list.dart';
 import '../../pages/read2.dart';
-import '../../helper/chrome.dart';
+import '../helper/chrome.dart';
 
 const _historiesCoverWidth = 90.0;
 const _historiesCoverHeight = _historiesCoverWidth / coverRatio;

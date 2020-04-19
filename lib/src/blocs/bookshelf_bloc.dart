@@ -5,7 +5,7 @@ import 'bookshelf_event.dart';
 import 'bookshelf_state.dart';
 import '../models.dart';
 import '../../store.dart';
-import '../../ext.dart';
+import '../ext.dart';
 import '../platform_list.dart';
 import '../../main.dart' show bookshelfSortByKey;
 

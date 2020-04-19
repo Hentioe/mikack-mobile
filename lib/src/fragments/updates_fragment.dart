@@ -7,9 +7,9 @@ import '../platform_list.dart';
 import '../blocs.dart';
 import '../page/comic_page.dart';
 import '../../store.dart';
-import '../../widgets/comics_view.dart';
-import '../../widgets/text_hint.dart';
-import '../../ext.dart';
+import '../widget/comics_view.dart';
+import '../widget/text_hint.dart';
+import '../ext.dart';
 
 class _CenterHint extends StatelessWidget {
   _CenterHint(this.title);

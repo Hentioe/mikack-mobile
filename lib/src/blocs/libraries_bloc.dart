@@ -6,7 +6,7 @@ import 'libraries_event.dart';
 import 'libraries_state.dart';
 
 import '../platform_list.dart';
-import '../../ext.dart';
+import '../ext.dart';
 
 class LibrariesBloc extends Bloc<LibrariesEvent, LibrariesState> {
   @override

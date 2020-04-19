@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../src/values.dart';
+import '../values.dart';
 
 class SeriesSystemUI extends StatelessWidget {
   SeriesSystemUI({this.child});

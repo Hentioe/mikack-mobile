@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
-import '../src/platform_list.dart';
+import '../platform_list.dart';
 
 class _ThanksPage extends StatefulWidget {
   @override

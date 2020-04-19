@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../widgets/comics_view.dart' show ComicViewItem;
+import '../widget/comics_view.dart' show ComicViewItem;
 
 class UpdatesState extends Equatable {
   @override

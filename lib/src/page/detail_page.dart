@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
-import 'package:mikack_mobile/widgets/favicon.dart';
-import 'package:mikack_mobile/widgets/text_hint.dart';
-import '../widgets/tag.dart';
+import 'package:mikack_mobile/src/widget/favicon.dart';
+import 'package:mikack_mobile/src/widget/text_hint.dart';
+import '../widget/tag.dart';
 
 class FeatureStatus extends StatelessWidget {
   FeatureStatus(this.name, this.description, {this.isSupport = false});

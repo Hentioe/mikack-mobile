@@ -4,11 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 
-import '../../pages/detail.dart';
+import '../page/detail_page.dart';
 import '../../pages/index.dart';
 import '../../src/blocs.dart';
-import '../../widgets/favicon.dart';
-import '../../widgets/text_hint.dart';
+import '../widget/favicon.dart';
+import '../widget/text_hint.dart';
 import '../platform_list.dart';
 
 const _rootSpacing = 15.0;

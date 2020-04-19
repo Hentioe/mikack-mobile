@@ -1,6 +1,6 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:mikack_mobile/widgets/comics_view.dart';
+import 'package:mikack_mobile/src/widget/comics_view.dart';
 
 import 'favicon.dart';
 

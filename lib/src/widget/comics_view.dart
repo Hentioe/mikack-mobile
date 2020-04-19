@@ -1,8 +1,8 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
-import 'package:mikack_mobile/widgets/comic_card.dart';
-import '../src/values.dart';
+import 'package:mikack_mobile/src/widget/comic_card.dart';
+import '../values.dart';
 
 const viewListCoverHeight = 56.0;
 const viewListCoverWidth = viewListCoverHeight * coverRatio;

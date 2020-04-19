@@ -6,12 +6,12 @@ import 'package:github_releases/github_releases.dart';
 import 'package:package_info/package_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'terms_page.dart';
+import 'thanks_page.dart';
 import '../blocs.dart';
 import '../values.dart';
 import '../../main.dart' show startPages;
-import '../../ext.dart';
-import '../../pages/terms.dart';
-import '../../pages/thanks.dart';
+import '../ext.dart';
 import '../widget/updates_sheet.dart';
 
 const _settingsItemSpacing = 16.0;
