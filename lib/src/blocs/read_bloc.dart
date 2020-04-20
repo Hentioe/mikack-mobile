@@ -1,12 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:synchronized/synchronized.dart';
 import 'package:tuple/tuple.dart';
 
 import 'read_event.dart';
 import 'read_state.dart';
 import '../helper/compute_ext.dart';
+import '../../store.dart';
+import '../ext.dart';
 
 class ReadBloc extends Bloc<ReadEvent, ReadState> {
   final models.Platform platform;
@@ -21,7 +26,7 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
   ReadState get initialState => ReadLoadedState(
         isShowToolbar: false,
         isLoading: true,
-        currentPage: 1,
+        currentPage: 0,
         pages: const [],
       );
 
@@ -48,11 +53,9 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
           pageIterator: castedEvent.pageIterator,
         );
         // 载入第一页
-        _fetchNextPage(castedEvent.pageIterator).then((address) {
-          add(ReadPageLoadedEvent(page: address));
-        }).catchError((e) {
-          print(e);
-        });
+        add(ReadNextPageEvent(page: 1));
+        // 添加到阅读历史
+        addHistory(castedEvent.chapter);
         break;
       case ReadNextPageEvent: // 请求下一页
         var castedEvent = event as ReadNextPageEvent;
@@ -62,6 +65,7 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
           _fetchNextPage(stateSnapshot.pageIterator).then((address) {
             add(ReadPageLoadedEvent(page: address));
           }).catchError((e) {
+            // TODO: 响应翻页错误
             print(e);
           });
         }
@@ -83,6 +87,31 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
     }
   }
 
+  // 添加阅读历史
+  Future<void> addHistory(models.Chapter chapter) async {
+    var history = await getHistory(address: chapter.url);
+    if (history != null) {
+      // 如果存在阅读历史，仅更新（并强制可见）
+      history.title = chapter.title;
+      history.homeUrl = comic.url;
+      history.cover = comic.cover;
+      history.displayed = true;
+      await updateHistory(history);
+    } else {
+      // 创建阅读历史
+      var source = await platform.toSavedSource();
+      var history = History(
+        sourceId: source.id,
+        title: chapter.title,
+        homeUrl: comic.url,
+        address: chapter.url,
+        cover: comic.cover,
+        displayed: true,
+      );
+      await insertHistory(history);
+    }
+  }
+
   Future<Tuple2<ValuePageIterator, models.Chapter>> _createPageIterator(
     models.Platform platform,
     models.Chapter chapter,
@@ -90,10 +119,13 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
     return await compute(_createPageIteratorTask, Tuple2(platform, chapter));
   }
 
+  final lock = Lock(); // 同步调用迭代器（当前必须）
+
   Future<String> _fetchNextPage(models.PageIterator pageIterator) async {
-    var address =
-        await compute(_getNextAddressTask, pageIterator.asValuePageIterator());
-    return address;
+    return lock.synchronized(() async {
+      return await compute(
+          _getNextAddressTask, pageIterator.asValuePageIterator());
+    });
   }
 
   @override
