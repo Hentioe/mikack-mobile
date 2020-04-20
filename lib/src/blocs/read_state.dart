@@ -6,6 +6,7 @@ abstract class ReadState extends Equatable {}
 
 class ReadLoadedState extends ReadState {
   final bool error;
+  final bool isLeftHandMode;
   final bool isShowToolbar;
   final models.Chapter chapter;
   final models.PageIterator pageIterator;
@@ -16,6 +17,7 @@ class ReadLoadedState extends ReadState {
 
   ReadLoadedState({
     this.error = false,
+    @required this.isLeftHandMode,
     @required this.isShowToolbar,
     this.chapter,
     this.pageIterator,
@@ -28,6 +30,7 @@ class ReadLoadedState extends ReadState {
   @override
   List<Object> get props => [
         error,
+        isLeftHandMode,
         isShowToolbar,
         chapter,
         pageIterator,
@@ -39,6 +42,7 @@ class ReadLoadedState extends ReadState {
 
   ReadLoadedState copyWith({
     bool error,
+    bool isLeftHandMode,
     bool isShowToolbar,
     models.Chapter chapter,
     models.PageIterator pageIterator,
@@ -49,6 +53,7 @@ class ReadLoadedState extends ReadState {
   }) =>
       ReadLoadedState(
         error: error ?? this.error,
+        isLeftHandMode: isLeftHandMode ?? this.isLeftHandMode,
         isShowToolbar: isShowToolbar ?? this.isShowToolbar,
         chapter: chapter ?? this.chapter,
         pageIterator: pageIterator ?? this.pageIterator,

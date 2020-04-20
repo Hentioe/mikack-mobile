@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:quiver/iterables.dart';
 
+import '../helper/chrome.dart';
 import '../blocs.dart';
 import '../widget/outline_text.dart';
 import '../widget/text_hint.dart';
@@ -43,7 +45,10 @@ class _ReadPage2State extends State<ReadPage2> {
   @override
   void initState() {
     bloc = ReadBloc(platform: widget.platform, comic: widget.comic);
+    // 创建页面迭代器
     bloc.add(ReadCreatePageIteratorEvent(chapter: widget.chapter));
+    // 读取设置
+    bloc.add(ReadSettingsRequestEvent());
     super.initState();
   }
 
@@ -51,6 +56,24 @@ class _ReadPage2State extends State<ReadPage2> {
   void dispose() {
     bloc.close();
     super.dispose();
+  }
+
+  void _handleSliderChange(double value) {
+    var page = value.toInt();
+    var stateSnapshot = bloc.state as ReadLoadedState;
+    pageController.jumpToPage(page);
+    bloc.add(ReadCurrentPageForceChangedEvent(page: page));
+
+    if (page > stateSnapshot.preFetchAt) // 非滑动过渡页面，直接跳转页码，自动加载中间空白页面
+      for (var i in range(page - stateSnapshot.preFetchAt)) {
+        bloc.add(
+          ReadNextPageEvent(
+            page: stateSnapshot.preFetchAt + i + 1,
+            isPreFetch: false,
+            isChangeCurrentPage: false,
+          ),
+        );
+      }
   }
 
   void _handlePageChange(int page) {
@@ -65,6 +88,53 @@ class _ReadPage2State extends State<ReadPage2> {
     } else {
       // 上一页
       bloc.add(ReadPrevPageEvent());
+    }
+  }
+
+  _animateNextPage() {
+    pageController.nextPage(
+      duration: Duration(milliseconds: 80),
+      curve: Curves.easeInCubic,
+    );
+  }
+
+  _animatePrevPage() {
+    pageController.previousPage(
+      duration: Duration(milliseconds: 80),
+      curve: Curves.easeInCubic,
+    );
+  }
+
+  void _handleGlobalTapUp(TapUpDetails details) {
+    var stateSnapshot = bloc.state as ReadLoadedState;
+    if (stateSnapshot.isLoading) return;
+    var centerX = MediaQuery.of(context).size.width / 2;
+    var centerY = MediaQuery.of(context).size.height / 2;
+    var x = details.globalPosition.dx;
+    var y = details.globalPosition.dy;
+
+    // 中下区域（显示翻页工具栏）
+    if (y > centerY && x > centerX - 100 && x < centerX + 100) {
+      if (!stateSnapshot.isShowToolbar) {
+        showSystemUI();
+      } else
+        hiddenSystemUI();
+      bloc.add(ReadToolbarDisplayStatusChangedEvent());
+      return;
+    }
+    // 切换页面
+    if (centerX > x) {
+      // 左屏幕（默认上一页，左手模式相反）
+      if (stateSnapshot.isLeftHandMode)
+        _animateNextPage();
+      else
+        _animatePrevPage();
+    } else {
+      // 右屏幕（默认下一页，左手模式相反）
+      if (stateSnapshot.isLeftHandMode)
+        _animatePrevPage();
+      else
+        _animateNextPage();
     }
   }
 
@@ -254,9 +324,7 @@ class _ReadPage2State extends State<ReadPage2> {
         min: 1.0,
         max: pageTotal.toDouble(),
         label: '$currentPage',
-        onChanged: (_) {
-          // TODO: 处理翻页工具栏滑动翻页
-        },
+        onChanged: _handleSliderChange,
       ),
     );
   }
@@ -393,9 +461,7 @@ class _ReadPage2State extends State<ReadPage2> {
                           _buildPageInfoView(),
                         ],
                       ),
-                      onTapUp: (detail) {
-                        // TODO: 处理触摸翻页
-                      },
+                      onTapUp: _handleGlobalTapUp,
                     ),
             );
           },

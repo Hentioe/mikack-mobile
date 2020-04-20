@@ -34,14 +34,39 @@ class ReadPageLoadedEvent extends ReadEvent {
 
 class ReadNextPageEvent extends ReadEvent {
   final int page;
+  final bool isPreFetch;
+  final bool isChangeCurrentPage;
 
-  ReadNextPageEvent({@required this.page});
+  ReadNextPageEvent({
+    @required this.page,
+    this.isPreFetch = true,
+    this.isChangeCurrentPage = true,
+  });
 
   @override
-  List<Object> get props => [page];
+  List<Object> get props => [page, isPreFetch, isChangeCurrentPage];
 }
 
 class ReadPrevPageEvent extends ReadEvent {
   @override
   List<Object> get props => [];
+}
+
+class ReadSettingsRequestEvent extends ReadEvent {
+  @override
+  List<Object> get props => [];
+}
+
+class ReadToolbarDisplayStatusChangedEvent extends ReadEvent {
+  @override
+  List<Object> get props => [];
+}
+
+class ReadCurrentPageForceChangedEvent extends ReadEvent {
+  final int page;
+
+  ReadCurrentPageForceChangedEvent({@required this.page});
+
+  @override
+  List<Object> get props => [page];
 }
