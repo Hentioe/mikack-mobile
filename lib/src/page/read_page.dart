@@ -298,18 +298,49 @@ class _ReadPage2State extends State<ReadPage2> {
         systemNavigationBarColor: Colors.black,
         systemNavigationBarIconBrightness: Brightness.light,
       ),
-      child: BlocListener<ReadBloc, ReadState>(
-        bloc: bloc,
-        // 章节发生变化（创建了新迭代器）
-        condition: (prevState, state) {
-          if (prevState is ReadLoadedState && state is ReadLoadedState) {
-            return prevState.chapter != state.chapter;
-          } else
-            return false;
-        },
-        listener: (context, state) {
-          pageController = PageController(initialPage: 1);
-        },
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<ReadBloc, ReadState>(
+            bloc: bloc,
+            // 章节发生变化（创建了新迭代器）
+            condition: (prevState, state) {
+              if (prevState is ReadLoadedState && state is ReadLoadedState) {
+                return prevState.chapter != state.chapter;
+              } else
+                return false;
+            },
+            listener: (context, state) {
+              pageController = PageController(initialPage: 1);
+            },
+          ),
+          BlocListener<ReadBloc, ReadState>(
+            bloc: bloc,
+            // 预加载提前缓存图片
+            condition: (prevState, state) {
+              if (prevState != bloc.initialState &&
+                  prevState is ReadLoadedState &&
+                  state is ReadLoadedState) {
+                // 页面数量有变化，但当前页码没变（需剔除直接加载的第一个页面）
+                return prevState.pages.length > 0 &&
+                    prevState.pages.length != state.pages.length &&
+                    prevState.currentPage == state.currentPage;
+              } else
+                return false;
+            },
+            listener: (context, state) {
+              var stateSnapshot = state as ReadLoadedState;
+              // 预缓存图片资源
+              precacheImage(
+                ExtendedImage.network(
+                  stateSnapshot.pages.last,
+                  headers: stateSnapshot.chapter.pageHeaders,
+                  cache: true,
+                ).image,
+                context,
+              );
+            },
+          ),
+        ],
         child: BlocBuilder<ReadBloc, ReadState>(
           bloc: bloc,
           builder: (context, state) {

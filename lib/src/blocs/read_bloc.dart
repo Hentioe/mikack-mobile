@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:quiver/iterables.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:tuple/tuple.dart';
 
@@ -51,6 +50,7 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
           isLoading: false,
           chapter: castedEvent.chapter,
           pageIterator: castedEvent.pageIterator,
+          preFetchAt: 0,
         );
         // 载入第一页
         add(ReadNextPageEvent(page: 1));
@@ -60,14 +60,25 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
       case ReadNextPageEvent: // 请求下一页
         var castedEvent = event as ReadNextPageEvent;
         var stateSnapshot = state as ReadLoadedState;
-        if (castedEvent.page > stateSnapshot.pages.length) {
-          // 载入下一页
-          _fetchNextPage(stateSnapshot.pageIterator).then((address) {
-            add(ReadPageLoadedEvent(page: address));
-          }).catchError((e) {
-            // TODO: 响应翻页错误
-            print(e);
-          });
+        if (castedEvent.page > stateSnapshot.pages.length ||
+            castedEvent.page > stateSnapshot.preFetchAt - 2) {
+          // 载入下一页（包括预加载）
+          for (var _ in range(3)) {
+            if (stateSnapshot.preFetchAt + 1 <=
+                stateSnapshot.chapter.pageCount) {
+              // 自增预加载位置
+              stateSnapshot = stateSnapshot.copyWith(
+                  preFetchAt: stateSnapshot.preFetchAt + 1);
+              yield stateSnapshot;
+              // 获取下一页
+              _fetchNextPage(stateSnapshot.pageIterator).then((address) {
+                add(ReadPageLoadedEvent(page: address));
+              }).catchError((e) {
+                // TODO: 响应翻页错误
+                print(e);
+              });
+            }
+          }
         }
         // 修改页码
         yield stateSnapshot.copyWith(

@@ -12,6 +12,7 @@ class ReadLoadedState extends ReadState {
   final bool isLoading;
   final int currentPage;
   final List<String> pages;
+  final int preFetchAt;
 
   ReadLoadedState({
     this.error = false,
@@ -21,6 +22,7 @@ class ReadLoadedState extends ReadState {
     @required this.isLoading,
     @required this.currentPage,
     @required this.pages,
+    this.preFetchAt = 0,
   });
 
   @override
@@ -31,7 +33,8 @@ class ReadLoadedState extends ReadState {
         pageIterator,
         isLoading,
         currentPage,
-        pages
+        pages,
+        preFetchAt,
       ];
 
   ReadLoadedState copyWith({
@@ -42,6 +45,7 @@ class ReadLoadedState extends ReadState {
     bool isLoading,
     int currentPage,
     List<String> pages,
+    int preFetchAt,
   }) =>
       ReadLoadedState(
         error: error ?? this.error,
@@ -51,5 +55,6 @@ class ReadLoadedState extends ReadState {
         isLoading: isLoading ?? this.isLoading,
         currentPage: currentPage ?? this.currentPage,
         pages: pages ?? this.pages,
+        preFetchAt: preFetchAt ?? this.preFetchAt,
       );
 }
