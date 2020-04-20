@@ -167,6 +167,7 @@ class _Read2PageState extends State<_Read2Page> {
   void fetchNextPage({preCount = 2}) async {
     // 同步资源下载和地址池写入
     if (!mounted) return;
+    if (!mounted) return;
     await lock.synchronized(() async {
       if (!mounted) return;
       if (_pages.length >= _chapter.pageCount) return;

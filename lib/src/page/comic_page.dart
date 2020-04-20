@@ -10,7 +10,7 @@ import '../widget/series_system_ui.dart';
 import './comic_tabs/info_tab.dart';
 import './comic_tabs/chapters_tab.dart';
 
-import '../../pages/read2.dart';
+import '../page/read_page.dart';
 import '../helper/chrome.dart';
 
 class ComicPage2 extends StatefulWidget {
@@ -102,22 +102,20 @@ class ComicPage2State extends State<ComicPage2>
           BuildContext context, models.Comic latestComic) =>
       (models.Chapter chapter) async {
         // 查找上一章
-        var tmpChapters =
-            latestComic.chapters.where((c) => c.which == chapter.which - 1);
-        var prevChapter = tmpChapters.length == 0 ? null : tmpChapters.first;
-        // 查找下一章
-        tmpChapters =
-            latestComic.chapters.where((c) => c.which == chapter.which + 1);
-        var nextChapter = tmpChapters.length == 0 ? null : tmpChapters.first;
+//        var tmpChapters =
+//            latestComic.chapters.where((c) => c.which == chapter.which - 1);
+//        var prevChapter = tmpChapters.length == 0 ? null : tmpChapters.first;
+//        // 查找下一章
+//        tmpChapters =
+//            latestComic.chapters.where((c) => c.which == chapter.which + 1);
+//        var nextChapter = tmpChapters.length == 0 ? null : tmpChapters.first;
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => Read2Page(
+            builder: (_) => ReadPage2(
               platform: widget.platform,
               comic: widget.comic,
               chapter: chapter,
-              prevChapter: prevChapter,
-              nextChapter: nextChapter,
             ),
           ),
         ).then((r) {

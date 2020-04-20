@@ -19,3 +19,6 @@ export 'blocs/settings_state.dart';
 export 'blocs/index_bloc.dart';
 export 'blocs/index_event.dart';
 export 'blocs/index_state.dart';
+export 'blocs/read_bloc.dart';
+export 'blocs/read_event.dart';
+export 'blocs/read_state.dart';
