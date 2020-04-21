@@ -17,6 +17,7 @@ import '../helper/compute_ext.dart';
 import '../../store.dart';
 import '../ext.dart';
 import '../values.dart';
+import '../exceptions.dart';
 
 final _log = Logger('ReadBloc');
 
@@ -42,6 +43,7 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
       );
 
   ReceivePort _nextPageResultPort; // 留下 port 用以通信释放迭代器
+  bool _pageIteratorIsFreed = false;
 
   @override
   Stream<ReadState> mapEventToState(ReadEvent event) async* {
@@ -55,6 +57,7 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
             .copyWith(isLeftHandMode: isLeftHandMode);
         break;
       case ReadCreatePageIteratorEvent: // 创建迭代器
+        _pageIteratorIsFreed = false;
         var castedEvent = event as ReadCreatePageIteratorEvent;
         _createPageIterator(platform, castedEvent.chapter)
             .then((createdPageIterator) {
@@ -150,14 +153,14 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
         break;
       case ReadFreeEvent: // 释放迭代器
         clearGestureDetailsCache();
+        _pageIteratorIsFreed = true;
         var castedEvent = event as ReadFreeEvent;
         if (castedEvent.pageIterator != null) {
           if (_nextPageResultPort != null) {
             // 以通信的方式安全释放迭代器内存（注意，需要保证迭代器 API 非并发调用）
-            _nextPageResultPort.sendPort.send(Tuple2(
-              ComputeController.destroyCommand,
-              castedEvent.pageIterator.asValuePageIterator(),
-            ));
+            var destroyCommand = Tuple2(ComputeController.destroyCommand,
+                castedEvent.pageIterator.asValuePageIterator());
+            _nextPageResultPort.sendPort.send(destroyCommand);
           } else {
             // 直接释放迭代器内存
             castedEvent.pageIterator.free();
@@ -204,6 +207,8 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
 
   Future<String> _fetchNextPage(models.PageIterator pageIterator) async {
     return lock.synchronized(() async {
+      if (_pageIteratorIsFreed)
+        throw PageIteratorException('Iterator is freed');
       var controller = await createComputeController(
           _getNextAddressTask, pageIterator.asValuePageIterator());
       _nextPageResultPort = controller.resultPort;
