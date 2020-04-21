@@ -106,16 +106,9 @@ class _UpdatesSheetState extends State<UpdatesSheet> {
           Text(
             '发现新版：${widget.release.tagName}',
             style: TextStyle(
-              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
-          ),
-          Divider(
-            indent: 80,
-            endIndent: 80,
-            color: Colors.grey[300],
-            thickness: 1,
           ),
           Expanded(
             child: Markdown(data: widget.release.body),

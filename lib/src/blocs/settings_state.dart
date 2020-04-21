@@ -10,7 +10,7 @@ class SettingsLoadedSate extends SettingsState {
   final bool leftHand;
   final bool allowNsfw;
   final bool chaptersReversed;
-  final int cachedImageSize;
+  final double cachedImageSize;
   final int historiesTotal;
   final int favoritesTotal;
 
@@ -43,7 +43,7 @@ class SettingsLoadedSate extends SettingsState {
     bool leftHand,
     bool allowNsfw,
     bool chaptersReversed,
-    int cachedImageSize,
+    double cachedImageSize,
     int historiesTotal,
     int favoritesTotal,
   }) {

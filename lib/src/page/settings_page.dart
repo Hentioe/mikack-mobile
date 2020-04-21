@@ -238,13 +238,16 @@ class _SettingsPageState extends State<SettingsPage2> {
                     children: [
                       _SettingItem(
                         '清空图片缓存',
+                        subtitle: castedState.cachedImageSize > 0.0
+                            ? '占用 ${castedState.cachedImageSize.toStringAsFixed(2)} MB'
+                            : '缓存是空的',
                         onTap: _handleCleanupTap(
                             context, SettingsCleanupType.cachedImages),
                       ),
                       _SettingItem('清空历史记录',
                           subtitle: castedState.historiesTotal > 0
                               ? '存在 ${castedState.historiesTotal} 条可见历史'
-                              : '没有阅读记录',
+                              : '阅读历史是空的',
                           onTap: _handleCleanupTap(
                               context, SettingsCleanupType.histories)),
                       _SettingItem('清空书架收藏',

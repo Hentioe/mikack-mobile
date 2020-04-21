@@ -35,6 +35,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         var historiesTotal = await getHistoriesTotal();
         // 读取：书架收藏数量
         var favoritesTotal = await getFavoritesTotal();
+        // 读取：缓存大小
+        var cachedImageSize = await getCachedSizeBytes() / 1024 / 1024;
         // 读取：版本信息
         var packageInfo = await PackageInfo.fromPlatform();
 
@@ -43,6 +45,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           leftHand: leftHand,
           allowNsfw: allowNsfw,
           chaptersReversed: chaptersReversed,
+          cachedImageSize: cachedImageSize,
           historiesTotal: historiesTotal,
           favoritesTotal: favoritesTotal,
           packageInfo: packageInfo,
@@ -89,9 +92,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
             yield castedState.copyWith(favoritesTotal: 0);
             break;
           case SettingsCleanupType.cachedImages: // 缓存的图片
+            clearMemoryImageCache();
             await clearDiskCachedImages();
-            yield castedState.copyWith(
-                cachedImageSize: castedState.cachedImageSize - 1);
+            yield castedState.copyWith(cachedImageSize: 0.0);
             break;
         }
         break;
