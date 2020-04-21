@@ -64,8 +64,12 @@ class UpdatesFragment2 extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ComicPage2(
-                platform: platform, comic: comic, appContext: context),
+            builder: (context) => ComicPage(
+              initPageIndex: 1,
+              platform: platform,
+              comic: comic,
+              appContext: context,
+            ),
           ),
         ).then((_) => BlocProvider.of<UpdatesBloc>(context)
             .add(UpdatesRequestEvent.local()));

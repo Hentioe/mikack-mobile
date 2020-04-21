@@ -12,21 +12,27 @@ import './comic_tabs/chapters_tab.dart';
 import '../page/read_page.dart';
 import '../helper/chrome.dart';
 
-class ComicPage2 extends StatefulWidget {
+class ComicPage extends StatefulWidget {
+  final int initPageIndex;
   final models.Platform platform;
   final models.Comic comic;
 
   final BuildContext appContext;
 
-  ComicPage2({@required this.platform, @required this.comic, this.appContext});
+  ComicPage({
+    this.initPageIndex = 0,
+    @required this.platform,
+    @required this.comic,
+    this.appContext,
+  });
 
   @override
-  State<StatefulWidget> createState() => ComicPage2State();
+  State<StatefulWidget> createState() => ComicPageState();
 
   static final moreMenus = {'在浏览器中打开': 1, '清空已阅读记录': 2};
 }
 
-class ComicPage2State extends State<ComicPage2>
+class ComicPageState extends State<ComicPage>
     with SingleTickerProviderStateMixin {
   ComicBloc bloc;
   TabController tabController;
@@ -35,7 +41,11 @@ class ComicPage2State extends State<ComicPage2>
   void initState() {
     bloc = ComicBloc(platform: widget.platform, comic: widget.comic);
     bloc.add(ComicRequestEvent());
-    tabController = TabController(length: 2, vsync: this);
+    tabController = TabController(
+        length: 2, vsync: this, initialIndex: widget.initPageIndex);
+    // 手动更新 actions
+    bloc.add(ComicTabChangedEvent(index: widget.initPageIndex));
+    // 添加切换 tab 时间（更新 actions）
     tabController.addListener(() {
       bloc.add(ComicTabChangedEvent(index: tabController.index));
     });
@@ -76,7 +86,7 @@ class ComicPage2State extends State<ComicPage2>
       tooltip: '更多功能',
       icon: Icon(Icons.more_vert),
       onSelected: (value) => _handleMenuSelect(value, latestComic: latestComic),
-      itemBuilder: (BuildContext context) => ComicPage2.moreMenus.entries
+      itemBuilder: (BuildContext context) => ComicPage.moreMenus.entries
           .map((entry) => PopupMenuItem(
                 value: entry.value,
                 child: Text(entry.key),

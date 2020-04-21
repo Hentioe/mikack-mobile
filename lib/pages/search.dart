@@ -346,7 +346,7 @@ class _SearchPageState extends State<SearchPage> {
                                       onTap: (_) => Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) => ComicPage2(
+                                          builder: (_) => ComicPage(
                                             platform: entry.key,
                                             comic: entry.value[index].comic,
                                             appContext: widget.appContext,

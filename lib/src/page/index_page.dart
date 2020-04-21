@@ -61,7 +61,7 @@ class _IndexPageState extends State<IndexPage2> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            ComicPage2(platform: widget.platform, comic: comic),
+            ComicPage(platform: widget.platform, comic: comic),
       ),
     );
   }
