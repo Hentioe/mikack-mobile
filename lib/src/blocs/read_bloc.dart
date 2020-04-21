@@ -1,5 +1,6 @@
 import 'dart:isolate';
 
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
@@ -148,6 +149,7 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
             .copyWith(currentPage: castedEvent.page);
         break;
       case ReadFreeEvent: // 释放迭代器
+        clearGestureDetailsCache();
         var castedEvent = event as ReadFreeEvent;
         if (castedEvent.pageIterator != null) {
           if (_nextPageResultPort != null) {
