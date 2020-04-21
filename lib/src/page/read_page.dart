@@ -24,19 +24,20 @@ const _connectingIndicatorColor = Color.fromARGB(255, 115, 115, 115);
 class ReadPage2 extends StatefulWidget {
   final models.Platform platform;
   final models.Comic comic;
-  final models.Chapter chapter;
+  final List<models.Chapter> chapters;
+  final int initChapterReadAt;
 
   ReadPage2({
     @required this.platform,
     @required this.comic,
-    @required this.chapter,
+    @required this.chapters,
+    @required this.initChapterReadAt,
   });
 
   @override
   State<StatefulWidget> createState() => _ReadPage2State();
 }
 
-/// TODO: 确保迭代器被释放
 class _ReadPage2State extends State<ReadPage2> {
   ReadBloc bloc;
 
@@ -44,9 +45,16 @@ class _ReadPage2State extends State<ReadPage2> {
 
   @override
   void initState() {
-    bloc = ReadBloc(platform: widget.platform, comic: widget.comic);
+    bloc = ReadBloc(
+      platform: widget.platform,
+      comic: widget.comic,
+      chapterReadAt: widget.initChapterReadAt,
+    );
     // 创建页面迭代器
-    bloc.add(ReadCreatePageIteratorEvent(chapter: widget.chapter));
+    bloc.add(ReadCreatePageIteratorEvent(
+      chapterReadAt: widget.initChapterReadAt,
+      chapter: widget.chapters[widget.initChapterReadAt],
+    ));
     // 读取设置
     bloc.add(ReadSettingsRequestEvent());
     super.initState();
@@ -54,7 +62,11 @@ class _ReadPage2State extends State<ReadPage2> {
 
   @override
   void dispose() {
+    var stateSnapshot = bloc.state as ReadLoadedState;
+    // 释放迭代器
+    bloc.add(ReadFreeEvent(pageIterator: stateSnapshot.pageIterator));
     bloc.close();
+    pageController?.dispose();
     super.dispose();
   }
 
@@ -210,16 +222,21 @@ class _ReadPage2State extends State<ReadPage2> {
   );
 
   Widget _buildPreviewChapter(ChapterPreviewDirection direction) {
+    var stateSnapshot = bloc.state as ReadLoadedState;
     var directionText;
-    var previewChapter;
+    int chapterReadAt;
+    models.Chapter previewChapter;
     switch (direction) {
       case ChapterPreviewDirection.prev:
         directionText = '上';
-//        previewChapter = widget.prevChapter;
+        chapterReadAt = stateSnapshot.chapterReadAt - 1;
+        if (chapterReadAt >= 0) previewChapter = widget.chapters[chapterReadAt];
         break;
       case ChapterPreviewDirection.next:
         directionText = '下';
-//        previewChapter = widget.nextChapter;
+        chapterReadAt = stateSnapshot.chapterReadAt + 1;
+        if (chapterReadAt < widget.chapters.length)
+          previewChapter = widget.chapters[chapterReadAt];
         break;
     }
     if (previewChapter == null)
@@ -234,7 +251,15 @@ class _ReadPage2State extends State<ReadPage2> {
         SizedBox(height: 10),
         MaterialButton(
           child: Text(previewChapter.title, style: chapterInfoStyle),
-          onPressed: () => Navigator.pop(context, previewChapter),
+          onPressed: () {
+            // 释放旧迭代其
+            bloc.add(ReadFreeEvent(pageIterator: stateSnapshot.pageIterator));
+            // 创建新页面迭代器
+            bloc.add(ReadCreatePageIteratorEvent(
+              chapterReadAt: chapterReadAt,
+              chapter: previewChapter,
+            ));
+          },
         ),
       ],
     );
@@ -288,7 +313,7 @@ class _ReadPage2State extends State<ReadPage2> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.comic.title.isEmpty ? '阅读历史' : widget.comic.title,
+                widget.comic.title.isEmpty ? '历史阅读' : widget.comic.title,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,

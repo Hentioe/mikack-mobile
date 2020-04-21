@@ -1,4 +1,7 @@
+import 'dart:isolate';
+
 import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
 import 'package:mikack/models.dart' as models;
@@ -14,13 +17,17 @@ import '../../store.dart';
 import '../ext.dart';
 import '../values.dart';
 
+final _log = Logger('ReadBloc');
+
 class ReadBloc extends Bloc<ReadEvent, ReadState> {
   final models.Platform platform;
   final models.Comic comic;
+  final int chapterReadAt;
 
   ReadBloc({
     @required this.platform,
     @required this.comic,
+    @required this.chapterReadAt,
   });
 
   @override
@@ -28,9 +35,12 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
         isLeftHandMode: false,
         isShowToolbar: false,
         isLoading: true,
+        chapterReadAt: chapterReadAt,
         currentPage: 0,
         pages: const [],
       );
+
+  ReceivePort _nextPageResultPort; // 留下 port 用以通信释放内存
 
   @override
   Stream<ReadState> mapEventToState(ReadEvent event) async* {
@@ -48,12 +58,17 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
         _createPageIterator(platform, castedEvent.chapter)
             .then((createdPageIterator) {
           add(ReadChapterLoadedEvent(
-            chapter: createdPageIterator.item2,
+            chapterReadAt: castedEvent.chapterReadAt,
             pageIterator: createdPageIterator.item1.asPageIterator(),
+            chapter: createdPageIterator.item2,
           ));
         }).catchError((e) {
           print(e);
         });
+        // 清空数据
+        yield (initialState as ReadLoadedState).copyWith(
+          chapterReadAt: castedEvent.chapterReadAt,
+        );
         break;
       case ReadChapterLoadedEvent: // 章节数据装载
         var castedEvent = event as ReadChapterLoadedEvent;
@@ -61,7 +76,6 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
           isLoading: false,
           chapter: castedEvent.chapter,
           pageIterator: castedEvent.pageIterator,
-          preFetchAt: 0,
         );
         // 载入第一页
         add(ReadNextPageEvent(page: 1));
@@ -133,6 +147,22 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
         yield (state as ReadLoadedState)
             .copyWith(currentPage: castedEvent.page);
         break;
+      case ReadFreeEvent: // 释放迭代器
+        var castedEvent = event as ReadFreeEvent;
+        if (castedEvent.pageIterator != null) {
+          if (_nextPageResultPort != null) {
+            // 以通信的方式安全释放迭代器内存（注意，需要保证迭代器 API 非并发调用）
+            _nextPageResultPort.sendPort.send(Tuple2(
+              ComputeController.destroyCommand,
+              castedEvent.pageIterator.asValuePageIterator(),
+            ));
+          } else {
+            // 直接释放迭代器内存
+            castedEvent.pageIterator.free();
+            _log.info('Iterator is freed');
+          }
+        }
+        break;
     }
   }
 
@@ -172,8 +202,12 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
 
   Future<String> _fetchNextPage(models.PageIterator pageIterator) async {
     return lock.synchronized(() async {
-      return await compute(
+      var controller = await createComputeController(
           _getNextAddressTask, pageIterator.asValuePageIterator());
+      _nextPageResultPort = controller.resultPort;
+      var address = await controllableCompute(controller);
+      _nextPageResultPort = null;
+      return address;
     });
   }
 

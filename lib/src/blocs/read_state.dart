@@ -8,6 +8,7 @@ class ReadLoadedState extends ReadState {
   final bool error;
   final bool isLeftHandMode;
   final bool isShowToolbar;
+  final int chapterReadAt;
   final models.Chapter chapter;
   final models.PageIterator pageIterator;
   final bool isLoading;
@@ -19,6 +20,7 @@ class ReadLoadedState extends ReadState {
     this.error = false,
     @required this.isLeftHandMode,
     @required this.isShowToolbar,
+    @required this.chapterReadAt,
     this.chapter,
     this.pageIterator,
     @required this.isLoading,
@@ -32,6 +34,7 @@ class ReadLoadedState extends ReadState {
         error,
         isLeftHandMode,
         isShowToolbar,
+        chapterReadAt,
         chapter,
         pageIterator,
         isLoading,
@@ -44,6 +47,7 @@ class ReadLoadedState extends ReadState {
     bool error,
     bool isLeftHandMode,
     bool isShowToolbar,
+    int chapterReadAt,
     models.Chapter chapter,
     models.PageIterator pageIterator,
     bool isLoading,
@@ -55,6 +59,7 @@ class ReadLoadedState extends ReadState {
         error: error ?? this.error,
         isLeftHandMode: isLeftHandMode ?? this.isLeftHandMode,
         isShowToolbar: isShowToolbar ?? this.isShowToolbar,
+        chapterReadAt: chapterReadAt ?? this.chapterReadAt,
         chapter: chapter ?? this.chapter,
         pageIterator: pageIterator ?? this.pageIterator,
         isLoading: isLoading ?? this.isLoading,

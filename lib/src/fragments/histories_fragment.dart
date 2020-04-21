@@ -6,8 +6,8 @@ import '../blocs.dart';
 import '../values.dart';
 import '../../store.dart';
 import '../platform_list.dart';
-import '../../pages/read2.dart';
 import '../helper/chrome.dart';
+import '../page/read_page.dart';
 
 const _historiesCoverWidth = 90.0;
 const _historiesCoverHeight = _historiesCoverWidth / coverRatio;
@@ -25,10 +25,11 @@ class HistoriesFragment2 extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Read2Page(
+              builder: (context) => ReadPage2(
                 platform: platform,
                 comic: history.asComic(),
-                chapter: history.asChapter(),
+                initChapterReadAt: 0,
+                chapters: [history.asChapter()],
               ),
             ),
           ).then((_) {

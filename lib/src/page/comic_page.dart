@@ -9,7 +9,6 @@ import '../blocs.dart';
 import '../widget/series_system_ui.dart';
 import './comic_tabs/info_tab.dart';
 import './comic_tabs/chapters_tab.dart';
-
 import '../page/read_page.dart';
 import '../helper/chrome.dart';
 
@@ -101,32 +100,26 @@ class ComicPage2State extends State<ComicPage2>
   Function(models.Chapter) _handleOpenReadPage(
           BuildContext context, models.Comic latestComic) =>
       (models.Chapter chapter) async {
-        // 查找上一章
-//        var tmpChapters =
-//            latestComic.chapters.where((c) => c.which == chapter.which - 1);
-//        var prevChapter = tmpChapters.length == 0 ? null : tmpChapters.first;
-//        // 查找下一章
-//        tmpChapters =
-//            latestComic.chapters.where((c) => c.which == chapter.which + 1);
-//        var nextChapter = tmpChapters.length == 0 ? null : tmpChapters.first;
+        var stateSnapshot = bloc.state as ComicLoadedState;
+        var position = 0;
+        stateSnapshot.comic.chapters.asMap().forEach((i, c) {
+          if (c == chapter) position = i;
+        });
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => ReadPage2(
               platform: widget.platform,
               comic: widget.comic,
-              chapter: chapter,
+              chapters: stateSnapshot.comic.chapters,
+              initChapterReadAt: position,
             ),
           ),
         ).then((r) {
-          if (r is models.Chapter)
-            _handleOpenReadPage(context, latestComic)(r);
-          else {
-            restoreStatusBarColor();
-            showSystemUI();
-            // 更新阅读历史记录
-            bloc.add(ComicReadHistoriesUpdateEvent());
-          }
+          restoreStatusBarColor();
+          showSystemUI();
+          // 更新阅读历史记录
+          bloc.add(ComicReadHistoriesUpdateEvent());
         });
       };
 
