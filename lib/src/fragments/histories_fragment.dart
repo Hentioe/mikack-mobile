@@ -25,7 +25,7 @@ class HistoriesFragment2 extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ReadPage2(
+              builder: (context) => ReadPage(
                 platform: platform,
                 comic: history.asComic(),
                 initChapterReadAt: 0,

@@ -21,13 +21,13 @@ const _pageInfoFontSize = 13.0;
 const _connectionIndicatorSize = 35.0;
 const _connectingIndicatorColor = Color.fromARGB(255, 115, 115, 115);
 
-class ReadPage2 extends StatefulWidget {
+class ReadPage extends StatefulWidget {
   final models.Platform platform;
   final models.Comic comic;
   final List<models.Chapter> chapters;
   final int initChapterReadAt;
 
-  ReadPage2({
+  ReadPage({
     @required this.platform,
     @required this.comic,
     @required this.chapters,
@@ -35,10 +35,10 @@ class ReadPage2 extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => _ReadPage2State();
+  State<StatefulWidget> createState() => _ReadPageState();
 }
 
-class _ReadPage2State extends State<ReadPage2> {
+class _ReadPageState extends State<ReadPage> {
   ReadBloc bloc;
 
   PageController pageController;
@@ -403,7 +403,10 @@ class _ReadPage2State extends State<ReadPage2> {
                 return false;
             },
             listener: (context, state) {
+              // 初始化 PageController
               pageController = PageController(initialPage: 1);
+              // 全屏
+              hiddenSystemUI();
             },
           ),
           BlocListener<ReadBloc, ReadState>(

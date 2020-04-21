@@ -118,7 +118,7 @@ class ComicPageState extends State<ComicPage>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => ReadPage2(
+            builder: (_) => ReadPage(
               platform: widget.platform,
               comic: widget.comic,
               chapters: stateSnapshot.comic.chapters,

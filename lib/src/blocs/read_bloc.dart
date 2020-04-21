@@ -41,7 +41,7 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
         pages: const [],
       );
 
-  ReceivePort _nextPageResultPort; // 留下 port 用以通信释放内存
+  ReceivePort _nextPageResultPort; // 留下 port 用以通信释放迭代器
 
   @override
   Stream<ReadState> mapEventToState(ReadEvent event) async* {
