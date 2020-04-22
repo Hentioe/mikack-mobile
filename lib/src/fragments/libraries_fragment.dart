@@ -132,7 +132,7 @@ class _Group extends StatelessWidget {
         Text('$title', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
         SizedBox(height: 10),
         platforms.length == 0
-            ? TextHint(emptyHint, color: Colors.grey[350]) // 空列表提示
+            ? TextHint(emptyHint) // 空列表提示
             : Card(
                 margin: EdgeInsets.zero,
                 child: Column(

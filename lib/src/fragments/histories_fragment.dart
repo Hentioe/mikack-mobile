@@ -8,6 +8,7 @@ import '../../store.dart';
 import '../platform_list.dart';
 import '../helper/chrome.dart';
 import '../page/read_page.dart';
+import '../widget/text_hint.dart';
 
 const _historiesCoverWidth = 90.0;
 const _historiesCoverHeight = _historiesCoverWidth / coverRatio;
@@ -44,10 +45,7 @@ class HistoriesFragment2 extends StatelessWidget {
 
   Widget _buildEmptyView() {
     return Center(
-      child: Text(
-        '没有阅读记录',
-        style: TextStyle(fontSize: 18, color: Colors.grey[400]),
-      ),
+      child: TextHint('没有阅读记录'),
     );
   }
 

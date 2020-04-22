@@ -14,20 +14,20 @@ import '../../store.dart';
 import '../ext.dart';
 import '../widget/text_hint.dart';
 
-final _defaultTextStyle = TextStyle(fontSize: 15.5, color: Colors.grey[500]);
+final _defaultTextStyle = TextStyle(fontSize: 15.5, color: Colors.grey[400]);
 const _hintTextFontSize = 14.5;
 const _hintButtonFontWeight = FontWeight.bold;
 final _hintTextStyle =
-    TextStyle(fontSize: _hintTextFontSize, color: Colors.grey[700]);
+    TextStyle(fontSize: _hintTextFontSize, color: Colors.grey[400]);
 final _librariesHintButtonTextStyle = TextStyle(
   fontSize: _hintTextFontSize,
-  color: Colors.grey[700],
+  color: Colors.grey[400],
   fontWeight: _hintButtonFontWeight,
   decoration: TextDecoration.underline,
 );
 final _globalSearchHintButtonTextStyle = TextStyle(
   fontSize: _hintTextFontSize,
-  color: Colors.grey[700],
+  color: Colors.grey[400],
   fontWeight: _hintButtonFontWeight,
   decoration: TextDecoration.underline,
 );
@@ -87,12 +87,12 @@ class BookshelfFragment2 extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SvgPicture.asset('assets/empty_box.svg',
-                    width: 104, color: Colors.grey[500]),
+                    width: 104, color: Colors.grey[400]),
                 Text(
                   '收藏是空的耶',
                   style: _defaultTextStyle,
                 ),
-                Divider(color: Colors.grey[500], indent: 120, endIndent: 120),
+                Divider(color: Colors.grey[400], indent: 120, endIndent: 120),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,

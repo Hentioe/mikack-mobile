@@ -12,7 +12,7 @@ class TextHint extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Text(text,
-          style: TextStyle(fontSize: 18, color: color ?? _defaultFontColor)),
+          style: TextStyle(fontSize: 16, color: color ?? _defaultFontColor)),
     );
   }
 }
