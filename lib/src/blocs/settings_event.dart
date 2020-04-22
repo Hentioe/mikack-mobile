@@ -28,7 +28,12 @@ class ReadingModeChangedEvent extends SettingsEvent {
   List<Object> get props => [readingMode];
 }
 
-enum SettingsSwitchType { leftHand, allowNsfw, reverseChapters }
+enum SettingsSwitchType {
+  leftHandMode,
+  allowNsfw,
+  chaptersReversed,
+  preCaching
+}
 
 class SettingsSwitchedEvent extends SettingsEvent {
   final SettingsSwitchType switchType;
@@ -50,4 +55,13 @@ class SettingsCleanupRequestEvent extends SettingsEvent {
 
   @override
   List<Object> get props => [cleanupType];
+}
+
+class SettingsPreLoadingChangedEvent extends SettingsEvent {
+  final int preLoading;
+
+  SettingsPreLoadingChangedEvent({@required this.preLoading});
+
+  @override
+  List<Object> get props => [preLoading];
 }

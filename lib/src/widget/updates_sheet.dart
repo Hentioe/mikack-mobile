@@ -54,7 +54,7 @@ class _UpdatesSheetState extends State<UpdatesSheet> {
           children: [
             Text('更新中', style: TextStyle(fontSize: 18)),
             LinearProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(primarySwatch),
+              valueColor: AlwaysStoppedAnimation<Color>(vPrimarySwatch),
               backgroundColor: Colors.white,
               value: _progressValue,
             ),

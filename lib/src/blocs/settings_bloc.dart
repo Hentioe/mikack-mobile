@@ -12,11 +12,13 @@ import '../../store.dart';
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   @override
   SettingsState get initialState => SettingsLoadedSate(
-        startPage: StartPageItem(vDefaultPage),
+        startPage: StartPageItem(kDefaultPage),
         allowNsfw: false,
         chaptersReversed: false,
-        leftHand: false,
-        readingMode: ReadingModeItem(vLeftToRight),
+        leftHandMode: false,
+        preLoading: defaultPreLoading,
+        preCaching: true,
+        readingMode: ReadingModeItem(kLeftToRight),
         cachedImageSize: 0,
       );
 
@@ -30,16 +32,20 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         StartPageItem startPage;
         if (startPageKey != null) startPage = StartPageItem(startPageKey);
         // 读取：允许 NSFW
-        var allowNsfw = prefs.getBool(allowNsfwKey);
+        var allowNsfw = prefs.getBool(kAllowNsfw);
         // 读取：反转章节列表
-        var chaptersReversed = prefs.getBool(chaptersReversedKey);
+        var chaptersReversed = prefs.getBool(kChaptersReversed);
         // 读取：阅读模式
         var readingModeKey = prefs.getString(kReadingMode);
         ReadingModeItem readingMode;
         if (readingModeKey != null)
           readingMode = ReadingModeItem(readingModeKey);
-        // 读取：左手翻页
-        var leftHand = prefs.getBool(vLeftHandModeKey);
+        // 读取：左手模式
+        var leftHandMode = prefs.getBool(kLeftHandMode);
+        // 读取：预加载
+        var preLoading = prefs.getInt(kPreLoading);
+        // 读取：预缓存
+        var preCaching = prefs.getBool(kPreCaching);
         // 读取：历史记录数量
         var historiesTotal = await getHistoriesTotal();
         // 读取：书架收藏数量
@@ -53,8 +59,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           startPage: startPage,
           allowNsfw: allowNsfw,
           chaptersReversed: chaptersReversed,
-          leftHand: leftHand,
           readingMode: readingMode,
+          leftHandMode: leftHandMode,
+          preLoading: preLoading,
+          preCaching: preCaching,
           cachedImageSize: cachedImageSize,
           historiesTotal: historiesTotal,
           favoritesTotal: favoritesTotal,
@@ -77,23 +85,35 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         yield (state as SettingsLoadedSate)
             .copyWith(readingMode: castedEvent.readingMode);
         break;
+      case SettingsPreLoadingChangedEvent:
+        var castedEvent = event as SettingsPreLoadingChangedEvent;
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setInt(kPreLoading, castedEvent.preLoading);
+
+        yield (state as SettingsLoadedSate)
+            .copyWith(preLoading: castedEvent.preLoading);
+        break;
       case SettingsSwitchedEvent: // 开关类型的设置变更
         var castedEvent = event as SettingsSwitchedEvent;
         var castedState = state as SettingsLoadedSate;
         var changedValue = castedEvent.changedValue;
         SharedPreferences prefs = await SharedPreferences.getInstance();
         switch (castedEvent.switchType) {
-          case SettingsSwitchType.leftHand: // 左手模式
-            await prefs.setBool(vLeftHandModeKey, changedValue);
-            yield castedState.copyWith(leftHand: changedValue);
+          case SettingsSwitchType.leftHandMode: // 左手模式
+            await prefs.setBool(kLeftHandMode, changedValue);
+            yield castedState.copyWith(leftHandMode: changedValue);
             break;
           case SettingsSwitchType.allowNsfw: // 允许 NSFW
-            await prefs.setBool(allowNsfwKey, changedValue);
+            await prefs.setBool(kAllowNsfw, changedValue);
             yield castedState.copyWith(allowNsfw: changedValue);
             break;
-          case SettingsSwitchType.reverseChapters: // 反转章节列表
-            await prefs.setBool(chaptersReversedKey, changedValue);
+          case SettingsSwitchType.chaptersReversed: // 反转章节列表
+            await prefs.setBool(kChaptersReversed, changedValue);
             yield castedState.copyWith(chaptersReversed: changedValue);
+            break;
+          case SettingsSwitchType.preCaching: // 预缓存
+            await prefs.setBool(kPreCaching, changedValue);
+            yield castedState.copyWith(preCaching: changedValue);
             break;
         }
         break;

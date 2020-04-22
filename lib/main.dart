@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
       title: 'Mikack mobile',
       theme: ThemeData(
         // This is the theme
-        primarySwatch: primarySwatch,
+        primarySwatch: vPrimarySwatch,
       ),
       home: MultiBlocProvider(
         providers: [
@@ -120,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _drawerIndex;
   List<DrawerItem> _drawerItems = [];
   List<int> _includeTags = [];
-  List<int> _excludesTags = [nsfwTagValue];
+  List<int> _excludesTags = [vNsfwTagIntValue];
   bool allowNsfw = false;
 
   @override
@@ -159,20 +159,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void fetchAllowNsfw() async {
     var prefs = await SharedPreferences.getInstance();
-    var isAllow = prefs.getBool(allowNsfwKey);
+    var isAllow = prefs.getBool(kAllowNsfw);
     if (isAllow == null) isAllow = false;
     allowNsfw = isAllow;
     if (isAllow) {
       // 如果启用，则排除并重写载入
-      if (_excludesTags.contains(nsfwTagValue)) {
-        _excludesTags.remove(nsfwTagValue);
+      if (_excludesTags.contains(vNsfwTagIntValue)) {
+        _excludesTags.remove(vNsfwTagIntValue);
       }
     } else {
       // 没启用，添加排除标签并删除包含标签
-      if (!_excludesTags.contains(nsfwTagValue)) {
-        _excludesTags.add(nsfwTagValue);
-        if (_includeTags.contains(nsfwTagValue))
-          _includeTags.remove(nsfwTagValue);
+      if (!_excludesTags.contains(vNsfwTagIntValue)) {
+        _excludesTags.add(vNsfwTagIntValue);
+        if (_includeTags.contains(vNsfwTagIntValue))
+          _includeTags.remove(vNsfwTagIntValue);
       }
     }
     BlocProvider.of<LibrariesBloc>(context).add(LibrariesFiltersUpdatedEvent(
@@ -180,7 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   final _header = DrawerHeader(
-    decoration: BoxDecoration(color: primarySwatch),
+    decoration: BoxDecoration(color: vPrimarySwatch),
     child: Row(
       children: [
         Image.asset(

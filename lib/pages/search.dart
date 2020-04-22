@@ -24,7 +24,7 @@ import '../src/page/comic_page.dart';
 const _allowNsfwHint = '未在设置中允许 NSFW 内容';
 
 const searchResultCoverHeight = 210.0;
-const searchResultCoverWidth = coverRatio * searchResultCoverHeight;
+const searchResultCoverWidth = vCoverRatio * searchResultCoverHeight;
 
 class SearchPage extends StatefulWidget {
   final BuildContext appContext;
@@ -83,22 +83,23 @@ class _SearchPageState extends State<SearchPage> {
 
   void fetchAllowNsfw() async {
     var prefs = await SharedPreferences.getInstance();
-    var isAllow = prefs.getBool(allowNsfwKey);
+    var isAllow = prefs.getBool(kAllowNsfw);
     if (isAllow == null) isAllow = false;
     setState(() {
       _allowNsfw = isAllow;
     });
     if (isAllow) {
       // 如果启用，则排除并重写载入
-      if (excludes.contains(nsfwTagValue)) {
-        excludes.remove(nsfwTagValue);
+      if (excludes.contains(vNsfwTagIntValue)) {
+        excludes.remove(vNsfwTagIntValue);
         updatePlatforms();
       }
     } else {
       // 没启用，添加排除标签并删除包含标签
-      if (!excludes.contains(nsfwTagValue)) {
-        excludes.add(nsfwTagValue);
-        if (includes.contains(nsfwTagValue)) includes.remove(nsfwTagValue);
+      if (!excludes.contains(vNsfwTagIntValue)) {
+        excludes.add(vNsfwTagIntValue);
+        if (includes.contains(vNsfwTagIntValue))
+          includes.remove(vNsfwTagIntValue);
         updatePlatforms();
       }
     }
@@ -113,7 +114,7 @@ class _SearchPageState extends State<SearchPage> {
               fontSize: 11.5,
               stateful: true,
               selected: includes.contains(t.value),
-              stateFixed: !_allowNsfw && t.value == nsfwTagValue,
+              stateFixed: !_allowNsfw && t.value == vNsfwTagIntValue,
               stateFixedReason: _allowNsfwHint,
               onTap: (value, selected) {
                 selected ? includes.add(value) : includes.remove(value);
@@ -128,7 +129,7 @@ class _SearchPageState extends State<SearchPage> {
               fontSize: 11.5,
               stateful: true,
               selected: excludes.contains(t.value),
-              stateFixed: !_allowNsfw && t.value == nsfwTagValue,
+              stateFixed: !_allowNsfw && t.value == vNsfwTagIntValue,
               stateFixedReason: _allowNsfwHint,
               onTap: (value, selected) {
                 selected ? excludes.add(value) : excludes.remove(value);
@@ -192,7 +193,7 @@ class _SearchPageState extends State<SearchPage> {
                       isContains
                           ? Icons.check_box_outline_blank
                           : Icons.check_box,
-                      color: isContains ? Colors.grey : primarySwatch),
+                      color: isContains ? Colors.grey : vPrimarySwatch),
                   onTap: () {
                     if (isContains)
                       setState(() {

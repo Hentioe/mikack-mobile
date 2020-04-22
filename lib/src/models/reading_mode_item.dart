@@ -7,7 +7,7 @@ class ReadingModeItem extends Equatable {
   final String key;
 
   ReadingModeItem(this.key)
-      : assert(key == vLeftToRight || key == vTopToBottom || key == vPaperRoll);
+      : assert(key == kLeftToRight || key == kTopToBottom || key == kPaperRoll);
 
   @override
   List<Object> get props => [key];
@@ -15,11 +15,11 @@ class ReadingModeItem extends Equatable {
   @override
   String toString() {
     switch (key) {
-      case vLeftToRight:
+      case kLeftToRight:
         return '从左到右';
-      case vTopToBottom:
+      case kTopToBottom:
         return '从上到下';
-      case vPaperRoll:
+      case kPaperRoll:
         return '卷纸模式';
       default:
         throw UnknownException('Unknown reading mode');

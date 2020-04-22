@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:github_releases/github_releases.dart';
 import 'package:package_info/package_info.dart';
+import 'package:quiver/iterables.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'terms_page.dart';
@@ -19,17 +20,17 @@ const _settingsPadding = 18.0;
 const _settingsItemTrailingSize = 20.0;
 
 final _readingModeItems = [
-  ReadingModeItem(vLeftToRight),
-  ReadingModeItem(vTopToBottom),
-  ReadingModeItem(vPaperRoll),
+  ReadingModeItem(kLeftToRight),
+  ReadingModeItem(kTopToBottom),
+  ReadingModeItem(kPaperRoll),
 ];
 
 final _startPageItems = [
-  StartPageItem(vDefaultPage),
-  StartPageItem(vBookshelfPage),
-  StartPageItem(vBooksUpdatePage),
-  StartPageItem(vLibrariesPage),
-  StartPageItem(vHistoriesPage),
+  StartPageItem(kDefaultPage),
+  StartPageItem(kBookshelfPage),
+  StartPageItem(kBooksUpdatePage),
+  StartPageItem(kLibrariesPage),
+  StartPageItem(kHistoriesPage),
 ];
 
 class SettingsPage2 extends StatefulWidget {
@@ -91,6 +92,19 @@ class _SettingsPageState extends State<SettingsPage2> {
     );
   }
 
+  Widget _buildPreLoadingDialog() {
+    return SingleChoiceConfirmationDialog<num>(
+      title: Text('预加载页面数量'),
+      initialValue: (bloc.state as SettingsLoadedSate).preLoading,
+      items: range(9).toList(),
+      cancelActionButtonLabel: '取消',
+      submitActionButtonLabel: '确定',
+      onSubmitted: (value) {
+        bloc.add(SettingsPreLoadingChangedEvent(preLoading: value.toInt()));
+      },
+    );
+  }
+
   void launchUrl(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
@@ -109,7 +123,7 @@ class _SettingsPageState extends State<SettingsPage2> {
           BuildContext context, PackageInfo packageInfo) =>
       () async {
         Fluttertoast.showToast(msg: '检查更新中，请稍等…');
-        var releases = await getReleases(repoOwner, repoName);
+        var releases = await getReleases(vRepoOwner, vRepoName);
         if (releases.length == 0 ||
             !isNewestVersion(packageInfo, releases.first.tagName)) {
           Fluttertoast.showToast(msg: '暂未发现更新');
@@ -144,12 +158,6 @@ class _SettingsPageState extends State<SettingsPage2> {
       ),
     );
   }
-
-  final copyrightTextStyle = TextStyle(
-    fontSize: 12,
-    color: Colors.grey[400],
-    fontFamily: 'Monospace',
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -233,7 +241,7 @@ class _SettingsPageState extends State<SettingsPage2> {
                       ),
                       _SettingItem(
                         '允许 NSFW 内容',
-                        subtitle: '将显示不宜于工作场合公开的资源（可能包含成人内容）',
+                        subtitle: '解开对不建议于工作场合公开的来源的限制，可能包含成人内容',
                         trailing:
                             _SettingsCheckBoxIcon(value: castedState.allowNsfw),
                         onTap: _handleSwitchTap(
@@ -248,7 +256,7 @@ class _SettingsPageState extends State<SettingsPage2> {
                             value: castedState.chaptersReversed),
                         onTap: _handleSwitchTap(
                             context,
-                            SettingsSwitchType.reverseChapters,
+                            SettingsSwitchType.chaptersReversed,
                             !castedState.chaptersReversed),
                       ),
                     ],
@@ -265,11 +273,29 @@ class _SettingsPageState extends State<SettingsPage2> {
                       ),
                       _SettingItem(
                         '左手翻页',
-                        subtitle: '反转默认的翻页操作方向',
-                        trailing:
-                            _SettingsCheckBoxIcon(value: castedState.leftHand),
-                        onTap: _handleSwitchTap(context,
-                            SettingsSwitchType.leftHand, !castedState.leftHand),
+                        subtitle: '反转默认的触摸翻页方向（不影响滑动手势）',
+                        trailing: _SettingsCheckBoxIcon(
+                            value: castedState.leftHandMode),
+                        onTap: _handleSwitchTap(
+                            context,
+                            SettingsSwitchType.leftHandMode,
+                            !castedState.leftHandMode),
+                      ),
+                      _SettingItem(
+                        '预加载页面',
+                        subtitle: castedState.preLoading.toString(),
+                        onTap: () => showDialog(
+                            context: context, child: _buildPreLoadingDialog()),
+                      ),
+                      _SettingItem(
+                        '预缓存图片',
+                        subtitle: '提前下载预加载页面中的图片',
+                        trailing: _SettingsCheckBoxIcon(
+                            value: castedState.preCaching),
+                        onTap: _handleSwitchTap(
+                            context,
+                            SettingsSwitchType.preCaching,
+                            !castedState.preCaching),
                       ),
                     ],
                   ),
@@ -304,13 +330,13 @@ class _SettingsPageState extends State<SettingsPage2> {
                     children: [
                       _SettingItem(
                         '项目仓库',
-                        subtitle: settingsRepoUrl.replaceFirst('https://', ''),
-                        onTap: () => launchUrl(settingsRepoUrl),
+                        subtitle: vRepoUrl.replaceFirst('https://', ''),
+                        onTap: () => launchUrl(vRepoUrl),
                       ),
                       _SettingItem(
                         '加入群组',
-                        subtitle: settingsGroupUrl.replaceFirst('https://', ''),
-                        onTap: () => launchUrl(settingsGroupUrl),
+                        subtitle: vGroupUrl.replaceFirst('https://', ''),
+                        onTap: () => launchUrl(vGroupUrl),
                       ),
                     ],
                   ),
@@ -340,16 +366,13 @@ class _SettingsPageState extends State<SettingsPage2> {
                   Center(
                     child: Text(
                       '@ 2020 mikack.me',
-                      style: copyrightTextStyle,
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[400],
+                          fontFamily: 'Monospace'),
                     ),
                   ),
-                  Center(
-                    child: Text(
-                      'All rights reserved.',
-                      style: copyrightTextStyle,
-                    ),
-                  ),
-                  SizedBox(height: 40),
+                  SizedBox(height: 20),
                 ],
               );
             },
@@ -461,7 +484,7 @@ class _SettingsCheckBoxIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return value
         ? Icon(Icons.check_box,
-            color: primarySwatch, size: _settingsItemTrailingSize)
+            color: vPrimarySwatch, size: _settingsItemTrailingSize)
         : Icon(Icons.check_box_outline_blank, size: _settingsItemTrailingSize);
   }
 }

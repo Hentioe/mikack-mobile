@@ -12,7 +12,9 @@ class SettingsLoadedSate extends SettingsState {
   final bool allowNsfw;
   final bool chaptersReversed;
   final ReadingModeItem readingMode;
-  final bool leftHand;
+  final bool leftHandMode;
+  final int preLoading;
+  final bool preCaching;
   final double cachedImageSize;
   final int historiesTotal;
   final int favoritesTotal;
@@ -24,7 +26,9 @@ class SettingsLoadedSate extends SettingsState {
         allowNsfw,
         chaptersReversed,
         readingMode,
-        leftHand,
+        leftHandMode,
+        preLoading,
+        preCaching,
         cachedImageSize,
         historiesTotal,
         favoritesTotal,
@@ -36,7 +40,9 @@ class SettingsLoadedSate extends SettingsState {
     @required this.allowNsfw,
     @required this.chaptersReversed,
     @required this.readingMode,
-    @required this.leftHand,
+    @required this.leftHandMode,
+    @required this.preLoading,
+    @required this.preCaching,
     this.cachedImageSize = 0,
     this.historiesTotal = 0,
     this.favoritesTotal = 0,
@@ -48,7 +54,9 @@ class SettingsLoadedSate extends SettingsState {
     bool allowNsfw,
     bool chaptersReversed,
     ReadingModeItem readingMode,
-    bool leftHand,
+    bool leftHandMode,
+    int preLoading,
+    bool preCaching,
     double cachedImageSize,
     int historiesTotal,
     int favoritesTotal,
@@ -59,7 +67,9 @@ class SettingsLoadedSate extends SettingsState {
       allowNsfw: allowNsfw ?? this.allowNsfw,
       chaptersReversed: chaptersReversed ?? this.chaptersReversed,
       readingMode: readingMode ?? this.readingMode,
-      leftHand: leftHand ?? this.leftHand,
+      leftHandMode: leftHandMode ?? this.leftHandMode,
+      preLoading: preLoading ?? this.preLoading,
+      preCaching: preCaching ?? this.preCaching,
       cachedImageSize: cachedImageSize ?? this.cachedImageSize,
       historiesTotal: historiesTotal ?? this.historiesTotal,
       favoritesTotal: favoritesTotal ?? this.favoritesTotal,

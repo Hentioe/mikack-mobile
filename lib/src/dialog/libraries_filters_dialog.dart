@@ -25,7 +25,7 @@ Future<Tuple2<List<int>, List<int>>> openLibrariesFiltersDialog(
             fontSize: _librariesFilterTagFontSize,
             stateful: true,
             selected: includes.contains(t.value),
-            stateFixed: !allowNsfw && t.value == nsfwTagValue,
+            stateFixed: !allowNsfw && t.value == vNsfwTagIntValue,
             stateFixedReason: _allowNsfwHint,
             onTap: (value, selected) =>
                 selected ? includes.add(value) : includes.remove(value),
@@ -38,7 +38,7 @@ Future<Tuple2<List<int>, List<int>>> openLibrariesFiltersDialog(
             fontSize: _librariesFilterTagFontSize,
             stateful: true,
             selected: excludes.contains(t.value),
-            stateFixed: !allowNsfw && t.value == nsfwTagValue,
+            stateFixed: !allowNsfw && t.value == vNsfwTagIntValue,
             stateFixedReason: _allowNsfwHint,
             onTap: (value, selected) =>
                 selected ? excludes.add(value) : excludes.remove(value),

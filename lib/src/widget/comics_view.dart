@@ -5,7 +5,7 @@ import 'package:mikack_mobile/src/widget/comic_card.dart';
 import '../values.dart';
 
 const viewListCoverHeight = 56.0;
-const viewListCoverWidth = viewListCoverHeight * coverRatio;
+const viewListCoverWidth = viewListCoverHeight * vCoverRatio;
 const listCoverRadius = 4.0;
 const comicsViewGridChildSpacing = 4.0;
 const comicsViewGridLoadingSize = 16.0;
@@ -106,7 +106,7 @@ class ComicsView extends StatelessWidget {
       crossAxisCount: 2,
       mainAxisSpacing: comicsViewGridChildSpacing / 2,
       crossAxisSpacing: comicsViewGridChildSpacing / 2,
-      childAspectRatio: coverRatio,
+      childAspectRatio: vCoverRatio,
       padding: EdgeInsets.all(comicsViewGridChildSpacing),
       children: List.generate(items.length, (index) {
         return ComicCard(

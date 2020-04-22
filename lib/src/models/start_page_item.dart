@@ -8,11 +8,11 @@ class StartPageItem extends Equatable {
 
   StartPageItem(this.key)
       : assert(
-          key == vDefaultPage ||
-              key == vBookshelfPage ||
-              key == vBooksUpdatePage ||
-              key == vLibrariesPage ||
-              key == vHistoriesPage,
+          key == kDefaultPage ||
+              key == kBookshelfPage ||
+              key == kBooksUpdatePage ||
+              key == kLibrariesPage ||
+              key == kHistoriesPage,
         );
 
   @override
@@ -21,15 +21,15 @@ class StartPageItem extends Equatable {
   @override
   String toString() {
     switch (key) {
-      case vDefaultPage:
+      case kDefaultPage:
         return '系统默认';
-      case vBookshelfPage:
+      case kBookshelfPage:
         return '我的书架';
-      case vBooksUpdatePage:
+      case kBooksUpdatePage:
         return '书架更新';
-      case vLibrariesPage:
+      case kLibrariesPage:
         return '图书仓库';
-      case vHistoriesPage:
+      case kHistoriesPage:
         return '浏览历史';
       default:
         throw UnknownException('Unknown start page');

@@ -11,7 +11,7 @@ import '../page/read_page.dart';
 import '../widget/text_hint.dart';
 
 const _historiesCoverWidth = 90.0;
-const _historiesCoverHeight = _historiesCoverWidth / coverRatio;
+const _historiesCoverHeight = _historiesCoverWidth / vCoverRatio;
 
 class HistoriesFragment2 extends StatelessWidget {
   Function() _handleRemove(BuildContext context, History history) =>

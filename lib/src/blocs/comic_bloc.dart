@@ -28,7 +28,7 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
         var castedState = state as ComicLoadedState;
         // 读取：是否反转排序
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        var reversed = prefs.getBool(chaptersReversedKey);
+        var reversed = prefs.getBool(kChaptersReversed);
         if (reversed == null) reversed = false;
         // 读取：已读历史记录
         var readHistories = await findHistories(

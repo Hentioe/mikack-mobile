@@ -12,7 +12,7 @@ class SeriesSystemUI extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light
-          .copyWith(systemNavigationBarColor: primarySwatch),
+          .copyWith(systemNavigationBarColor: vPrimarySwatch),
       child: child,
     );
   }
