@@ -13,7 +13,7 @@ abstract class BookshelfState extends Equatable {
 class BookshelfLoadedState extends BookshelfState {
   final List<Favorite> favorites;
   final List<ComicViewItem> viewItems;
-  final BookshelfSortBy sortBy;
+  final BookshelfSort sortBy;
 
   BookshelfLoadedState({
     @required this.favorites,

@@ -2,14 +2,17 @@ import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
 import 'package:package_info/package_info.dart';
 
+import '../models.dart';
+
 abstract class SettingsState extends Equatable {}
 
 class SettingsLoadedSate extends SettingsState {
   final PackageInfo packageInfo;
-  final String startPage;
-  final bool leftHand;
+  final StartPageItem startPage;
   final bool allowNsfw;
   final bool chaptersReversed;
+  final ReadingModeItem readingMode;
+  final bool leftHand;
   final double cachedImageSize;
   final int historiesTotal;
   final int favoritesTotal;
@@ -18,9 +21,10 @@ class SettingsLoadedSate extends SettingsState {
   List<Object> get props => [
         packageInfo,
         startPage,
-        leftHand,
         allowNsfw,
         chaptersReversed,
+        readingMode,
+        leftHand,
         cachedImageSize,
         historiesTotal,
         favoritesTotal,
@@ -29,9 +33,10 @@ class SettingsLoadedSate extends SettingsState {
   SettingsLoadedSate({
     this.packageInfo,
     @required this.startPage,
-    @required this.leftHand,
     @required this.allowNsfw,
     @required this.chaptersReversed,
+    @required this.readingMode,
+    @required this.leftHand,
     this.cachedImageSize = 0,
     this.historiesTotal = 0,
     this.favoritesTotal = 0,
@@ -39,10 +44,11 @@ class SettingsLoadedSate extends SettingsState {
 
   SettingsLoadedSate copyWith({
     PackageInfo packageInfo,
-    String startPage,
-    bool leftHand,
+    StartPageItem startPage,
     bool allowNsfw,
     bool chaptersReversed,
+    ReadingModeItem readingMode,
+    bool leftHand,
     double cachedImageSize,
     int historiesTotal,
     int favoritesTotal,
@@ -50,9 +56,10 @@ class SettingsLoadedSate extends SettingsState {
     return SettingsLoadedSate(
       packageInfo: packageInfo ?? this.packageInfo,
       startPage: startPage ?? this.startPage,
-      leftHand: leftHand ?? this.leftHand,
       allowNsfw: allowNsfw ?? this.allowNsfw,
       chaptersReversed: chaptersReversed ?? this.chaptersReversed,
+      readingMode: readingMode ?? this.readingMode,
+      leftHand: leftHand ?? this.leftHand,
       cachedImageSize: cachedImageSize ?? this.cachedImageSize,
       historiesTotal: historiesTotal ?? this.historiesTotal,
       favoritesTotal: favoritesTotal ?? this.favoritesTotal,

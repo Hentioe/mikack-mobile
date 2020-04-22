@@ -51,7 +51,7 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
       case ReadSettingsRequestEvent: // 从存储中载入设置
         SharedPreferences prefs = await SharedPreferences.getInstance();
         // 读取：是否启用左后模式
-        var isLeftHandMode = prefs.getBool(leftHandModeKey);
+        var isLeftHandMode = prefs.getBool(vLeftHandModeKey);
         if (isLeftHandMode == null) isLeftHandMode = false;
         yield (state as ReadLoadedState)
             .copyWith(isLeftHandMode: isLeftHandMode);

@@ -31,7 +31,7 @@ const defaultDrawerIndex = 0;
 Future<int> getDrawerIndex() async {
   int index = defaultDrawerIndex;
   var prefs = await SharedPreferences.getInstance();
-  var lockedKey = prefs.getString(startPageKey);
+  var lockedKey = prefs.getString(kStartPageKey);
   if (lockedKey != null && lockedKey != 'default') {
     var entries = drawerItems.entries.toList();
     for (var i = 1; i < entries.length; i++) {
@@ -221,22 +221,22 @@ class _MyHomePageState extends State<MyHomePage> {
     return BlocBuilder<BookshelfBloc, BookshelfState>(
       builder: (context, state) {
         var castedState = state as BookshelfLoadedState;
-        return PopupMenuButton<BookshelfSortBy>(
+        return PopupMenuButton<BookshelfSort>(
           tooltip: '修改排序方式',
           icon: Icon(Icons.sort),
           onSelected: (sortBy) => BlocProvider.of<BookshelfBloc>(context)
               .add(BookshelfRequestEvent(sortBy: sortBy)),
           itemBuilder: (BuildContext context) => [
             CheckedPopupMenuItem(
-              checked: castedState.sortBy == BookshelfSortBy.readAt,
-              enabled: castedState.sortBy != BookshelfSortBy.readAt,
-              value: BookshelfSortBy.readAt,
+              checked: castedState.sortBy == BookshelfSort.readAt,
+              enabled: castedState.sortBy != BookshelfSort.readAt,
+              value: BookshelfSort.readAt,
               child: Text('上次阅读时间'),
             ),
             CheckedPopupMenuItem(
-              checked: castedState.sortBy == BookshelfSortBy.insertedAt,
-              enabled: castedState.sortBy != BookshelfSortBy.insertedAt,
-              value: BookshelfSortBy.insertedAt,
+              checked: castedState.sortBy == BookshelfSort.insertedAt,
+              enabled: castedState.sortBy != BookshelfSort.insertedAt,
+              value: BookshelfSort.insertedAt,
               child: Text('最近添加时间'),
             ),
           ],

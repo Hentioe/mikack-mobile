@@ -10,13 +10,27 @@ import 'terms_page.dart';
 import 'thanks_page.dart';
 import '../blocs.dart';
 import '../values.dart';
-import '../../main.dart' show startPages;
 import '../ext.dart';
 import '../widget/updates_sheet.dart';
+import '../models.dart';
 
 const _settingsItemSpacing = 16.0;
 const _settingsPadding = 18.0;
 const _settingsItemTrailingSize = 20.0;
+
+final _readingModeItems = [
+  ReadingModeItem(vLeftToRight),
+  ReadingModeItem(vTopToBottom),
+  ReadingModeItem(vPaperRoll),
+];
+
+final _startPageItems = [
+  StartPageItem(vDefaultPage),
+  StartPageItem(vBookshelfPage),
+  StartPageItem(vBooksUpdatePage),
+  StartPageItem(vLibrariesPage),
+  StartPageItem(vHistoriesPage),
+];
 
 class SettingsPage2 extends StatefulWidget {
   final BuildContext appContext;
@@ -53,12 +67,27 @@ class _SettingsPageState extends State<SettingsPage2> {
       () => bloc.add(SettingsCleanupRequestEvent(cleanupType: cleanType));
 
   Widget _buildStartPageDialog() {
-    return SingleChoiceDialog<String>(
+    return SingleChoiceConfirmationDialog<StartPageItem>(
       title: Text('选择开始页面'),
-      items: startPages.values.toList(),
-      isDividerEnabled: true,
-      onSelected: (key) => bloc
-          .add(SettingsStartPageChangedEvent(pageKey: startPages.inverse[key])),
+      initialValue: (bloc.state as SettingsLoadedSate).startPage,
+      items: _startPageItems,
+      cancelActionButtonLabel: '取消',
+      submitActionButtonLabel: '确定',
+      onSelected: (page) =>
+          bloc.add(SettingsStartPageChangedEvent(startPage: page)),
+    );
+  }
+
+  Widget _buildReadingModeDialog() {
+    return SingleChoiceConfirmationDialog<ReadingModeItem>(
+      title: Text('选择阅读模式'),
+      initialValue: (bloc.state as SettingsLoadedSate).readingMode,
+      items: _readingModeItems,
+      cancelActionButtonLabel: '取消',
+      submitActionButtonLabel: '确定',
+      onSubmitted: (mode) {
+        bloc.add(ReadingModeChangedEvent(readingMode: mode));
+      },
     );
   }
 
@@ -196,19 +225,11 @@ class _SettingsPageState extends State<SettingsPage2> {
                     children: [
                       _SettingItem(
                         '开始页面',
-                        subtitle: startPages[castedState.startPage],
+                        subtitle: castedState.startPage.toString(),
                         onTap: () => showDialog(
                           context: context,
                           builder: (_) => _buildStartPageDialog(),
                         ),
-                      ),
-                      _SettingItem(
-                        '左手翻页',
-                        subtitle: '反转默认的翻页操作方向',
-                        trailing:
-                            _SettingsCheckBoxIcon(value: castedState.leftHand),
-                        onTap: _handleSwitchTap(context,
-                            SettingsSwitchType.leftHand, !castedState.leftHand),
                       ),
                       _SettingItem(
                         '允许 NSFW 内容',
@@ -229,6 +250,26 @@ class _SettingsPageState extends State<SettingsPage2> {
                             context,
                             SettingsSwitchType.reverseChapters,
                             !castedState.chaptersReversed),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: _settingsItemSpacing),
+                  _SettingItemGroup(
+                    '阅读设置',
+                    children: [
+                      _SettingItem(
+                        '阅读模式',
+                        subtitle: castedState.readingMode.toString(),
+                        onTap: () => showDialog(
+                            context: context, child: _buildReadingModeDialog()),
+                      ),
+                      _SettingItem(
+                        '左手翻页',
+                        subtitle: '反转默认的翻页操作方向',
+                        trailing:
+                            _SettingsCheckBoxIcon(value: castedState.leftHand),
+                        onTap: _handleSwitchTap(context,
+                            SettingsSwitchType.leftHand, !castedState.leftHand),
                       ),
                     ],
                   ),

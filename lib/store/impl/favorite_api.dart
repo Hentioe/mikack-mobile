@@ -13,15 +13,15 @@ Future<void> insertFavorite(Favorite favorite) async {
 }
 
 Future<List<Favorite>> findFavorites(
-    {BookshelfSortBy sortBy = BookshelfSortBy.readAt}) async {
+    {BookshelfSort sortBy = BookshelfSort.readAt}) async {
   final db = await database();
 
   // 默认按上次阅读时间降序
   var column = 'last_read_time';
   switch (sortBy) {
-    case BookshelfSortBy.readAt:
+    case BookshelfSort.readAt:
       break;
-    case BookshelfSortBy.insertedAt:
+    case BookshelfSort.insertedAt:
       column = 'inserted_at';
       break;
   }

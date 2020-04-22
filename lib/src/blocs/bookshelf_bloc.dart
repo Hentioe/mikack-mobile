@@ -17,7 +17,7 @@ class BookshelfBloc extends Bloc<BookshelfEvent, BookshelfState> {
         sortBy: null,
       );
 
-  BookshelfSortBy lastSortBy;
+  BookshelfSort lastSortBy;
 
   @override
   Stream<BookshelfState> mapEventToState(BookshelfEvent event) async* {
@@ -29,7 +29,7 @@ class BookshelfBloc extends Bloc<BookshelfEvent, BookshelfState> {
           if (lastSortBy == null) {
             // 初次默认排序，读取排序配置
             var prefs = await SharedPreferences.getInstance();
-            sortBy = parseBookshelfSortBy(prefs.getString(bookshelfSortByKey));
+            sortBy = parseBookshelfSort(prefs.getString(bookshelfSortByKey));
             lastSortBy = sortBy;
           } else // 直接返回上次排序方式
             sortBy = lastSortBy;
@@ -45,7 +45,7 @@ class BookshelfBloc extends Bloc<BookshelfEvent, BookshelfState> {
     }
   }
 
-  Future<BookshelfLoadedState> getLoadedState(BookshelfSortBy sortBy) async {
+  Future<BookshelfLoadedState> getLoadedState(BookshelfSort sortBy) async {
     var favorites = await findFavorites(sortBy: sortBy);
     for (var i = 0; i < favorites.length; i++) {
       var source = await getSource(id: favorites[i].sourceId);

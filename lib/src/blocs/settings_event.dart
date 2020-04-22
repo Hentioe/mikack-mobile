@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
 
+import '../models.dart';
+
 abstract class SettingsEvent extends Equatable {}
 
 class SettingsRequestEvent extends SettingsEvent {
@@ -9,12 +11,21 @@ class SettingsRequestEvent extends SettingsEvent {
 }
 
 class SettingsStartPageChangedEvent extends SettingsEvent {
-  final String pageKey;
+  final StartPageItem startPage;
 
-  SettingsStartPageChangedEvent({@required this.pageKey});
+  SettingsStartPageChangedEvent({@required this.startPage});
 
   @override
-  List<Object> get props => [pageKey];
+  List<Object> get props => [startPage];
+}
+
+class ReadingModeChangedEvent extends SettingsEvent {
+  final ReadingModeItem readingMode;
+
+  ReadingModeChangedEvent({@required this.readingMode});
+
+  @override
+  List<Object> get props => [readingMode];
 }
 
 enum SettingsSwitchType { leftHand, allowNsfw, reverseChapters }

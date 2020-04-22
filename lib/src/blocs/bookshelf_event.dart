@@ -9,7 +9,7 @@ abstract class BookshelfEvent extends Equatable {
 }
 
 class BookshelfRequestEvent extends BookshelfEvent {
-  final BookshelfSortBy sortBy;
+  final BookshelfSort sortBy;
 
   BookshelfRequestEvent({@required this.sortBy});
 
@@ -17,10 +17,10 @@ class BookshelfRequestEvent extends BookshelfEvent {
   List<Object> get props => [sortBy];
 
   factory BookshelfRequestEvent.sortByReadAt() =>
-      BookshelfRequestEvent(sortBy: BookshelfSortBy.readAt);
+      BookshelfRequestEvent(sortBy: BookshelfSort.readAt);
 
   factory BookshelfRequestEvent.sortByInsertedAt() =>
-      BookshelfRequestEvent(sortBy: BookshelfSortBy.insertedAt);
+      BookshelfRequestEvent(sortBy: BookshelfSort.insertedAt);
 
   factory BookshelfRequestEvent.sortByDefault() =>
       BookshelfRequestEvent(sortBy: null);
