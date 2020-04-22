@@ -18,16 +18,16 @@ final _defaultTextStyle = TextStyle(fontSize: 15.5, color: Colors.grey[400]);
 const _hintTextFontSize = 14.5;
 const _hintButtonFontWeight = FontWeight.bold;
 final _hintTextStyle =
-    TextStyle(fontSize: _hintTextFontSize, color: Colors.grey[400]);
+    TextStyle(fontSize: _hintTextFontSize, color: Colors.grey[500]);
 final _librariesHintButtonTextStyle = TextStyle(
   fontSize: _hintTextFontSize,
-  color: Colors.grey[400],
+  color: Colors.grey[500],
   fontWeight: _hintButtonFontWeight,
   decoration: TextDecoration.underline,
 );
 final _globalSearchHintButtonTextStyle = TextStyle(
   fontSize: _hintTextFontSize,
-  color: Colors.grey[400],
+  color: Colors.grey[500],
   fontWeight: _hintButtonFontWeight,
   decoration: TextDecoration.underline,
 );

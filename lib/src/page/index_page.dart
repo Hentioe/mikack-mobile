@@ -6,6 +6,7 @@ import 'package:mikack/models.dart' as models;
 import '../blocs.dart';
 import '../widget/comics_view.dart';
 import '../page/comic_page.dart';
+import '../widget/text_hint.dart';
 
 class IndexPage2 extends StatefulWidget {
   final models.Platform platform;
@@ -105,10 +106,7 @@ class _IndexPageState extends State<IndexPage2> {
   }
 
   final emptyView = Center(
-    child: Text(
-      '空结果',
-      style: const TextStyle(fontSize: 18, color: Colors.grey),
-    ),
+    child: TextHint('空结果'),
   );
 
   // 加载视图
