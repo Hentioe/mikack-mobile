@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mikack/models.dart' as models;
-import 'package:mikack_mobile/src/models.dart';
 import 'package:quiver/iterables.dart';
 
+import '../models.dart';
 import '../helper/chrome.dart';
 import '../blocs.dart';
 import '../widget/outline_text.dart';
@@ -15,12 +15,13 @@ import '../widget/text_hint.dart';
 
 enum ChapterPreviewDirection { prev, next }
 
-const _read2PageBackgroundColor = Color.fromARGB(255, 40, 40, 40);
+const _mainBackgroundColor = Color.fromARGB(255, 40, 40, 40);
 const _pageInfoTextColor = Color.fromARGB(255, 255, 255, 255);
 const _pageInfoOutlineColor = Color.fromARGB(255, 0, 0, 0);
 const _pageInfoFontSize = 13.0;
 const _connectionIndicatorSize = 35.0;
 const _connectingIndicatorColor = Color.fromARGB(255, 115, 115, 115);
+final _toolBarBackgroundColor = _mainBackgroundColor.withAlpha(160);
 
 class ReadPage extends StatefulWidget {
   final models.Platform platform;
@@ -126,10 +127,6 @@ class _ReadPageState extends State<ReadPage> {
 
     // 中下区域（显示翻页工具栏）
     if (y > centerY && x > centerX - 100 && x < centerX + 100) {
-      if (!stateSnapshot.isShowToolbar) {
-        showSystemUI();
-      } else
-        hiddenSystemUI();
       bloc.add(ReadToolbarDisplayStatusChangedEvent());
       return;
     }
@@ -149,8 +146,11 @@ class _ReadPageState extends State<ReadPage> {
     }
   }
 
-  Widget _buildImageView(
-      {@required Map<String, String> httpHeaders, @required String address}) {
+  Widget _buildImageView({
+    @required Map<String, String> httpHeaders,
+    @required String address,
+    @required bool inPageView,
+  }) {
     return ExtendedImage.network(
       address,
       headers: httpHeaders,
@@ -179,7 +179,7 @@ class _ReadPageState extends State<ReadPage> {
           speed: 1.0,
           inertialSpeed: 300.0,
           initialScale: initialScale,
-          inPageView: true,
+          inPageView: inPageView,
           initialAlignment: InitialAlignment.topCenter,
           cacheGesture: true,
         );
@@ -275,7 +275,6 @@ class _ReadPageState extends State<ReadPage> {
       left: 0,
       right: 0,
       child: Container(
-        color: stateSnapshot.isShowToolbar ? Colors.black : null,
         height: 20,
         child: Center(
           child: OutlineText(
@@ -291,7 +290,7 @@ class _ReadPageState extends State<ReadPage> {
 
   Widget _buildChapterInfoView(models.Chapter chapter) {
     return Container(
-      color: Colors.black,
+      color: _toolBarBackgroundColor,
       padding: EdgeInsets.only(bottom: 10, top: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -340,7 +339,7 @@ class _ReadPageState extends State<ReadPage> {
     @required int currentPage,
   }) {
     return Container(
-      color: Colors.black,
+      color: _toolBarBackgroundColor,
       child: Slider(
         inactiveColor: Colors.white,
         activeColor: Colors.white,
@@ -350,6 +349,15 @@ class _ReadPageState extends State<ReadPage> {
         label: '$currentPage',
         onChanged: _handleSliderChange,
       ),
+    );
+  }
+
+  Widget _buildPaperRollPagesView() {
+//    var stateSnapshot = bloc.state as ReadLoadedState;
+    //  取屏幕的 1/6
+//    var loadingContentSpacing = MediaQuery.of(context).size.height / 6;
+    return Center(
+      child: TextHint('暂不支持卷纸模式'),
     );
   }
 
@@ -364,10 +372,9 @@ class _ReadPageState extends State<ReadPage> {
         scrollDirection = Axis.vertical;
         break;
       case ReadingModeType.paperRoll:
-        return TextHint('暂未实现卷纸模式');
+        return _buildPaperRollPagesView();
     }
     return Positioned.fill(
-      top: stateSnapshot.isShowToolbar ? MediaQuery.of(context).padding.top : 0,
       child: ExtendedImageGesturePageView.builder(
         controller: pageController,
         scrollDirection: scrollDirection,
@@ -383,8 +390,10 @@ class _ReadPageState extends State<ReadPage> {
             return Center(child: connectingView);
           } else {
             return _buildImageView(
-                address: stateSnapshot.pages[index - 1],
-                httpHeaders: stateSnapshot.chapter.pageHeaders);
+              address: stateSnapshot.pages[index - 1],
+              httpHeaders: stateSnapshot.chapter.pageHeaders,
+              inPageView: true,
+            );
           }
         },
         onPageChanged: _handlePageChange,
@@ -466,7 +475,6 @@ class _ReadPageState extends State<ReadPage> {
                   ),
                 ));
               infoView.add(Positioned(
-                top: MediaQuery.of(context).padding.top,
                 left: 0,
                 right: 0,
                 child: _buildChapterInfoView(castedState.chapter),
@@ -474,12 +482,10 @@ class _ReadPageState extends State<ReadPage> {
             }
 
             return Scaffold(
-              backgroundColor: _read2PageBackgroundColor,
+              backgroundColor: _mainBackgroundColor,
               resizeToAvoidBottomInset: castedState.isLoading,
               body: castedState.isLoading
                   ? Container(
-                      padding: EdgeInsets.only(
-                          top: MediaQuery.of(context).padding.top),
                       child: castedState.error
                           ? Center(
                               child: RaisedButton(
