@@ -77,9 +77,12 @@ class _IndexPageState extends State<IndexPage2> {
       final stateSnapshot = bloc.state;
       if (stateSnapshot is IndexLoadedState) {
         // 是否在触发位置范围
-        final inNextPagePosition =
-            (scrollController.position.maxScrollExtent - 800) <=
+        final inNextPagePosition = stateSnapshot.mayBeEnding
+            ? scrollController.offset ==
+                scrollController.position.maxScrollExtent
+            : (scrollController.position.maxScrollExtent - 800) <=
                 scrollController.offset;
+
         if (!stateSnapshot.isFetching && inNextPagePosition) {
           // 发送翻页请求
           if (stateSnapshot.currentKeywords.isEmpty) {

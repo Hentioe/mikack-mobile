@@ -67,10 +67,14 @@ class IndexBloc extends Bloc<IndexEvent, IndexState> {
       case IndexLoadedEvent: // 数据装载完成
         var castedEvent = event as IndexLoadedEvent;
         var castedState = state as IndexLoadedState;
-        yield castedState.copyWith(isFetching: false, comicViewItems: [
-          ...castedState.comicViewItems,
-          ...castedEvent.comicViewItems
-        ]);
+        yield castedState.copyWith(
+          isFetching: false,
+          comicViewItems: [
+            ...castedState.comicViewItems,
+            ...castedEvent.comicViewItems
+          ],
+          mayBeEnding: castedEvent.comicViewItems.length == 0,
+        );
         break;
       case IndexViewModeChangedEvent: // 显示模式改变
         var castedEvent = event as IndexViewModeChangedEvent;

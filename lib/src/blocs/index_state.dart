@@ -13,6 +13,7 @@ class IndexLoadedState extends IndexState {
   final String currentKeywords;
   final List<ComicViewItem> comicViewItems;
   final bool isViewList;
+  final bool mayBeEnding;
 
   IndexLoadedState({
     this.error = false,
@@ -22,6 +23,7 @@ class IndexLoadedState extends IndexState {
     this.currentKeywords,
     @required this.comicViewItems,
     @required this.isViewList,
+    this.mayBeEnding = false,
   });
 
   @override
@@ -32,7 +34,8 @@ class IndexLoadedState extends IndexState {
         currentPage,
         currentKeywords,
         comicViewItems,
-        isViewList
+        isViewList,
+        mayBeEnding,
       ];
 
   IndexLoadedState copyWith({
@@ -43,6 +46,7 @@ class IndexLoadedState extends IndexState {
     String currentKeywords,
     List<ComicViewItem> comicViewItems,
     bool isViewList,
+    bool mayBeEnding,
   }) =>
       IndexLoadedState(
         error: error ?? this.error,
@@ -52,5 +56,6 @@ class IndexLoadedState extends IndexState {
         currentKeywords: currentKeywords ?? this.currentKeywords,
         comicViewItems: comicViewItems ?? this.comicViewItems,
         isViewList: isViewList ?? this.isViewList,
+        mayBeEnding: mayBeEnding ?? this.mayBeEnding,
       );
 }
