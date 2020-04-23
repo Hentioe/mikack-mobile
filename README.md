@@ -1,14 +1,19 @@
 # Mikack for Mobile
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Hentioe/mikack-mobile)](https://github.com/Hentioe/mikack-mobile/releases/latest)
+[![GitHub license](https://img.shields.io/github/license/Hentioe/mikack-mobile)](https://github.com/Hentioe/mikack-mobile/blob/master/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/Hentioe/mikack-mobile)](https://github.com/Hentioe/mikack-mobile/issues)
+[![Telegram chat link](https://img.shields.io/badge/%E5%8A%A0%E5%85%A5-Telegram%20%E7%BE%A4%E7%BB%84-brightgreen.svg)](https://t.me/mikack)
+
 Mikack 是一款开源的漫画阅读器。针对移动设备设计，实用且具有参考价值。
 
 ## 技术介绍
 
-本软件的核心功能使用 Rust 语言实现，由 Flutter 框架构建客户端。本项目是 [mikack](https://github.com/Hentioe/mikack) 的周边的一员，是支持程度最高的上层应用。
+本软件的核心功能使用 Rust 语言实现，由 Flutter 框架构建客户端。本项目是 [mikack](https://github.com/Hentioe/mikack) 生态周边的一员，是支持程度最高的上层应用。
 
 参考性：
 
-1. 具有一定复杂性的 Rust C ABI 导出和 Dart FFI 绑定
+1. 具有一定复杂度的 Rust C ABI 导出和 Dart FFI 绑定
 1. 界面/逻辑彻底分离的 [BLoC](https://www.didierboelens.com/2018/08/reactive-programming-streams-bloc/) 模式的完整实践
 1. 使用 Rust 参与 Flutter 应用开发的现实案例
 
