@@ -75,6 +75,17 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
       case ReadCreatePageIteratorEvent: // 创建迭代器
         _pageIteratorIsFreed = false;
         var castedEvent = event as ReadCreatePageIteratorEvent;
+        // 清除迭代器错误并初始化数据
+        yield (state as ReadLoadedState).copyWith(
+          createIteratorError: noneError,
+          isShowToolbar: false,
+          isLoading: true,
+          currentPage: 0,
+          preFetchAt: 0,
+          chapterReadAt: castedEvent.chapterReadAt,
+          pages: const [],
+        );
+        // 创建页面迭代器
         _createPageIterator(platform, castedEvent.chapter)
             .then((createdPageIterator) {
           add(ReadChapterLoadedEvent(
@@ -83,17 +94,21 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
             chapter: createdPageIterator.item2,
           ));
         }).catchError((e) {
-          print(e);
+          add(ReadCreatePageIteratorFailedEvent(message: e.toString()));
         });
-        // 清空数据
-        yield (initialState as ReadLoadedState).copyWith(
-          chapterReadAt: castedEvent.chapterReadAt,
-        );
+        break;
+      case ReadCreatePageIteratorFailedEvent: // 创建页面迭代器失败
+        var castedEvent = event as ReadCreatePageIteratorFailedEvent;
+        yield (state as ReadLoadedState).copyWith(
+            isLoading: false,
+            createIteratorError: ErrorWrapper.message(castedEvent.message));
         break;
       case ReadChapterLoadedEvent: // 章节数据装载
         var castedEvent = event as ReadChapterLoadedEvent;
         yield (state as ReadLoadedState).copyWith(
+          createIteratorError: noneError,
           isLoading: false,
+          chapterReadAt: castedEvent.chapterReadAt,
           chapter: castedEvent.chapter,
           pageIterator: castedEvent.pageIterator,
         );

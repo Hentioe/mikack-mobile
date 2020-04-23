@@ -7,7 +7,7 @@ import '../models.dart';
 abstract class ReadState extends Equatable {}
 
 class ReadLoadedState extends ReadState {
-  final bool error;
+  final ErrorWrapper createIteratorError;
   final ReadingModeType readingMode;
   final bool isLeftHandMode;
   final int preLoading;
@@ -22,7 +22,7 @@ class ReadLoadedState extends ReadState {
   final int preFetchAt;
 
   ReadLoadedState({
-    this.error = false,
+    this.createIteratorError = noneError,
     @required this.readingMode,
     @required this.isLeftHandMode,
     @required this.preLoading,
@@ -39,7 +39,7 @@ class ReadLoadedState extends ReadState {
 
   @override
   List<Object> get props => [
-        error,
+        createIteratorError,
         readingMode,
         isLeftHandMode,
         preLoading,
@@ -55,7 +55,7 @@ class ReadLoadedState extends ReadState {
       ];
 
   ReadLoadedState copyWith({
-    bool error,
+    ErrorWrapper createIteratorError,
     ReadingModeType readingMode,
     bool isLeftHandMode,
     int preLoading,
@@ -70,7 +70,7 @@ class ReadLoadedState extends ReadState {
     int preFetchAt,
   }) =>
       ReadLoadedState(
-        error: error ?? this.error,
+        createIteratorError: createIteratorError ?? this.createIteratorError,
         readingMode: readingMode ?? this.readingMode,
         isLeftHandMode: isLeftHandMode ?? this.isLeftHandMode,
         preLoading: preLoading ?? this.preLoading,

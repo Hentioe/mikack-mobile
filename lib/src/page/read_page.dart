@@ -501,6 +501,20 @@ class _ReadPageState extends State<ReadPage> {
     );
   }
 
+  Widget _buildRetryView() {
+    var stateSnapshot = bloc.state as ReadLoadedState;
+    return Center(
+      child: RaisedButton(
+          child: Text('重试'),
+          onPressed: () {
+            bloc.add(ReadCreatePageIteratorEvent(
+              chapter: widget.chapters[stateSnapshot.chapterReadAt],
+              chapterReadAt: stateSnapshot.chapterReadAt,
+            ));
+          }),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -602,27 +616,21 @@ class _ReadPageState extends State<ReadPage> {
               resizeToAvoidBottomInset: castedState.isLoading,
               body: castedState.isLoading
                   ? Container(
-                      child: castedState.error
-                          ? Center(
-                              child: RaisedButton(
-                                  child: Text('重试'),
-                                  onPressed: () {
-                                    // TODO: 处理重试
-                                  }),
-                            )
-                          : TextHint('载入中…'),
+                      child: TextHint('载入中…'),
                     )
-                  : GestureDetector(
-                      child: Stack(
-                        children: [
-                          _buildPagesView(),
-                          ...infoView,
-                          ...paginationSlider,
-                          _buildPageInfoView(),
-                        ],
-                      ),
-                      onTapUp: _handleGlobalTapUp,
-                    ),
+                  : castedState.createIteratorError.error
+                      ? _buildRetryView()
+                      : GestureDetector(
+                          child: Stack(
+                            children: [
+                              _buildPagesView(),
+                              ...infoView,
+                              ...paginationSlider,
+                              _buildPageInfoView(),
+                            ],
+                          ),
+                          onTapUp: _handleGlobalTapUp,
+                        ),
             );
           },
         ),

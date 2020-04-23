@@ -96,3 +96,12 @@ class ReadFreeEvent extends ReadEvent {
   @override
   List<Object> get props => [pageIterator];
 }
+
+class ReadCreatePageIteratorFailedEvent extends ReadEvent {
+  final String message;
+
+  ReadCreatePageIteratorFailedEvent({@required this.message});
+
+  @override
+  List<Object> get props => [message];
+}
