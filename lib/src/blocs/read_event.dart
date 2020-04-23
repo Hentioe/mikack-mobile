@@ -31,27 +31,37 @@ class ReadChapterLoadedEvent extends ReadEvent {
 }
 
 class ReadPageLoadedEvent extends ReadEvent {
+  final int pageNum;
   final String page;
+  final bool isMakeUp;
 
-  ReadPageLoadedEvent({@required this.page});
+  ReadPageLoadedEvent(
+      {@required this.pageNum, @required this.page, this.isMakeUp});
 
   @override
-  List<Object> get props => [page];
+  List<Object> get props => [pageNum, page, isMakeUp];
 }
 
 class ReadNextPageEvent extends ReadEvent {
   final int page;
-  final bool isPreFetch;
-  final bool isChangeCurrentPage;
+  final int preLoading;
 
   ReadNextPageEvent({
     @required this.page,
-    this.isPreFetch = true,
-    this.isChangeCurrentPage = true,
+    @required this.preLoading,
   });
 
   @override
-  List<Object> get props => [page, isPreFetch, isChangeCurrentPage];
+  List<Object> get props => [page, preLoading];
+}
+
+class ReadMakeUpPageEvent extends ReadEvent {
+  final int page;
+
+  ReadMakeUpPageEvent({@required this.page}) : assert(page != null);
+
+  @override
+  List<Object> get props => [page];
 }
 
 class ReadPrevPageEvent extends ReadEvent {

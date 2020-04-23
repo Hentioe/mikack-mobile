@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:mikack_mobile/src/models.dart';
 import 'package:quiver/iterables.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
@@ -34,9 +35,12 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
 
   @override
   ReadState get initialState => ReadLoadedState(
+        readingMode: ReadingModeType.leftToRight,
         isLeftHandMode: false,
         isShowToolbar: false,
         isLoading: true,
+        preCaching: true,
+        preLoading: defaultPreLoading,
         chapterReadAt: chapterReadAt,
         currentPage: 0,
         pages: const [],
@@ -48,13 +52,25 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
   @override
   Stream<ReadState> mapEventToState(ReadEvent event) async* {
     switch (event.runtimeType) {
-      case ReadSettingsRequestEvent: // 从存储中载入设置
+      case ReadSettingsRequestEvent: // 载入设置
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        // 读取：是否启用左后模式
+        // 读取：阅读模式
+        var readingModeKey = prefs.getString(kReadingMode);
+        var readingMode = readingModeKey != null
+            ? ReadingModeItem(readingModeKey).type()
+            : null;
+        // 读取：预加载页面
+        var preLoading = prefs.getInt(kPreLoading);
+        // 读取：预缓存图片
+        var preCaching = prefs.getBool(kPreCaching);
+        // 读取：是否启用左手模式
         var isLeftHandMode = prefs.getBool(kLeftHandMode);
-        if (isLeftHandMode == null) isLeftHandMode = false;
-        yield (state as ReadLoadedState)
-            .copyWith(isLeftHandMode: isLeftHandMode);
+        yield (state as ReadLoadedState).copyWith(
+          readingMode: readingMode,
+          isLeftHandMode: isLeftHandMode,
+          preLoading: preLoading,
+          preCaching: preCaching,
+        );
         break;
       case ReadCreatePageIteratorEvent: // 创建迭代器
         _pageIteratorIsFreed = false;
@@ -82,7 +98,8 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
           pageIterator: castedEvent.pageIterator,
         );
         // 载入第一页
-        add(ReadNextPageEvent(page: 1));
+        add(ReadNextPageEvent(
+            page: 1, preLoading: (state as ReadLoadedState).preLoading));
         // 添加到阅读历史
         addHistory(castedEvent.chapter);
         break;
@@ -90,45 +107,47 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
         var castedEvent = event as ReadNextPageEvent;
         var stateSnapshot = state as ReadLoadedState;
         if (castedEvent.page > stateSnapshot.pages.length ||
-            (castedEvent.isPreFetch &&
-                castedEvent.page > stateSnapshot.preFetchAt - 2)) {
+            (castedEvent.page > stateSnapshot.preFetchAt - 1)) {
           // 载入后续页面（包括预加载）
-          if (castedEvent.isPreFetch) {
-            for (var _ in range(3)) {
-              if (stateSnapshot.preFetchAt + 1 <=
-                  stateSnapshot.chapter.pageCount) {
-                // 自增预加载位置
-                stateSnapshot = stateSnapshot.copyWith(
-                    preFetchAt: stateSnapshot.preFetchAt + 1);
-                yield stateSnapshot;
-                // 获取下一页
-                _fetchNextPage(stateSnapshot.pageIterator).then((address) {
-                  add(ReadPageLoadedEvent(page: address));
-                }).catchError((e) {
-                  // TODO: 响应翻页错误
-                  print(e);
-                });
-              }
-            }
-          } else {
-            // 载入下一页（无预加载）
-            if (stateSnapshot.preFetchAt < castedEvent.page) {
+          for (var i in range(castedEvent.preLoading + 1)) {
+            if ((stateSnapshot.preFetchAt + 1 <=
+                    stateSnapshot.chapter.pageCount) &&
+                (stateSnapshot.preFetchAt <=
+                    stateSnapshot.currentPage + stateSnapshot.preLoading)) {
+              // 自增预加载位置
+              stateSnapshot = stateSnapshot.copyWith(
+                  preFetchAt: stateSnapshot.preFetchAt + 1);
+              yield stateSnapshot;
+              // 获取下一页
               _fetchNextPage(stateSnapshot.pageIterator).then((address) {
-                add(ReadPageLoadedEvent(page: address));
+                add(ReadPageLoadedEvent(
+                    pageNum: stateSnapshot.currentPage + 1 + i, page: address));
               }).catchError((e) {
                 // TODO: 响应翻页错误
                 print(e);
               });
-              stateSnapshot =
-                  stateSnapshot.copyWith(preFetchAt: castedEvent.page);
-              yield stateSnapshot;
             }
           }
         }
         // 修改页码
-        if (castedEvent.isChangeCurrentPage)
-          yield stateSnapshot.copyWith(
-              currentPage: stateSnapshot.currentPage + 1);
+        yield stateSnapshot.copyWith(
+            currentPage: stateSnapshot.currentPage + 1);
+        break;
+      case ReadMakeUpPageEvent: // 弥补空缺页面（无预加载）
+        var castedEvent = event as ReadMakeUpPageEvent;
+        var stateSnapshot = state as ReadLoadedState;
+        // 载入下一页
+        if (stateSnapshot.preFetchAt < castedEvent.page) {
+          var isMakeUp = castedEvent.page != stateSnapshot.currentPage;
+          _fetchNextPage(stateSnapshot.pageIterator).then((address) {
+            add(ReadPageLoadedEvent(
+                pageNum: castedEvent.page, page: address, isMakeUp: isMakeUp));
+          }).catchError((e) {
+            // TODO: 响应翻页错误
+            print(e);
+          });
+          yield stateSnapshot.copyWith(preFetchAt: castedEvent.page);
+        }
         break;
       case ReadPrevPageEvent: // 请求上一页
         var stateSnapshot = state as ReadLoadedState;
@@ -138,8 +157,12 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
       case ReadPageLoadedEvent: // 页面数据装载
         var castedEvent = event as ReadPageLoadedEvent;
         var castedState = state as ReadLoadedState;
-        yield castedState
-            .copyWith(pages: [...castedState.pages, castedEvent.page]);
+        bool preCaching;
+        if (castedEvent.isMakeUp ?? false)
+          preCaching = false; // 如果是弥补空缺页面则不进行预缓存
+        yield castedState.copyWith(
+            preCaching: preCaching,
+            pages: [...castedState.pages, castedEvent.page]);
         break;
       case ReadToolbarDisplayStatusChangedEvent: // 工具栏显示状态改变
         var stateSnapshot = state as ReadLoadedState;

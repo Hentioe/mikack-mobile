@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:mikack_mobile/src/models.dart';
 import 'package:quiver/iterables.dart';
 
 import '../helper/chrome.dart';
@@ -79,11 +80,7 @@ class _ReadPageState extends State<ReadPage> {
     if (page > stateSnapshot.preFetchAt) // 非滑动过渡页面，直接跳转页码，自动加载中间空白页面
       for (var i in range(page - stateSnapshot.preFetchAt)) {
         bloc.add(
-          ReadNextPageEvent(
-            page: stateSnapshot.preFetchAt + i + 1,
-            isPreFetch: false,
-            isChangeCurrentPage: false,
-          ),
+          ReadMakeUpPageEvent(page: stateSnapshot.preFetchAt + i + 1),
         );
       }
   }
@@ -96,7 +93,9 @@ class _ReadPageState extends State<ReadPage> {
         page == stateSnapshot.chapter.pageCount + 1) return;
     if (page > stateSnapshot.currentPage) {
       // 下一页
-      bloc.add(ReadNextPageEvent(page: stateSnapshot.currentPage + 1));
+      bloc.add(ReadNextPageEvent(
+          page: stateSnapshot.currentPage + 1,
+          preLoading: stateSnapshot.preLoading));
     } else {
       // 上一页
       bloc.add(ReadPrevPageEvent());
@@ -356,11 +355,22 @@ class _ReadPageState extends State<ReadPage> {
 
   Widget _buildPagesView() {
     var stateSnapshot = bloc.state as ReadLoadedState;
+    var scrollDirection;
+    switch (stateSnapshot.readingMode) {
+      case ReadingModeType.leftToRight:
+        scrollDirection = Axis.horizontal;
+        break;
+      case ReadingModeType.topToBottom:
+        scrollDirection = Axis.vertical;
+        break;
+      case ReadingModeType.paperRoll:
+        return TextHint('暂未实现卷纸模式');
+    }
     return Positioned.fill(
       top: stateSnapshot.isShowToolbar ? MediaQuery.of(context).padding.top : 0,
       child: ExtendedImageGesturePageView.builder(
         controller: pageController,
-        scrollDirection: Axis.horizontal,
+        scrollDirection: scrollDirection,
         itemCount: stateSnapshot.chapter.pageCount + 2,
         itemBuilder: (ctx, index) {
           if (index == 0) {
@@ -411,11 +421,12 @@ class _ReadPageState extends State<ReadPage> {
           ),
           BlocListener<ReadBloc, ReadState>(
             bloc: bloc,
-            // 预加载提前缓存图片
+            // 预缓存图片
             condition: (prevState, state) {
               if (prevState != bloc.initialState &&
                   prevState is ReadLoadedState &&
-                  state is ReadLoadedState) {
+                  state is ReadLoadedState &&
+                  state.preCaching) {
                 // 页面数量有变化，但当前页码没变（需剔除直接加载的第一个页面）
                 return prevState.pages.length > 0 &&
                     prevState.pages.length != state.pages.length &&
@@ -425,7 +436,6 @@ class _ReadPageState extends State<ReadPage> {
             },
             listener: (context, state) {
               var stateSnapshot = state as ReadLoadedState;
-              // 预缓存图片资源
               precacheImage(
                 ExtendedImage.network(
                   stateSnapshot.pages.last,
