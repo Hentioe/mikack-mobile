@@ -9,13 +9,14 @@ Mikack 是一款开源的漫画阅读器。针对移动设备设计，实用且�
 
 ## 技术介绍
 
-本软件的核心功能使用 Rust 语言实现，由 Flutter 框架构建客户端。本项目是 [mikack](https://github.com/Hentioe/mikack) 周边的一员，是支持程度最高的上层应用。
+本软件的核心功能使用 Rust 语言实现，由 Flutter 框架构建客户端。是跨平台的 [mikack](https://github.com/Hentioe/mikack) 生态对移动领域的扩展。作为周边项目的一员，是支持程度最高的上层应用。
+
+本应用是 Rust 参与 Flutter 应用开发的现实案例。
 
 参考性：
 
-1. 具有一定复杂度的 Rust C ABI 导出和 Dart FFI 绑定
-1. 界面/逻辑彻底分离的 [BLoC](https://www.didierboelens.com/2018/08/reactive-programming-streams-bloc/) 模式的完整实践
-1. 使用 Rust 参与 Flutter 应用开发的现实案例
+1. Rust C ABI 导出和 Dart FFI 绑定
+1. 对 [BLoC](https://www.didierboelens.com/2018/08/reactive-programming-streams-bloc/) 模式（剥离 UI 中的业务逻辑）的完整实践
 
 _注：Flutter 是跨平台的框架，但本项目的第一级支持目标当前只有 Android 平台。_
 
