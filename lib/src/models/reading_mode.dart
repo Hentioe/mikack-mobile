@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import '../values.dart';
 import '../exceptions.dart';
 
-final unknownReadingException = UnknownException('Unknown reading mode');
+final unknownReadingModeException = UnknownException('Unknown reading mode');
 
 class ReadingModeItem extends Equatable {
   final String key;
@@ -22,9 +22,9 @@ class ReadingModeItem extends Equatable {
       case kTopToBottom:
         return '从上到下';
       case kPaperRoll:
-        return '卷纸模式';
+        return '卷纸模式（实验性）';
       default:
-        throw unknownReadingException;
+        throw unknownReadingModeException;
     }
   }
 
@@ -37,7 +37,7 @@ class ReadingModeItem extends Equatable {
       case kPaperRoll:
         return ReadingModeType.paperRoll;
       default:
-        throw unknownReadingException;
+        throw unknownReadingModeException;
     }
   }
 }

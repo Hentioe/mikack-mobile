@@ -43,7 +43,9 @@ class ReadPage extends StatefulWidget {
 class _ReadPageState extends State<ReadPage> {
   ReadBloc bloc;
 
-  PageController pageController;
+  PageController _pageController;
+  ScrollController _scrollController;
+  var pageSizes = <int, double>{};
 
   @override
   void initState() {
@@ -68,16 +70,24 @@ class _ReadPageState extends State<ReadPage> {
     // 释放迭代器
     bloc.add(ReadFreeEvent(pageIterator: stateSnapshot.pageIterator));
     bloc.close();
-    pageController?.dispose();
+    _pageController?.dispose();
     super.dispose();
   }
 
   void _handleSliderChange(double value) {
     var page = value.toInt();
     var stateSnapshot = bloc.state as ReadLoadedState;
-    pageController.jumpToPage(page);
+    // 跳转页面
+    _pageController?.jumpToPage(page);
+    if (_scrollController != null) {
+      // 叠加之前页的总长度
+      var offset = pageSizes.entries
+          .where((entry) => entry.key <= page)
+          .map((entry) => entry.value)
+          .reduce((a, b) => a + b);
+      _scrollController.jumpTo(offset);
+    }
     bloc.add(ReadCurrentPageForceChangedEvent(page: page));
-
     if (page > stateSnapshot.preFetchAt) // 非滑动过渡页面，直接跳转页码，自动加载中间空白页面
       for (var i in range(page - stateSnapshot.preFetchAt)) {
         bloc.add(
@@ -104,17 +114,39 @@ class _ReadPageState extends State<ReadPage> {
   }
 
   _animateNextPage() {
-    pageController.nextPage(
+    _pageController?.nextPage(
       duration: Duration(milliseconds: 80),
       curve: Curves.easeInCubic,
     );
+    if (_scrollController != null) {
+      var stateSnapshot = bloc.state as ReadLoadedState;
+      // 叠加当前页的总长度
+      var offset = pageSizes.entries
+          .where((entry) => entry.key <= stateSnapshot.currentPage)
+          .map((entry) => entry.value)
+          .reduce((a, b) => a + b);
+      _scrollController.animateTo(offset,
+          duration: Duration(milliseconds: 80), curve: Curves.easeInCubic);
+    }
   }
 
   _animatePrevPage() {
-    pageController.previousPage(
+    var stateSnapshot = bloc.state as ReadLoadedState;
+    _pageController?.previousPage(
       duration: Duration(milliseconds: 80),
       curve: Curves.easeInCubic,
     );
+    if (_scrollController != null) {
+      // 叠加之前页的总长度
+      var offset = 0.0;
+      if (stateSnapshot.currentPage > 2)
+        offset = pageSizes.entries
+            .where((entry) => entry.key < stateSnapshot.currentPage - 1)
+            .map((entry) => entry.value)
+            .reduce((a, b) => a + b);
+      _scrollController.animateTo(offset,
+          duration: Duration(milliseconds: 80), curve: Curves.easeInCubic);
+    }
   }
 
   void _handleGlobalTapUp(TapUpDetails details) {
@@ -190,19 +222,38 @@ class _ReadPageState extends State<ReadPage> {
             return Center(
               child: const CircularProgressIndicator(),
             );
-            break;
           case LoadState.failed:
             return Center(
               child: RaisedButton(
                   child: Text('重试'), onPressed: () => state.reLoadImage()),
             ); // 加载失败显示标题文本
-            break;
+          case LoadState.completed:
+            return null;
           default:
             return null;
-            break;
         }
       },
     );
+  }
+
+  void _scrollEvent() {
+    var stateSnapshot = bloc.state as ReadLoadedState;
+    // 计算页码
+    var offset = _scrollController.offset;
+    var currentSum = 0.0;
+    var page = 1;
+    for (var i = 1; i < pageSizes.length + 1; i++) {
+      currentSum += pageSizes[i];
+      if (currentSum > offset) break;
+      page++;
+    }
+    if (page > stateSnapshot.currentPage) {
+      if (page < stateSnapshot.chapter.pageCount + 1)
+        bloc.add(ReadNextPageEvent(
+            page: page, preLoading: stateSnapshot.preLoading));
+    } else if (page < stateSnapshot.currentPage) {
+      bloc.add(ReadPrevPageEvent());
+    }
   }
 
   final connectingView = const SpinKitPouringHourglass(
@@ -353,11 +404,60 @@ class _ReadPageState extends State<ReadPage> {
   }
 
   Widget _buildPaperRollPagesView() {
-//    var stateSnapshot = bloc.state as ReadLoadedState;
-    //  取屏幕的 1/6
-//    var loadingContentSpacing = MediaQuery.of(context).size.height / 6;
-    return Center(
-      child: TextHint('暂不支持卷纸模式'),
+    var stateSnapshot = bloc.state as ReadLoadedState;
+    var screenHeight = MediaQuery.of(context).size.height;
+    var screenWidth = MediaQuery.of(context).size.width;
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      controller: _scrollController,
+      itemCount: stateSnapshot.chapter.pageCount,
+      itemBuilder: (ctx, index) {
+        if (index >= stateSnapshot.pages.length) {
+          return Container(
+              height: screenHeight,
+              child: Center(
+                child: Text(
+                  (index + 1).toString(),
+                  style:
+                      TextStyle(fontSize: 50, color: _connectingIndicatorColor),
+                ),
+              ));
+        } else {
+          return ExtendedImage.network(
+            stateSnapshot.pages[index],
+            headers: stateSnapshot.chapter.pageHeaders,
+            fit: BoxFit.contain,
+            cache: true,
+            loadStateChanged: (state) {
+              switch (state.extendedImageLoadState) {
+                case LoadState.loading:
+                  return Container(
+                    height: screenHeight,
+                    child: Center(
+                      child: const CircularProgressIndicator(),
+                    ),
+                  );
+                case LoadState.failed:
+                  return Center(
+                    child: RaisedButton(
+                        child: Text('重试'),
+                        onPressed: () => state.reLoadImage()),
+                  ); // 加载失败显示标题文本
+                case LoadState.completed:
+                  var rawHeight = state.extendedImageInfo.image.height;
+                  var rawWidth = state.extendedImageInfo.image.width;
+                  // 屏幕显示长度需要按照缩放比例计算
+                  var r = rawWidth / screenWidth;
+                  var height = rawHeight / r;
+                  pageSizes[index + 1] = height;
+                  return null;
+                default:
+                  return null;
+              }
+            },
+          );
+        }
+      },
     );
   }
 
@@ -376,7 +476,7 @@ class _ReadPageState extends State<ReadPage> {
     }
     return Positioned.fill(
       child: ExtendedImageGesturePageView.builder(
-        controller: pageController,
+        controller: _pageController,
         scrollDirection: scrollDirection,
         itemCount: stateSnapshot.chapter.pageCount + 2,
         itemBuilder: (ctx, index) {
@@ -422,8 +522,24 @@ class _ReadPageState extends State<ReadPage> {
                 return false;
             },
             listener: (context, state) {
-              // 初始化 PageController
-              pageController = PageController(initialPage: 1);
+              var castedState = state as ReadLoadedState;
+              // 初始化 Controller
+              if (castedState.readingMode == ReadingModeType.paperRoll) {
+                _pageController?.dispose();
+                _pageController = null;
+                _scrollController = ScrollController();
+                _scrollController.addListener(_scrollEvent);
+              } else {
+                _scrollController?.dispose();
+                _scrollController?.removeListener(_scrollEvent);
+                _scrollController = null;
+                _pageController = PageController(initialPage: 1);
+              }
+              var screenHeight = MediaQuery.of(context).size.height;
+              pageSizes.clear();
+              range(castedState.chapter.pageCount).forEach((i) {
+                pageSizes[i + 1] = screenHeight;
+              });
               // 全屏
               hiddenSystemUI();
             },
