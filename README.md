@@ -9,7 +9,7 @@ Mikack 是一款开源的漫画阅读器。针对移动设备设计，实用且�
 
 ## 技术介绍
 
-本软件的核心功能使用 Rust 语言实现，由 Flutter 框架构建客户端。本项目是 [mikack](https://github.com/Hentioe/mikack) 生态周边的一员，是支持程度最高的上层应用。
+本软件的核心功能使用 Rust 语言实现，由 Flutter 框架构建客户端。本项目是 [mikack](https://github.com/Hentioe/mikack) 周边的一员，是支持程度最高的上层应用。
 
 参考性：
 
