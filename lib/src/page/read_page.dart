@@ -1,5 +1,6 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -583,6 +584,20 @@ class _ReadPageState extends State<ReadPage> {
                 ).image,
                 context,
               );
+            },
+          ),
+          BlocListener<ReadBloc, ReadState>(
+            bloc: bloc,
+            // 创建迭代器失败（弹出错误提示）
+            condition: (prevState, state) {
+              return prevState is ReadLoadedState &&
+                  state is ReadLoadedState &&
+                  state.createIteratorError.error;
+            },
+            listener: (context, state) {
+              var stateSnapshot = state as ReadLoadedState;
+              Fluttertoast.showToast(
+                  msg: stateSnapshot.createIteratorError.message);
             },
           ),
         ],
