@@ -18,8 +18,12 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
   ComicBloc({@required this.platform, @required this.comic});
 
   @override
-  ComicState get initialState =>
-      ComicLoadedState(tabIndex: 0, comic: comic, isFavorite: false);
+  ComicState get initialState => ComicLoadedState(
+        tabIndex: 0,
+        comic: comic,
+        isFavorite: false,
+        columns: defaultChaptersGridColumns,
+      );
 
   @override
   Stream<ComicState> mapEventToState(ComicEvent event) async* {
@@ -177,6 +181,11 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
             add(ComicReadHistoriesUpdateEvent());
             break;
         }
+        break;
+      case ComicChapterColumnsChangedEvent:
+        var castedEvent = event as ComicChapterColumnsChangedEvent;
+        yield (state as ComicLoadedState)
+            .copyWith(columns: castedEvent.columns);
         break;
     }
   }

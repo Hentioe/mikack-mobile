@@ -2,10 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
 import 'package:mikack/models.dart';
 
-class ComicEvent extends Equatable {
-  @override
-  List<Object> get props => [];
-}
+abstract class ComicEvent extends Equatable {}
 
 class ComicLoadedEvent extends ComicEvent {
   final Comic comic;
@@ -79,4 +76,13 @@ class ComicReadingMarkUpdateEvent extends ComicEvent {
 class ComicReadingMarkCleanRequestEvent extends ComicEvent {
   @override
   List<Object> get props => [];
+}
+
+class ComicChapterColumnsChangedEvent extends ComicEvent {
+  final int columns;
+
+  ComicChapterColumnsChangedEvent({@required this.columns});
+
+  @override
+  List<Object> get props => [columns];
 }

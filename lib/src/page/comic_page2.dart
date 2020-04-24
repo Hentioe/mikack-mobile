@@ -253,6 +253,29 @@ class _ComicPageState extends State<ComicPage2> {
     );
   }
 
+  List<Widget> _buildToolbarButtons() {
+    var stateSnapshot = bloc.state as ComicLoadedState;
+    return [
+      stateSnapshot.columns == 3
+          ? _ToolbarButton(
+              icon: Icons.view_module,
+              text: '紧凑排列',
+              onTap: () =>
+                  bloc.add(ComicChapterColumnsChangedEvent(columns: 2)),
+            )
+          : _ToolbarButton(
+              icon: Icons.view_week,
+              text: '宽松排列',
+              onTap: () =>
+                  bloc.add(ComicChapterColumnsChangedEvent(columns: 3)),
+            ),
+      _ToolbarButton(
+          icon: Icons.sort,
+          text: stateSnapshot.reversed ? '倒序' : '正序',
+          onTap: () => bloc.add(ComicReverseEvent())),
+    ];
+  }
+
   Widget _buildComicChaptersView() {
     var stateSnapshot = bloc.state as ComicLoadedState;
     if (stateSnapshot.error)
@@ -271,23 +294,40 @@ class _ComicPageState extends State<ComicPage2> {
     var chapters = stateSnapshot.comic.chapters;
     if (chapters.length > 1 && stateSnapshot.reversed)
       chapters = reverseByGroup(chapters);
-    return GridView.count(
-      crossAxisCount: 3,
-      shrinkWrap: true,
-      mainAxisSpacing: _chapterSpacing,
-      crossAxisSpacing: _chapterSpacing,
-      padding: EdgeInsets.all(_chapterSpacing),
-      childAspectRatio: 4.2,
-      physics: ClampingScrollPhysics(),
-      children: chapters
-          .map((c) => _ChapterItem(
-                chapter: c,
-                hasReadMark: stateSnapshot.readHistoryAddresses.contains(c.url),
-                isLastRead: stateSnapshot.lastReadAt != null &&
-                    stateSnapshot.lastReadAt == c.url,
-                onPressed: _handleOpenReadPage(context, stateSnapshot.comic),
-              ))
-          .toList(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.only(
+            left: _chapterSpacing - _toolBarButtonPaddingSize,
+            top: _chapterSpacing,
+            right: _chapterSpacing,
+          ),
+          child: Wrap(
+            children: _buildToolbarButtons(),
+          ),
+        ),
+        GridView.count(
+          crossAxisCount: stateSnapshot.columns,
+          shrinkWrap: true,
+          mainAxisSpacing: _chapterSpacing,
+          crossAxisSpacing: _chapterSpacing,
+          padding: EdgeInsets.all(_chapterSpacing),
+          childAspectRatio: stateSnapshot.columns == 3 ? 4.2 : 6.2,
+          physics: ClampingScrollPhysics(),
+          children: chapters
+              .map((c) => _ChapterItem(
+                    chapter: c,
+                    hasReadMark:
+                        stateSnapshot.readHistoryAddresses.contains(c.url),
+                    isLastRead: stateSnapshot.lastReadAt != null &&
+                        stateSnapshot.lastReadAt == c.url,
+                    onPressed:
+                        _handleOpenReadPage(context, stateSnapshot.comic),
+                  ))
+              .toList(),
+        ),
+      ],
     );
   }
 
@@ -297,11 +337,6 @@ class _ComicPageState extends State<ComicPage2> {
         tooltip: '分享此漫画',
         icon: Icon(Icons.share),
         onPressed: () => _handleShare(latestComic),
-      ),
-      IconButton(
-        tooltip: '反转排序',
-        icon: Icon(Icons.swap_vert),
-        onPressed: () => bloc.add(ComicReverseEvent()),
       ),
     ];
   }
@@ -362,6 +397,38 @@ class _ComicPageState extends State<ComicPage2> {
           );
         },
       ),
+    );
+  }
+}
+
+const _toolBarButtonPaddingSize = 6.0;
+
+class _ToolbarButton extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final void Function() onTap;
+
+  _ToolbarButton({@required this.icon, this.text, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+//      highlightColor: Colors.black.withAlpha(20),
+      child: Container(
+        padding: EdgeInsets.only(
+            left: _toolBarButtonPaddingSize, right: _toolBarButtonPaddingSize),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: vPrimarySwatch[300], size: 24),
+            Text(text,
+                style: TextStyle(color: vPrimarySwatch[300], fontSize: 11)),
+          ],
+        ),
+      ),
+      onTap: () {
+        if (onTap != null) onTap();
+      },
     );
   }
 }

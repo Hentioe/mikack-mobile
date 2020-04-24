@@ -13,6 +13,7 @@ class ComicLoadedState extends ComicState {
   final Comic comic;
   final bool isFavorite;
   final bool reversed;
+  final int columns;
   final List<String> readHistoryAddresses;
   final String lastReadAt;
 
@@ -22,13 +23,22 @@ class ComicLoadedState extends ComicState {
     @required this.comic,
     @required this.isFavorite,
     this.reversed = false,
+    @required this.columns,
     this.readHistoryAddresses = const <String>[],
     this.lastReadAt,
   });
 
   @override
-  List<Object> get props =>
-      [tabIndex, error, comic, isFavorite, reversed, readHistoryAddresses];
+  List<Object> get props => [
+        tabIndex,
+        error,
+        comic,
+        isFavorite,
+        reversed,
+        columns,
+        readHistoryAddresses,
+        lastReadAt,
+      ];
 
   ComicLoadedState copyWith({
     int tabIndex,
@@ -36,6 +46,7 @@ class ComicLoadedState extends ComicState {
     Comic comic,
     bool isFavorite,
     bool reversed,
+    int columns,
     List<String> readHistoryAddresses,
     String lastReadAt,
   }) {
@@ -45,6 +56,7 @@ class ComicLoadedState extends ComicState {
       comic: comic ?? this.comic,
       isFavorite: isFavorite ?? this.isFavorite,
       reversed: reversed ?? this.reversed,
+      columns: columns ?? this.columns,
       readHistoryAddresses: readHistoryAddresses ?? this.readHistoryAddresses,
       lastReadAt: lastReadAt ?? this.lastReadAt,
     );
