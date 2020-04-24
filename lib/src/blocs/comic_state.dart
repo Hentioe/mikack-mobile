@@ -13,7 +13,7 @@ class ComicLoadedState extends ComicState {
   final Comic comic;
   final bool isFavorite;
   final bool reversed;
-  final readHistoryAddresses;
+  final List<String> readHistoryAddresses;
   final String lastReadAt;
 
   ComicLoadedState({
