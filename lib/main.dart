@@ -2,19 +2,23 @@ import 'dart:collection';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mikack_mobile/src/logging.dart';
-import 'package:mikack_mobile/pages/search.dart';
-import 'package:mikack_mobile/src/page/terms_page.dart';
-import 'package:mikack_mobile/src/widget/series_system_ui.dart';
+import 'package:github_releases/github_models.dart';
+import 'package:package_info/package_info.dart';
 import 'package:quiver/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'src/helper/update_checker.dart';
+import 'src/logging.dart';
+import 'pages/search.dart';
+import 'src/page/terms_page.dart';
+import 'src/widget/series_system_ui.dart';
 import 'src/page/settings_page.dart';
 import 'src/fragments.dart';
 import 'src/blocs.dart';
 import 'src/models.dart';
 import 'src/values.dart';
 import 'src/dialog/libraries_filters_dialog.dart';
+import 'src/widget/updates_sheet.dart';
 
 const bookshelfSortByKey = 'bookshelf_sort_by';
 
@@ -122,6 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<int> _includeTags = [];
   List<int> _excludesTags = [vNsfwTagIntValue];
   bool allowNsfw = false;
+  List<Release> _updates;
 
   @override
   void initState() {
@@ -129,7 +134,18 @@ class _MyHomePageState extends State<MyHomePage> {
     fetchAllowNsfw();
     checkPermAccept();
     sendFragmentEvent();
+    checkNewVersion();
     super.initState();
+  }
+
+  void checkNewVersion() async {
+    var packageInfo = await PackageInfo.fromPlatform();
+    var newestReleases = await checkUpdates(packageInfo);
+    if (newestReleases != null && newestReleases.isNotEmpty) {
+      setState(() {
+        _updates = newestReleases;
+      });
+    }
   }
 
   /// 根据 fragment 类型发送事件（当内容页为 StatelessWidget 时需要）
@@ -309,6 +325,22 @@ class _MyHomePageState extends State<MyHomePage> {
       ));
     }
 
+    List<Widget> _buildNewVersionFound() {
+      var children = <Widget>[];
+      if (_updates != null && _updates.isNotEmpty) {
+        children.add(ListTile(
+          leading: Icon(Icons.new_releases),
+          title: Text('发现新版！'),
+          onTap: () => showModalBottomSheet(
+            context: context,
+            builder: (context) => UpdatesSheet(releases: _updates),
+          ), // 设置页面返回后刷新可能变更的数据
+        ));
+      }
+
+      return children;
+    }
+
     return SeriesSystemUI(
       child: Scaffold(
         appBar: AppBar(
@@ -351,6 +383,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       builder: (_) => SettingsPage2(appContext: context)),
                 ).then((_) => fetchAllowNsfw()), // 设置页面返回后刷新可能变更的数据
               ),
+              ..._buildNewVersionFound(),
             ],
           ),
         ),

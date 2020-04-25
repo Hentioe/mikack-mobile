@@ -16,9 +16,9 @@ import '../values.dart';
 const _sizeUnit = 1024 * 1024;
 
 class UpdatesSheet extends StatefulWidget {
-  final Release release;
+  final List<Release> releases;
 
-  UpdatesSheet({@required this.release});
+  UpdatesSheet({@required this.releases});
 
   @override
   State<StatefulWidget> createState() => _UpdatesSheetState();
@@ -72,7 +72,7 @@ class _UpdatesSheetState extends State<UpdatesSheet> {
 
   void _scheduleDownloadTask(String url) async {
     var tempDir = (await getExternalCacheDirectories()).first.path;
-    var file = File('$tempDir/${widget.release.tagName}.apk');
+    var file = File('$tempDir/${widget.releases.first.tagName}.apk');
 
     if (!await file.exists()) {
       _initProgressDialogWithShow();
@@ -99,19 +99,35 @@ class _UpdatesSheetState extends State<UpdatesSheet> {
 
   @override
   Widget build(BuildContext context) {
+    var latestUpdates = widget.releases.first.body;
+    var historyUpdates = widget.releases
+        .skip(1)
+        .map((r) => '**${r.tagName}**\n${r.body}')
+        .join('\n\n');
+    var updateContent = latestUpdates;
+    if (historyUpdates.isNotEmpty) {
+      updateContent += '\n- - -\n\n$historyUpdates';
+    }
     return Container(
       child: Column(
         children: <Widget>[
           SizedBox(height: 10),
           Text(
-            '发现新版：${widget.release.tagName}',
+            '发现新版：${widget.releases.first.tagName}',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
           ),
           Expanded(
-            child: Markdown(data: widget.release.body),
+            child: Markdown(
+              data: updateContent,
+              styleSheet: MarkdownStyleSheet(
+                  horizontalRuleDecoration: ShapeDecoration(
+                color: Colors.black,
+                shape: Border.all(width: .08),
+              )),
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -119,15 +135,15 @@ class _UpdatesSheetState extends State<UpdatesSheet> {
               Expanded(
                 child: MaterialButton(
                   child: Text(
-                    '安装新版本',
+                    '安装最新版',
                     style: TextStyle(color: Colors.black),
                   ),
                   onPressed: () {
-                    if (widget.release.assets.isEmpty) {
+                    if (widget.releases.first.assets.isEmpty) {
                       Fluttertoast.showToast(msg: '没有找到更新附件，也许是作者忘上传了～');
                     } else {
-                      _scheduleDownloadTask(
-                          widget.release.assets.first.browserDownloadUrl);
+                      _scheduleDownloadTask(widget
+                          .releases.first.assets.first.browserDownloadUrl);
                     }
                   },
                 ),

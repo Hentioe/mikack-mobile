@@ -2,7 +2,6 @@ import 'package:easy_dialogs/easy_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:github_releases/github_releases.dart';
 import 'package:package_info/package_info.dart';
 import 'package:quiver/iterables.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,9 +10,9 @@ import 'terms_page.dart';
 import 'thanks_page.dart';
 import '../blocs.dart';
 import '../values.dart';
-import '../ext.dart';
 import '../widget/updates_sheet.dart';
 import '../models.dart';
+import '../helper/update_checker.dart';
 
 const _settingsItemSpacing = 16.0;
 const _settingsPadding = 18.0;
@@ -115,23 +114,17 @@ class _SettingsPageState extends State<SettingsPage2> {
     }
   }
 
-  bool isNewestVersion(PackageInfo packageInfo, String tagName) {
-    return 'v${packageInfo.tagging()}' != tagName;
-  }
-
   Function() _handleCheckUpdate(
           BuildContext context, PackageInfo packageInfo) =>
       () async {
         Fluttertoast.showToast(msg: '检查更新中，请稍等…');
-        var releases = await getReleases(vRepoOwner, vRepoName);
-        if (releases.length == 0 ||
-            !isNewestVersion(packageInfo, releases.first.tagName)) {
+        var updates = await checkUpdates(packageInfo);
+        if (updates == null)
           Fluttertoast.showToast(msg: '暂未发现更新');
-        } else {
-          var lastRelease = releases.first;
+        else {
           showModalBottomSheet(
             context: widget.appContext,
-            builder: (context) => UpdatesSheet(release: lastRelease),
+            builder: (context) => UpdatesSheet(releases: updates),
           );
         }
       };
@@ -345,7 +338,9 @@ class _SettingsPageState extends State<SettingsPage2> {
                     '关于',
                     children: [
                       _SettingItem('检查更新',
-                          subtitle: castedState.packageInfo.tagging(),
+                          subtitle: castedState.packageInfo != null
+                              ? '${castedState.packageInfo.version}-${castedState.packageInfo.buildNumber}'
+                              : '获取中…',
                           onTap: _handleCheckUpdate(
                               context, castedState.packageInfo)),
                       _SettingItem(

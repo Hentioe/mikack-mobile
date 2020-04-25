@@ -58,8 +58,8 @@ extension ComicExt on Comic {
 }
 
 extension PackageInfoExt on PackageInfo {
-  String tagging() {
+  String tagized() {
     if (this == null) return 'Unknown';
-    return '${this.version}-${this.buildNumber}';
+    return 'v${this.version}-${this.buildNumber}';
   }
 }
