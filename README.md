@@ -16,7 +16,7 @@ Mikack 是一款开源的漫画阅读器。针对移动设备设计，实用且�
 参考性：
 
 1. Rust C ABI 导出和 Dart FFI 绑定
-1. 对 [BLoC](https://www.didierboelens.com/2018/08/reactive-programming-streams-bloc/) 模式（剥离 UI 中的业务逻辑）的完整实践
+1. 对 [BLoC](https://www.didierboelens.com/2018/08/reactive-programming-streams-bloc/) 模式的完整实践
 
 _注：Flutter 是跨平台的框架，但本项目的第一级支持目标当前只有 Android 平台。_
 
