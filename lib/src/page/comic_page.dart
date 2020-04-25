@@ -366,8 +366,12 @@ class _ComicPageState extends State<ComicPage> {
             top: _chapterSpacing,
             right: _chapterSpacing,
           ),
-          child: Wrap(
-            children: _buildToolbarButtons(),
+          child: Row(
+            children: [
+              Wrap(
+                children: _buildToolbarButtons(),
+              ),
+            ],
           ),
         ),
         GridView.count(
@@ -504,9 +508,8 @@ class _ToolbarButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: vPrimarySwatch[300], size: 26),
-            Text(text,
-                style: TextStyle(color: vPrimarySwatch[300], fontSize: 12)),
+            Icon(icon, color: Colors.grey, size: 26),
+            Text(text, style: TextStyle(color: Colors.grey, fontSize: 11.5)),
           ],
         ),
       ),
