@@ -1,110 +1,54 @@
-import 'package:flutter/material.dart';
+import 'dart:ui';
+
+import 'package:extended_image/extended_image.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:meta/meta.dart';
+import 'package:flutter/material.dart';
 import 'package:mikack/models.dart' as models;
 import 'package:url_launcher/url_launcher.dart';
 
-import '../blocs.dart';
-import '../widget/series_system_ui.dart';
-import './comic_tabs/info_tab.dart';
-import './comic_tabs/chapters_tab.dart';
-import '../page/read_page.dart';
+import 'read_page.dart';
 import '../helper/chrome.dart';
+import '../values.dart';
+import '../widget/series_system_ui.dart';
+import '../blocs.dart';
+
+const _groupSpacing = 10000;
+const _coverBlurSigma = 3.5;
+const _comicBodyHeight = 200.0;
+const _chapterSpacing = 16.0;
 
 class ComicPage extends StatefulWidget {
-  final int initPageIndex;
   final models.Platform platform;
   final models.Comic comic;
 
   final BuildContext appContext;
 
-  ComicPage({
-    this.initPageIndex = 0,
-    @required this.platform,
-    @required this.comic,
-    this.appContext,
-  });
+  ComicPage({@required this.platform, @required this.comic, this.appContext});
 
   @override
-  State<StatefulWidget> createState() => ComicPageState();
+  State<StatefulWidget> createState() => _ComicPageState();
 
   static final moreMenus = {'在浏览器中打开': 1, '清空已阅读记录': 2};
 }
 
-class ComicPageState extends State<ComicPage>
-    with SingleTickerProviderStateMixin {
+class _ComicPageState extends State<ComicPage> {
   ComicBloc bloc;
-  TabController tabController;
 
   @override
   void initState() {
     bloc = ComicBloc(platform: widget.platform, comic: widget.comic);
     bloc.add(ComicRequestEvent());
-    tabController = TabController(
-        length: 2, vsync: this, initialIndex: widget.initPageIndex);
-    // 手动更新 actions
-    bloc.add(ComicTabChangedEvent(index: widget.initPageIndex));
-    // 添加切换 tab 时间（更新 actions）
-    tabController.addListener(() {
-      bloc.add(ComicTabChangedEvent(index: tabController.index));
-    });
     super.initState();
   }
 
   @override
   void dispose() {
     bloc.close();
-    tabController.dispose();
     super.dispose();
-  }
-
-  void launchUrl(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      Fluttertoast.showToast(
-        msg: '无法自动打开链接',
-      );
-    }
-  }
-
-  void _handleMenuSelect(value, {models.Comic latestComic}) {
-    var comic = latestComic ?? widget.comic;
-    switch (value) {
-      case 1:
-        launchUrl(comic.url);
-        break;
-      case 2:
-        bloc.add(ComicReadingMarkCleanRequestEvent());
-        break;
-    }
-  }
-
-  Widget _buildMoreMenu({models.Comic latestComic}) {
-    return PopupMenuButton<int>(
-      tooltip: '更多功能',
-      icon: Icon(Icons.more_vert),
-      onSelected: (value) => _handleMenuSelect(value, latestComic: latestComic),
-      itemBuilder: (BuildContext context) => ComicPage.moreMenus.entries
-          .map((entry) => PopupMenuItem(
-                value: entry.value,
-                child: Text(entry.key),
-              ))
-          .toList(),
-    );
-  }
-
-  void _handleShare(models.Comic latestComic) async {
-    var comic = latestComic ?? widget.comic;
-    await FlutterShare.share(
-      title: '分享：${comic.title}',
-      linkUrl: comic.url,
-    );
-  }
-
-  void _handleFavorite({bool isCancel}) async {
-    bloc.add(ComicFavoriteEvent(isCancel: isCancel));
   }
 
   Function(models.Chapter) _handleOpenReadPage(
@@ -133,34 +77,346 @@ class ComicPageState extends State<ComicPage>
         });
       };
 
-  Function(models.Chapter) _handleReadingMarkUpdate(
-          BuildContext context, ComicReadingMarkType markType) =>
-      (models.Chapter chapter) {
-        bloc.add(
-            ComicReadingMarkUpdateEvent(markType: markType, chapter: chapter));
-      };
+  void _handleFavorite({bool isCancel}) async {
+    bloc.add(ComicFavoriteEvent(isCancel: isCancel));
+  }
 
   Function() _handleRetry(BuildContext context) => () {
         bloc.add(ComicRetryEvent());
       };
 
-  Widget _buildTabActions(int tabIndex, {models.Comic latestComic}) {
-    var defaultButton = IconButton(
+  void _handleShare(models.Comic latestComic) async {
+    var comic = latestComic ?? widget.comic;
+    await FlutterShare.share(
+      title: '分享：${comic.title}',
+      linkUrl: comic.url,
+    );
+  }
+
+  void launchUrl(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      Fluttertoast.showToast(
+        msg: '无法自动打开链接',
+      );
+    }
+  }
+
+  void _handleMenuSelect(value, {models.Comic latestComic}) {
+    var comic = latestComic ?? widget.comic;
+    switch (value) {
+      case 1:
+        launchUrl(comic.url);
+        break;
+      case 2:
+        bloc.add(ComicReadingMarkCleanRequestEvent());
+        break;
+    }
+  }
+
+  List<models.Chapter> reverseByGroup(List<models.Chapter> chapters,
+      {whichAt = 0, List<List<models.Chapter>> reversedGroup}) {
+    var group = <models.Chapter>[];
+    for (models.Chapter c in chapters) {
+      if (c.which >= whichAt * _groupSpacing &&
+          c.which < (whichAt + 1) * _groupSpacing)
+        group.add(c);
+      else
+        break;
+    }
+    if (reversedGroup == null) reversedGroup = [];
+    reversedGroup.add(group.reversed.toList());
+    if (group.last.which == chapters.last.which) {
+      // 到底了，合并并返回
+      return reversedGroup.expand((c) => c).toList();
+    }
+    return reverseByGroup(
+      chapters.getRange(group.length, chapters.length).toList(),
+      whichAt: ++whichAt,
+      reversedGroup: reversedGroup,
+    );
+  }
+
+  void _handleChapterMenuSelect(int value, models.Chapter chapter) async {
+    var stateSnapshot = bloc.state as ComicLoadedState;
+    switch (value) {
+      case 0: // 标记已读
+        bloc.add(ComicReadingMarkUpdateEvent(
+            markType: ComicReadingMarkType.readOne, chapter: chapter));
+        break;
+      case 1: // 标记未读
+        bloc.add(ComicReadingMarkUpdateEvent(
+            markType: ComicReadingMarkType.unreadOne, chapter: chapter));
+        break;
+      case 2: // 标记之前章节已读
+        var beginAt = chapter.which ~/ _groupSpacing * _groupSpacing;
+        var beforeChapters = stateSnapshot.comic.chapters
+            .where((c) => c.which > beginAt && c.which < chapter.which)
+            .toList();
+        bloc.add(
+          ComicReadingMarkUpdateEvent(
+              markType: ComicReadingMarkType.readBefore,
+              chapters: beforeChapters),
+        );
+        break;
+      default:
+        // 无效菜单
+        break;
+    }
+  }
+
+  Widget _buildFavoriteView() {
+    var stateSnapshot = bloc.state as ComicLoadedState;
+    return Positioned(
+      top: _comicBodyHeight - 28, // 浮动按钮默认大小为 56.0，取一半
+      right: 15,
+      child: FloatingActionButton(
+        heroTag: 'favoriteFab',
+        tooltip: '${stateSnapshot.isFavorite ? '从书架删除' : '添加到书架'}',
+        child: Icon(
+            stateSnapshot.isFavorite ? Icons.bookmark : Icons.bookmark_border),
+        onPressed: () => _handleFavorite(isCancel: stateSnapshot.isFavorite),
+      ),
+    );
+  }
+
+  Widget _buildComicInfoView() {
+    var stateSnapshot = bloc.state as ComicLoadedState;
+    return Stack(
+      children: [
+        Stack(
+          children: [
+            // 背景图
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: ExtendedNetworkImageProvider(
+                    stateSnapshot.comic.cover,
+                    cache: true,
+                  ),
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
+              height: _comicBodyHeight,
+              child: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(
+                      sigmaX: _coverBlurSigma, sigmaY: _coverBlurSigma),
+                  child: Container(
+                    color: Colors.white.withOpacity(0.4),
+                  ),
+                ),
+              ),
+            ),
+            // 表面内容
+            Container(
+              width: double.infinity,
+              height: _comicBodyHeight,
+              padding: EdgeInsets.all(20),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 左图
+                  Hero(
+                    tag: 'cover-${widget.comic.url}',
+                    child: ExtendedImage.network(
+                      stateSnapshot.comic.cover,
+                      width: 100,
+                      cache: true,
+                      loadStateChanged: (state) {
+                        switch (state.extendedImageLoadState) {
+                          case LoadState.failed:
+                            return Center(
+                              child: Text(
+                                '封面',
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                              ),
+                            ); // 加载失败显示标题文本
+                            break;
+                          default:
+                            return null;
+                            break;
+                        }
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  // 文字
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          stateSnapshot.comic.title,
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.fade,
+                        ),
+                        SizedBox(height: 10),
+                        _ComicProperty(
+                            '章节数量',
+                            stateSnapshot.comic.chapters == null
+                                ? '未知'
+                                : stateSnapshot.comic.chapters.length),
+                        SizedBox(height: 10),
+                        _ComicProperty('图源', widget.platform.name),
+                        SizedBox(height: 20),
+                        Text(
+                            stateSnapshot.comic.chapters != null
+                                ? '暂无说明'
+                                : stateSnapshot.error ? '载入失败' : '载入中…',
+                            style: TextStyle(
+                                color: Colors.grey[800], fontSize: 15)),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildToolbarButtons() {
+    var stateSnapshot = bloc.state as ComicLoadedState;
+    return [
+      stateSnapshot.columns == 3
+          ? _ToolbarButton(
+              icon: Icons.view_module,
+              text: '紧凑排列',
+              onTap: () =>
+                  bloc.add(ComicChapterColumnsChangedEvent(columns: 2)),
+            )
+          : _ToolbarButton(
+              icon: Icons.view_week,
+              text: '宽松排列',
+              onTap: () =>
+                  bloc.add(ComicChapterColumnsChangedEvent(columns: 3)),
+            ),
+      _ToolbarButton(
+          icon: Icons.sort,
+          text: stateSnapshot.reversed ? '倒序' : '正序',
+          onTap: () => bloc.add(ComicReverseEvent())),
+    ];
+  }
+
+  void _showChapterMenu(models.Chapter chapter, Offset downPosition) async {
+    var stateSnapshot = bloc.state as ComicLoadedState;
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
+    var r = await showMenu(
+      context: context,
+      position: RelativeRect.fromRect(
+          downPosition & Size(0, 0), Offset.zero & overlay.size),
+      items: [
+        PopupMenuItem(
+          enabled: !stateSnapshot.readHistoryAddresses.contains(chapter.url),
+          value: 0,
+          child: Text('标记已读'),
+        ),
+        PopupMenuItem(
+          enabled: stateSnapshot.readHistoryAddresses.contains(chapter.url),
+          value: 1,
+          child: Text('标记未读'),
+        ),
+        PopupMenuItem(
+          value: 2,
+          child: Text('标记之前章节已读'),
+        ),
+      ],
+    );
+    _handleChapterMenuSelect(r, chapter);
+  }
+
+  Widget _buildComicChaptersView() {
+    var stateSnapshot = bloc.state as ComicLoadedState;
+    if (stateSnapshot.error)
+      return Column(
+        children: [
+          SizedBox(height: 28),
+          Center(
+            child: RaisedButton(
+                child: Text('重试'), onPressed: _handleRetry(context)),
+          ),
+        ],
+      );
+    if (stateSnapshot.comic.chapters == null)
+      return Column(
+        children: [
+          SizedBox(height: 28),
+          Center(
+            child: CircularProgressIndicator(),
+          )
+        ],
+      );
+    var chapters = stateSnapshot.comic.chapters;
+    if (chapters.length > 1 && stateSnapshot.reversed)
+      chapters = reverseByGroup(chapters);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.only(
+            left: _chapterSpacing - _toolBarButtonPaddingSize,
+            top: _chapterSpacing,
+            right: _chapterSpacing,
+          ),
+          child: Wrap(
+            children: _buildToolbarButtons(),
+          ),
+        ),
+        GridView.count(
+          crossAxisCount: stateSnapshot.columns,
+          shrinkWrap: true,
+          mainAxisSpacing: _chapterSpacing,
+          crossAxisSpacing: _chapterSpacing,
+          padding: EdgeInsets.all(_chapterSpacing),
+          childAspectRatio: stateSnapshot.columns == 3 ? 4.2 : 6.2,
+          physics: ClampingScrollPhysics(),
+          children: chapters
+              .map((c) => _ChapterItem(
+                    chapter: c,
+                    hasReadMark:
+                        stateSnapshot.readHistoryAddresses.contains(c.url),
+                    isLastRead: stateSnapshot.lastReadAt != null &&
+                        stateSnapshot.lastReadAt == c.url,
+                    onPressed:
+                        _handleOpenReadPage(context, stateSnapshot.comic),
+                    onLongPressed: _showChapterMenu,
+                  ))
+              .toList(),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildActions({models.Comic latestComic}) {
+    return <Widget>[
+      IconButton(
         tooltip: '分享此漫画',
         icon: Icon(Icons.share),
-        onPressed: () => _handleShare(latestComic));
-    switch (tabIndex) {
-      case 0:
-        return defaultButton;
-      case 1:
-        return IconButton(
-          tooltip: '反转排序',
-          icon: Icon(Icons.swap_horiz),
-          onPressed: () => bloc.add(ComicReverseEvent()),
-        );
-      default:
-        return defaultButton;
-    }
+        onPressed: () => _handleShare(latestComic),
+      ),
+    ];
+  }
+
+  Widget _buildMoreMenu({models.Comic latestComic}) {
+    return PopupMenuButton<int>(
+      tooltip: '更多功能',
+      icon: Icon(Icons.more_vert),
+      onSelected: (value) => _handleMenuSelect(value, latestComic: latestComic),
+      itemBuilder: (BuildContext context) => ComicPage.moreMenus.entries
+          .map((entry) => PopupMenuItem(
+                value: entry.value,
+                child: Text(entry.key),
+              ))
+          .toList(),
+    );
   }
 
   @override
@@ -177,8 +433,8 @@ class ComicPageState extends State<ComicPage>
           return false;
         },
         listener: (context, state) {
-          var castedState = state as ComicLoadedState;
-          var msg = castedState.isFavorite ? '已添加至书架' : '已从书架删除';
+          var stateSnapshot = state as ComicLoadedState;
+          var msg = stateSnapshot.isFavorite ? '已添加至书架' : '已从书架删除';
           Fluttertoast.showToast(msg: msg);
           // 刷新收藏列表
           widget.appContext
@@ -189,70 +445,144 @@ class ComicPageState extends State<ComicPage>
           bloc: bloc,
           builder: (context, state) {
             var castedState = state as ComicLoadedState;
-            var showFloatActionBtn = castedState.comic.chapters != null &&
+            var isShowFloatButton = castedState.comic.chapters != null &&
                 castedState.comic.chapters.length == 1;
             return Scaffold(
+              backgroundColor: Colors.white,
               appBar: AppBar(
                 title: Text(widget.comic.title),
-                bottom: TabBar(
-                  tabs: const [
-                    Tab(text: '信息'),
-                    Tab(text: '章节'),
-                  ],
-                  controller: tabController,
-                ),
                 actions: [
-                  _buildTabActions(
-                    castedState.tabIndex,
-                  ),
+                  ..._buildActions(),
                   _buildMoreMenu(latestComic: castedState.comic),
                 ],
               ),
-              body: TabBarView(
-                controller: tabController,
+              body: Stack(
                 children: [
-                  InfoTab(
-                    widget.platform,
-                    castedState.comic,
-                    error: castedState.error,
-                    handleRetry: _handleRetry(context),
-                    isFavorite: castedState.isFavorite,
-                    handleFavorite: () =>
-                        _handleFavorite(isCancel: castedState.isFavorite),
+                  ListView(
+                    children: [
+                      _buildComicInfoView(),
+                      _buildComicChaptersView(),
+                    ],
                   ),
-                  ChaptersTab(
-                    castedState.comic,
-                    error: castedState.error,
-                    handleRetry: _handleRetry(context),
-                    reversed: castedState.reversed,
-                    readHistoryAddresses: castedState.readHistoryAddresses,
-                    lastReadAt: castedState.lastReadAt,
-                    openReadPage:
-                        _handleOpenReadPage(context, castedState.comic),
-                    handleChapterReadMark: _handleReadingMarkUpdate(
-                        context, ComicReadingMarkType.readOne),
-                    handleChaptersReadMark: (chapters) => bloc.add(
-                        ComicReadingMarkUpdateEvent(
-                            markType: ComicReadingMarkType.readBefore,
-                            chapters: chapters)),
-                    handleChapterUnReadMark: _handleReadingMarkUpdate(
-                        context, ComicReadingMarkType.unreadOne),
-                  ),
+                  _buildFavoriteView(),
                 ],
               ),
-              floatingActionButton: showFloatActionBtn
+              floatingActionButton: isShowFloatButton
                   ? FloatingActionButton(
                       heroTag: 'startReaddingFab',
                       tooltip: '开始阅读',
                       child: Icon(Icons.play_arrow),
                       onPressed: () =>
                           _handleOpenReadPage(context, castedState.comic)(
-                              castedState.comic.chapters.first))
+                              castedState.comic.chapters.first),
+                    )
                   : null,
             );
           },
         ),
       ),
+    );
+  }
+}
+
+const _toolBarButtonPaddingSize = 6.0;
+
+class _ToolbarButton extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final void Function() onTap;
+
+  _ToolbarButton({@required this.icon, this.text, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+//      highlightColor: Colors.black.withAlpha(20),
+      child: Container(
+        padding: EdgeInsets.only(
+            left: _toolBarButtonPaddingSize, right: _toolBarButtonPaddingSize),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: vPrimarySwatch[300], size: 26),
+            Text(text,
+                style: TextStyle(color: vPrimarySwatch[300], fontSize: 12)),
+          ],
+        ),
+      ),
+      onTap: () {
+        if (onTap != null) onTap();
+      },
+    );
+  }
+}
+
+class _ComicProperty extends StatelessWidget {
+  _ComicProperty(this.name, this.value);
+
+  final String name;
+  final Object value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text('$name ',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        Text(value.toString(), style: TextStyle(color: Colors.grey[850])),
+      ],
+    );
+  }
+}
+
+class _ChapterItem extends StatefulWidget {
+  final models.Chapter chapter;
+  final bool hasReadMark;
+  final bool isLastRead;
+  final Function(models.Chapter) onPressed;
+  final Function(models.Chapter, Offset) onLongPressed;
+
+  _ChapterItem({
+    @required this.chapter,
+    this.hasReadMark = false,
+    this.isLastRead = false,
+    this.onPressed,
+    this.onLongPressed,
+  });
+
+  @override
+  __ChapterItemState createState() => __ChapterItemState();
+}
+
+class __ChapterItemState extends State<_ChapterItem> {
+  Offset _downPosition;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: FlatButton(
+        textColor: widget.isLastRead
+            ? Colors.white
+            : widget.hasReadMark ? Colors.grey[500] : null,
+        color: widget.isLastRead ? vPrimarySwatch : null,
+        child: Text(widget.chapter.title,
+            maxLines: 1, style: TextStyle(fontWeight: FontWeight.normal)),
+        shape: RoundedRectangleBorder(
+          borderRadius: new BorderRadius.circular(14),
+          side: BorderSide(
+              color: widget.isLastRead ? vPrimarySwatch : Colors.grey[300]),
+        ),
+        onPressed: () {
+          if (widget.onPressed != null) widget.onPressed(widget.chapter);
+        },
+        onLongPress: () {
+          if (widget.onLongPressed != null)
+            widget.onLongPressed(widget.chapter, _downPosition);
+        },
+      ),
+      onTapDown: (detail) {
+        _downPosition = detail.globalPosition;
+      },
     );
   }
 }

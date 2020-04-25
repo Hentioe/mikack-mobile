@@ -65,7 +65,6 @@ class UpdatesFragment2 extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => ComicPage(
-              initPageIndex: 1,
               platform: platform,
               comic: comic,
               appContext: context,
