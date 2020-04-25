@@ -241,7 +241,7 @@ class _SettingsPageState extends State<SettingsPage2> {
                       ),
                       _SettingItem(
                         '允许 NSFW 内容',
-                        subtitle: '解开对不建议于工作场合公开的来源的限制，可能包含成人内容',
+                        subtitle: '解开一些来源限制，可能包含成人内容',
                         trailing:
                             _SettingsCheckBoxIcon(value: castedState.allowNsfw),
                         onTap: _handleSwitchTap(

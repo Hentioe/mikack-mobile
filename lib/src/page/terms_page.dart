@@ -29,7 +29,7 @@ class _TermsViewState extends State<_TermsView> {
   }
 
   void fetchTermText() async {
-    var termContent = await rootBundle.loadString('assets/text/terms.md');
+    var termContent = await rootBundle.loadString('assets/strings/terms.md');
     setState(() => _termContent = termContent);
   }
 

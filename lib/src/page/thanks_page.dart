@@ -13,7 +13,7 @@ class _ThanksState extends State<_ThanksPage> {
   var _content = '载入中……';
 
   void fetchContent() async {
-    var content = await rootBundle.loadString('assets/text/thanks.md');
+    var content = await rootBundle.loadString('assets/strings/thanks.md');
     var sourcesContent = platformList
         .map((p) => '- [${p.domain}](${p.domain})')
         .toList()
