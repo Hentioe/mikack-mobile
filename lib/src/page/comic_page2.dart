@@ -238,7 +238,10 @@ class _ComicPageState extends State<ComicPage2> {
                         SizedBox(height: 10),
                         _ComicProperty('图源', widget.platform.name),
                         SizedBox(height: 20),
-                        Text('暂无说明',
+                        Text(
+                            stateSnapshot.comic.chapters != null
+                                ? '暂无说明'
+                                : stateSnapshot.error ? '载入失败' : '载入中……',
                             style: TextStyle(
                                 color: Colors.grey[800], fontSize: 15)),
                       ],
@@ -279,9 +282,15 @@ class _ComicPageState extends State<ComicPage2> {
   Widget _buildComicChaptersView() {
     var stateSnapshot = bloc.state as ComicLoadedState;
     if (stateSnapshot.error)
-      return Center(
-          child: RaisedButton(
-              child: Text('重试'), onPressed: _handleRetry(context)));
+      return Column(
+        children: [
+          SizedBox(height: 28),
+          Center(
+            child: RaisedButton(
+                child: Text('重试'), onPressed: _handleRetry(context)),
+          ),
+        ],
+      );
     if (stateSnapshot.comic.chapters == null)
       return Column(
         children: [
@@ -420,9 +429,9 @@ class _ToolbarButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: vPrimarySwatch[300], size: 24),
+            Icon(icon, color: vPrimarySwatch[300], size: 26),
             Text(text,
-                style: TextStyle(color: vPrimarySwatch[300], fontSize: 11)),
+                style: TextStyle(color: vPrimarySwatch[300], fontSize: 12)),
           ],
         ),
       ),
@@ -470,7 +479,8 @@ class _ChapterItem extends StatelessWidget {
       textColor:
           isLastRead ? Colors.white : hasReadMark ? Colors.grey[500] : null,
       color: isLastRead ? vPrimarySwatch : null,
-      child: Text(chapter.title, maxLines: 1),
+      child: Text(chapter.title,
+          maxLines: 1, style: TextStyle(fontWeight: FontWeight.normal)),
       shape: RoundedRectangleBorder(
         borderRadius: new BorderRadius.circular(14),
         side: BorderSide(color: isLastRead ? vPrimarySwatch : Colors.grey[300]),
