@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -15,6 +16,7 @@ import '../helper/chrome.dart';
 import '../values.dart';
 import '../widget/series_system_ui.dart';
 import '../blocs.dart';
+import '../ext.dart';
 
 const _groupSpacing = 10000;
 const _coverBlurSigma = 3.5;
@@ -283,29 +285,6 @@ class _ComicPageState extends State<ComicPage> {
     );
   }
 
-  List<Widget> _buildToolbarButtons() {
-    var stateSnapshot = bloc.state as ComicLoadedState;
-    return [
-      stateSnapshot.columns == 3
-          ? _ToolbarButton(
-              icon: Icons.view_module,
-              text: '紧凑排列',
-              onTap: () =>
-                  bloc.add(ComicChapterColumnsChangedEvent(columns: 2)),
-            )
-          : _ToolbarButton(
-              icon: Icons.view_week,
-              text: '宽松排列',
-              onTap: () =>
-                  bloc.add(ComicChapterColumnsChangedEvent(columns: 3)),
-            ),
-      _ToolbarButton(
-          icon: Icons.sort,
-          text: stateSnapshot.reversed ? '倒序' : '正序',
-          onTap: () => bloc.add(ComicReverseEvent())),
-    ];
-  }
-
   void _showChapterMenu(models.Chapter chapter, Offset downPosition) async {
     var stateSnapshot = bloc.state as ComicLoadedState;
     final RenderBox overlay = Overlay.of(context).context.findRenderObject();
@@ -331,6 +310,40 @@ class _ComicPageState extends State<ComicPage> {
       ],
     );
     _handleChapterMenuSelect(r, chapter);
+  }
+
+  void _handleColumnsLayoutToggled(int itemIndex) {
+    switch (itemIndex) {
+      case 0:
+        bloc.add(ComicChapterColumnsChangedEvent(columns: 1));
+        break;
+      case 1:
+        bloc.add(ComicChapterColumnsChangedEvent(columns: 3));
+        break;
+      case 2:
+        bloc.add(ComicChapterColumnsChangedEvent(columns: 2));
+        break;
+      default:
+        break;
+    }
+  }
+
+  void _handleSortToggled(int _itemIndex) {
+    bloc.add(ComicReverseEvent());
+  }
+
+  double _buildGridAspectRatio() {
+    var stateSnapshot = bloc.state as ComicLoadedState;
+    switch (stateSnapshot.columns) {
+      case 1:
+        return 14;
+      case 2:
+        return 6.8;
+      case 3:
+        return 4.2;
+      default:
+        return 1;
+    }
   }
 
   Widget _buildComicChaptersView() {
@@ -362,14 +375,38 @@ class _ComicPageState extends State<ComicPage> {
       children: [
         Container(
           margin: EdgeInsets.only(
-            left: _chapterSpacing - _toolBarButtonPaddingSize,
+            left: _chapterSpacing,
             top: _chapterSpacing,
             right: _chapterSpacing,
           ),
           child: Row(
             children: [
               Wrap(
-                children: _buildToolbarButtons(),
+                spacing: 8,
+                children: [
+                  _ToggleBar(
+                    headerText: '章节布局',
+                    items: [
+                      _ToggleItem(
+                        text: '单行',
+                        checked: stateSnapshot.columns == 1,
+                      ),
+                      _ToggleItem(
+                          text: '紧凑', checked: stateSnapshot.columns == 3),
+                      _ToggleItem(
+                          text: '宽松', checked: stateSnapshot.columns == 2),
+                    ],
+                    onToggled: _handleColumnsLayoutToggled,
+                  ),
+                  _ToggleBar(
+                    headerText: '排序方式',
+                    items: [
+                      _ToggleItem(text: '升序', checked: !stateSnapshot.reversed),
+                      _ToggleItem(text: '倒序', checked: stateSnapshot.reversed),
+                    ],
+                    onToggled: _handleSortToggled,
+                  ),
+                ],
               ),
             ],
           ),
@@ -380,7 +417,7 @@ class _ComicPageState extends State<ComicPage> {
           mainAxisSpacing: _chapterSpacing,
           crossAxisSpacing: _chapterSpacing,
           padding: EdgeInsets.all(_chapterSpacing),
-          childAspectRatio: stateSnapshot.columns == 3 ? 4.2 : 6.2,
+          childAspectRatio: _buildGridAspectRatio(),
           physics: ClampingScrollPhysics(),
           children: chapters
               .map((c) => _ChapterItem(
@@ -489,33 +526,93 @@ class _ComicPageState extends State<ComicPage> {
   }
 }
 
-const _toolBarButtonPaddingSize = 6.0;
-
-class _ToolbarButton extends StatelessWidget {
-  final IconData icon;
+class _ToggleItem {
+  final bool checked;
   final String text;
-  final void Function() onTap;
 
-  _ToolbarButton({@required this.icon, this.text, this.onTap});
+  _ToggleItem({@required this.text, this.checked = false});
+}
+
+const _toggleItemXSpacing = 8.0;
+const _toggleItemYSpacing = 2.0;
+
+class _ToggleBar extends StatelessWidget {
+  final String headerText;
+  final List<_ToggleItem> items;
+  final void Function(int itemIndex) onToggled;
+
+  _ToggleBar({@required this.headerText, @required this.items, this.onToggled});
+
+  final _spacing = EdgeInsets.only(
+    left: _toggleItemXSpacing,
+    top: _toggleItemYSpacing,
+    right: _toggleItemXSpacing,
+    bottom: _toggleItemYSpacing,
+  );
+
+  static var _radius = Radius.circular(6);
+  static var _borderRadius = BorderRadius.only(
+    bottomLeft: _radius,
+    bottomRight: _radius,
+    topLeft: _radius,
+    topRight: _radius,
+  );
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-//      highlightColor: Colors.black.withAlpha(20),
-      child: Container(
-        padding: EdgeInsets.only(
-            left: _toolBarButtonPaddingSize, right: _toolBarButtonPaddingSize),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: Colors.grey, size: 26),
-            Text(text, style: TextStyle(color: Colors.grey, fontSize: 11.5)),
-          ],
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: _borderRadius,
       ),
-      onTap: () {
-        if (onTap != null) onTap();
-      },
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                color: Colors.grey[100],
+                child: Text(
+                  headerText,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              )
+            ],
+          ),
+          Row(
+            children: items
+                .mapWithIndex((i, item) => GestureDetector(
+                      child: Container(
+                        padding: _spacing,
+                        decoration: BoxDecoration(
+                          color: item.checked
+                              ? vPrimarySwatch
+                              : vPrimarySwatch[100],
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: i == 0 ? _radius : Radius.zero,
+                            bottomRight:
+                                i == (items.length - 1) ? _radius : Radius.zero,
+                          ),
+                        ),
+                        child: Text(
+                          item.text,
+                          style: TextStyle(
+                              color: item.checked
+                                  ? Colors.white
+                                  : vPrimarySwatch[600],
+                              fontSize: 11.5),
+                        ),
+                      ),
+                      onTap: () {
+                        if (onToggled != null) onToggled(i);
+                      },
+                    ))
+                .toList(),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -566,14 +663,14 @@ class __ChapterItemState extends State<_ChapterItem> {
       child: FlatButton(
         textColor: widget.isLastRead
             ? Colors.white
-            : widget.hasReadMark ? Colors.grey[500] : null,
+            : widget.hasReadMark ? Colors.grey[400] : Colors.grey[700],
         color: widget.isLastRead ? vPrimarySwatch : null,
         child: Text(widget.chapter.title,
             maxLines: 1, style: TextStyle(fontWeight: FontWeight.normal)),
         shape: RoundedRectangleBorder(
           borderRadius: new BorderRadius.circular(14),
           side: BorderSide(
-              color: widget.isLastRead ? vPrimarySwatch : Colors.grey[300]),
+              color: widget.isLastRead ? vPrimarySwatch : Colors.grey[400]),
         ),
         onPressed: () {
           if (widget.onPressed != null) widget.onPressed(widget.chapter);

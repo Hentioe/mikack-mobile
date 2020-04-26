@@ -63,3 +63,10 @@ extension PackageInfoExt on PackageInfo {
     return 'v${this.version}-${this.buildNumber}';
   }
 }
+
+extension ExtendedIterable<E> on Iterable<E> {
+  Iterable<T> mapWithIndex<T>(T f(int i, E e)) {
+    var i = 0;
+    return this.map((e) => f(i++, e));
+  }
+}
