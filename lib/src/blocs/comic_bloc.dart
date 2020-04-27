@@ -23,6 +23,8 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
         comic: comic,
         isFavorite: false,
         columns: defaultChaptersGridColumns,
+        isShowToolBar: false,
+        isShowFavoriteButton: true,
       );
 
   @override
@@ -63,7 +65,8 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
         break;
       case ComicLoadedEvent: // 接收装载数据
         var castedEvent = event as ComicLoadedEvent;
-        yield (state as ComicLoadedState).copyWith(comic: castedEvent.comic);
+        yield (state as ComicLoadedState)
+            .copyWith(comic: castedEvent.comic, isShowToolBar: true);
         break;
       case ComicRetryEvent: // 重试（重新请求远程数据）
         yield (state as ComicLoadedState).copyWith(error: false);
@@ -186,6 +189,12 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
         var castedEvent = event as ComicChapterColumnsChangedEvent;
         yield (state as ComicLoadedState)
             .copyWith(columns: castedEvent.columns);
+        break;
+      case ComicVisibilityUpdateEvent:
+        var castedEvent = event as ComicVisibilityUpdateEvent;
+        yield (state as ComicLoadedState).copyWith(
+            isShowToolBar: castedEvent.showToolBar,
+            isShowFavoriteButton: castedEvent.showFavoriteButton);
         break;
     }
   }

@@ -18,9 +18,9 @@ import '../widget/series_system_ui.dart';
 import '../blocs.dart';
 import '../ext.dart';
 
-const _groupSpacing = 10000;
+const _groupWitchSpacing = 10000;
 const _coverBlurSigma = 3.5;
-const _comicBodyHeight = 200.0;
+const _comicBodyHeight = 220.0;
 const _chapterSpacing = 16.0;
 
 class ComicPage extends StatefulWidget {
@@ -39,17 +39,27 @@ class ComicPage extends StatefulWidget {
 
 class _ComicPageState extends State<ComicPage> {
   ComicBloc bloc;
+  final ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     bloc = ComicBloc(platform: widget.platform, comic: widget.comic);
     bloc.add(ComicRequestEvent());
+    scrollController.addListener(() {
+      if (scrollController.offset <= 30.0)
+        bloc.add(ComicVisibilityUpdateEvent(
+            showToolBar: true, showFavoriteButton: true));
+      else
+        bloc.add(ComicVisibilityUpdateEvent(
+            showToolBar: false, showFavoriteButton: false));
+    });
     super.initState();
   }
 
   @override
   void dispose() {
     bloc.close();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -121,8 +131,8 @@ class _ComicPageState extends State<ComicPage> {
       {whichAt = 0, List<List<models.Chapter>> reversedGroup}) {
     var group = <models.Chapter>[];
     for (models.Chapter c in chapters) {
-      if (c.which >= whichAt * _groupSpacing &&
-          c.which < (whichAt + 1) * _groupSpacing)
+      if (c.which >= whichAt * _groupWitchSpacing &&
+          c.which < (whichAt + 1) * _groupWitchSpacing)
         group.add(c);
       else
         break;
@@ -152,7 +162,7 @@ class _ComicPageState extends State<ComicPage> {
             markType: ComicReadingMarkType.unreadOne, chapter: chapter));
         break;
       case 2: // 标记之前章节已读
-        var beginAt = chapter.which ~/ _groupSpacing * _groupSpacing;
+        var beginAt = chapter.which ~/ _groupWitchSpacing * _groupWitchSpacing;
         var beforeChapters = stateSnapshot.comic.chapters
             .where((c) => c.which > beginAt && c.which < chapter.which)
             .toList();
@@ -346,6 +356,39 @@ class _ComicPageState extends State<ComicPage> {
     }
   }
 
+  Widget _buildToolbarView() {
+    var stateSnapshot = bloc.state as ComicLoadedState;
+    return Positioned(
+      top: _comicBodyHeight - _ToggleBar.height / 2, // 浮动按钮默认大小为 56.0，取一半
+      left: _chapterSpacing,
+      child: Wrap(
+        spacing: 8,
+        children: [
+          _ToggleBar(
+            headerText: '章节布局',
+            items: [
+              _ToggleItem(
+                text: '单行',
+                checked: stateSnapshot.columns == 1,
+              ),
+              _ToggleItem(text: '紧凑', checked: stateSnapshot.columns == 3),
+              _ToggleItem(text: '宽松', checked: stateSnapshot.columns == 2),
+            ],
+            onToggled: _handleColumnsLayoutToggled,
+          ),
+          _ToggleBar(
+            headerText: '排序方式',
+            items: [
+              _ToggleItem(text: '升序', checked: !stateSnapshot.reversed),
+              _ToggleItem(text: '倒序', checked: stateSnapshot.reversed),
+            ],
+            onToggled: _handleSortToggled,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildComicChaptersView() {
     var stateSnapshot = bloc.state as ComicLoadedState;
     if (stateSnapshot.error)
@@ -370,69 +413,28 @@ class _ComicPageState extends State<ComicPage> {
     var chapters = stateSnapshot.comic.chapters;
     if (chapters.length > 1 && stateSnapshot.reversed)
       chapters = reverseByGroup(chapters);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.only(
-            left: _chapterSpacing,
-            top: _chapterSpacing,
-            right: _chapterSpacing,
-          ),
-          child: Row(
-            children: [
-              Wrap(
-                spacing: 8,
-                children: [
-                  _ToggleBar(
-                    headerText: '章节布局',
-                    items: [
-                      _ToggleItem(
-                        text: '单行',
-                        checked: stateSnapshot.columns == 1,
-                      ),
-                      _ToggleItem(
-                          text: '紧凑', checked: stateSnapshot.columns == 3),
-                      _ToggleItem(
-                          text: '宽松', checked: stateSnapshot.columns == 2),
-                    ],
-                    onToggled: _handleColumnsLayoutToggled,
-                  ),
-                  _ToggleBar(
-                    headerText: '排序方式',
-                    items: [
-                      _ToggleItem(text: '升序', checked: !stateSnapshot.reversed),
-                      _ToggleItem(text: '倒序', checked: stateSnapshot.reversed),
-                    ],
-                    onToggled: _handleSortToggled,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        GridView.count(
-          crossAxisCount: stateSnapshot.columns,
-          shrinkWrap: true,
-          mainAxisSpacing: _chapterSpacing,
-          crossAxisSpacing: _chapterSpacing,
-          padding: EdgeInsets.all(_chapterSpacing),
-          childAspectRatio: _buildGridAspectRatio(),
-          physics: ClampingScrollPhysics(),
-          children: chapters
-              .map((c) => _ChapterItem(
-                    chapter: c,
-                    hasReadMark:
-                        stateSnapshot.readHistoryAddresses.contains(c.url),
-                    isLastRead: stateSnapshot.lastReadAt != null &&
-                        stateSnapshot.lastReadAt == c.url,
-                    onPressed:
-                        _handleOpenReadPage(context, stateSnapshot.comic),
-                    onLongPressed: _showChapterMenu,
-                  ))
-              .toList(),
-        ),
-      ],
+    return Container(
+      padding: EdgeInsets.only(top: _chapterSpacing),
+      child: GridView.count(
+        crossAxisCount: stateSnapshot.columns,
+        shrinkWrap: true,
+        mainAxisSpacing: _chapterSpacing,
+        crossAxisSpacing: _chapterSpacing,
+        padding: EdgeInsets.all(_chapterSpacing),
+        childAspectRatio: _buildGridAspectRatio(),
+        physics: ClampingScrollPhysics(),
+        children: chapters
+            .map((c) => _ChapterItem(
+                  chapter: c,
+                  hasReadMark:
+                      stateSnapshot.readHistoryAddresses.contains(c.url),
+                  isLastRead: stateSnapshot.lastReadAt != null &&
+                      stateSnapshot.lastReadAt == c.url,
+                  onPressed: _handleOpenReadPage(context, stateSnapshot.comic),
+                  onLongPressed: _showChapterMenu,
+                ))
+            .toList(),
+      ),
     );
   }
 
@@ -500,12 +502,20 @@ class _ComicPageState extends State<ComicPage> {
               body: Stack(
                 children: [
                   ListView(
+                    controller: scrollController,
                     children: [
                       _buildComicInfoView(),
                       _buildComicChaptersView(),
                     ],
                   ),
-                  _buildFavoriteView(),
+                  Visibility(
+                    visible: castedState.isShowFavoriteButton,
+                    child: _buildFavoriteView(),
+                  ),
+                  Visibility(
+                    visible: castedState.isShowToolBar,
+                    child: _buildToolbarView(),
+                  ),
                 ],
               ),
               floatingActionButton: isShowFloatButton
@@ -541,7 +551,11 @@ class _ToggleBar extends StatelessWidget {
   final List<_ToggleItem> items;
   final void Function(int itemIndex) onToggled;
 
-  _ToggleBar({@required this.headerText, @required this.items, this.onToggled});
+  _ToggleBar({
+    @required this.headerText,
+    @required this.items,
+    this.onToggled,
+  });
 
   final _spacing = EdgeInsets.only(
     left: _toggleItemXSpacing,
@@ -558,12 +572,28 @@ class _ToggleBar extends StatelessWidget {
     topRight: _radius,
   );
 
+  static var height = 39.0;
+
+  final boxShadow = [
+    BoxShadow(
+      color: Colors.black.withAlpha(40),
+      blurRadius: 2.0, // has the effect of softening the shadow
+      spreadRadius: 2.0, // has the effect of extending the shadow
+      offset: Offset(
+        1.5, // horizontal, move right 10
+        1.5, // vertical, move down 10
+      ),
+    )
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: height,
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: _borderRadius,
+        boxShadow: boxShadow,
       ),
       child: Column(
         children: [

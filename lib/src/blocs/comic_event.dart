@@ -86,3 +86,13 @@ class ComicChapterColumnsChangedEvent extends ComicEvent {
   @override
   List<Object> get props => [columns];
 }
+
+class ComicVisibilityUpdateEvent extends ComicEvent {
+  final bool showToolBar;
+  final bool showFavoriteButton;
+
+  ComicVisibilityUpdateEvent({this.showToolBar, this.showFavoriteButton});
+
+  @override
+  List<Object> get props => [showToolBar, showFavoriteButton];
+}

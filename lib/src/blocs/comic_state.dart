@@ -16,6 +16,8 @@ class ComicLoadedState extends ComicState {
   final int columns;
   final List<String> readHistoryAddresses;
   final String lastReadAt;
+  final bool isShowToolBar;
+  final bool isShowFavoriteButton;
 
   ComicLoadedState({
     @required this.tabIndex,
@@ -26,6 +28,8 @@ class ComicLoadedState extends ComicState {
     @required this.columns,
     this.readHistoryAddresses = const <String>[],
     this.lastReadAt,
+    @required this.isShowToolBar,
+    @required this.isShowFavoriteButton,
   });
 
   @override
@@ -38,6 +42,8 @@ class ComicLoadedState extends ComicState {
         columns,
         readHistoryAddresses,
         lastReadAt,
+        isShowToolBar,
+        isShowFavoriteButton,
       ];
 
   ComicLoadedState copyWith({
@@ -49,6 +55,8 @@ class ComicLoadedState extends ComicState {
     int columns,
     List<String> readHistoryAddresses,
     String lastReadAt,
+    bool isShowToolBar,
+    bool isShowFavoriteButton,
   }) {
     return ComicLoadedState(
       tabIndex: tabIndex ?? this.tabIndex,
@@ -59,6 +67,8 @@ class ComicLoadedState extends ComicState {
       columns: columns ?? this.columns,
       readHistoryAddresses: readHistoryAddresses ?? this.readHistoryAddresses,
       lastReadAt: lastReadAt ?? this.lastReadAt,
+      isShowToolBar: isShowToolBar ?? this.isShowToolBar,
+      isShowFavoriteButton: isShowFavoriteButton ?? this.isShowFavoriteButton,
     );
   }
 }
