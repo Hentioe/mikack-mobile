@@ -20,7 +20,7 @@ import '../ext.dart';
 
 const _groupWitchSpacing = 10000;
 const _coverBlurSigma = 3.5;
-const _comicBodyHeight = 220.0;
+const _comicBodyHeight = 180.0;
 const _chapterSpacing = 16.0;
 
 class ComicPage extends StatefulWidget {
@@ -235,7 +235,7 @@ class _ComicPageState extends State<ComicPage> {
                     tag: 'cover-${widget.comic.url}',
                     child: ExtendedImage.network(
                       stateSnapshot.comic.cover,
-                      width: 100,
+                      width: 74,
                       cache: true,
                       loadStateChanged: (state) {
                         switch (state.extendedImageLoadState) {
@@ -413,28 +413,33 @@ class _ComicPageState extends State<ComicPage> {
     var chapters = stateSnapshot.comic.chapters;
     if (chapters.length > 1 && stateSnapshot.reversed)
       chapters = reverseByGroup(chapters);
-    return Container(
-      padding: EdgeInsets.only(top: _chapterSpacing),
-      child: GridView.count(
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: stateSnapshot.columns,
-        shrinkWrap: true,
+        childAspectRatio: _buildGridAspectRatio(),
         mainAxisSpacing: _chapterSpacing,
         crossAxisSpacing: _chapterSpacing,
-        padding: EdgeInsets.all(_chapterSpacing),
-        childAspectRatio: _buildGridAspectRatio(),
-        physics: ClampingScrollPhysics(),
-        children: chapters
-            .map((c) => _ChapterItem(
-                  chapter: c,
-                  hasReadMark:
-                      stateSnapshot.readHistoryAddresses.contains(c.url),
-                  isLastRead: stateSnapshot.lastReadAt != null &&
-                      stateSnapshot.lastReadAt == c.url,
-                  onPressed: _handleOpenReadPage(context, stateSnapshot.comic),
-                  onLongPressed: _showChapterMenu,
-                ))
-            .toList(),
       ),
+      controller: scrollController,
+      shrinkWrap: true,
+      padding: EdgeInsets.only(
+        left: _chapterSpacing,
+        bottom: _chapterSpacing,
+        right: _chapterSpacing,
+      ),
+      itemCount: chapters.length + stateSnapshot.columns,
+      itemBuilder: (ctx, i) {
+        if (i < stateSnapshot.columns) return Container();
+        var c = chapters[i - stateSnapshot.columns];
+        return _ChapterItem(
+          chapter: c,
+          hasReadMark: stateSnapshot.readHistoryAddresses.contains(c.url),
+          isLastRead: stateSnapshot.lastReadAt != null &&
+              stateSnapshot.lastReadAt == c.url,
+          onPressed: _handleOpenReadPage(context, stateSnapshot.comic),
+          onLongPressed: _showChapterMenu,
+        );
+      },
     );
   }
 
@@ -501,11 +506,12 @@ class _ComicPageState extends State<ComicPage> {
               ),
               body: Stack(
                 children: [
-                  ListView(
-                    controller: scrollController,
+                  Column(
                     children: [
                       _buildComicInfoView(),
-                      _buildComicChaptersView(),
+                      Expanded(
+                        child: _buildComicChaptersView(),
+                      ),
                     ],
                   ),
                   Visibility(
@@ -572,7 +578,7 @@ class _ToggleBar extends StatelessWidget {
     topRight: _radius,
   );
 
-  static var height = 39.0;
+  static var height = 45.0;
 
   final boxShadow = [
     BoxShadow(
@@ -600,6 +606,7 @@ class _ToggleBar extends StatelessWidget {
           Row(
             children: [
               Container(
+                padding: EdgeInsets.all(3),
                 color: Colors.grey[100],
                 child: Text(
                   headerText,
