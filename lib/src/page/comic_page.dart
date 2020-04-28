@@ -210,6 +210,21 @@ class _ComicPageState extends State<ComicPage> {
                   ),
                   fit: BoxFit.fitWidth,
                 ),
+                boxShadow: !stateSnapshot.isShowFavoriteButton
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(40),
+                          blurRadius: 2,
+                          // has the effect of softening the shadow
+                          spreadRadius: 1.5,
+                          // has the effect of extending the shadow
+                          offset: Offset(
+                            0, // horizontal, move right 10
+                            1.5, // vertical, move down 10
+                          ),
+                        )
+                      ]
+                    : null,
               ),
               height: _comicBodyHeight,
               child: ClipRect(
@@ -217,7 +232,8 @@ class _ComicPageState extends State<ComicPage> {
                   filter: ImageFilter.blur(
                       sigmaX: _coverBlurSigma, sigmaY: _coverBlurSigma),
                   child: Container(
-                    color: Colors.white.withOpacity(0.4),
+                    decoration:
+                        BoxDecoration(color: Colors.white.withOpacity(0.4)),
                   ),
                 ),
               ),
@@ -499,6 +515,7 @@ class _ComicPageState extends State<ComicPage> {
               backgroundColor: Colors.white,
               appBar: AppBar(
                 title: Text(widget.comic.title),
+                elevation: 0,
                 actions: [
                   ..._buildActions(),
                   _buildMoreMenu(latestComic: castedState.comic),
