@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
 import 'package:mikack/models.dart';
@@ -18,6 +19,8 @@ class ComicLoadedState extends ComicState {
   final String lastReadAt;
   final bool isShowToolBar;
   final bool isShowFavoriteButton;
+  final bool isShowAppBarTitle;
+  final Color appBarColor;
 
   ComicLoadedState({
     @required this.tabIndex,
@@ -30,6 +33,8 @@ class ComicLoadedState extends ComicState {
     this.lastReadAt,
     @required this.isShowToolBar,
     @required this.isShowFavoriteButton,
+    @required this.isShowAppBarTitle,
+    @required this.appBarColor,
   });
 
   @override
@@ -44,6 +49,8 @@ class ComicLoadedState extends ComicState {
         lastReadAt,
         isShowToolBar,
         isShowFavoriteButton,
+        isShowAppBarTitle,
+        appBarColor,
       ];
 
   ComicLoadedState copyWith({
@@ -57,6 +64,8 @@ class ComicLoadedState extends ComicState {
     String lastReadAt,
     bool isShowToolBar,
     bool isShowFavoriteButton,
+    bool isShowAppBarTitle,
+    Color appBarColor,
   }) {
     return ComicLoadedState(
       tabIndex: tabIndex ?? this.tabIndex,
@@ -69,6 +78,8 @@ class ComicLoadedState extends ComicState {
       lastReadAt: lastReadAt ?? this.lastReadAt,
       isShowToolBar: isShowToolBar ?? this.isShowToolBar,
       isShowFavoriteButton: isShowFavoriteButton ?? this.isShowFavoriteButton,
+      isShowAppBarTitle: isShowAppBarTitle ?? this.isShowAppBarTitle,
+      appBarColor: appBarColor ?? this.appBarColor,
     );
   }
 }

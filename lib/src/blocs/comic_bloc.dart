@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
 import 'package:mikack/models.dart' as models;
@@ -25,6 +26,8 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
         columns: defaultChaptersGridColumns,
         isShowToolBar: false,
         isShowFavoriteButton: true,
+        isShowAppBarTitle: false,
+        appBarColor: Colors.white,
       );
 
   @override
@@ -193,8 +196,17 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
       case ComicVisibilityUpdateEvent:
         var castedEvent = event as ComicVisibilityUpdateEvent;
         yield (state as ComicLoadedState).copyWith(
-            isShowToolBar: castedEvent.showToolBar,
-            isShowFavoriteButton: castedEvent.showFavoriteButton);
+          isShowToolBar: castedEvent.showToolBar,
+          isShowFavoriteButton: castedEvent.showFavoriteButton,
+          isShowAppBarTitle: castedEvent.showAppBarTitle,
+        );
+        break;
+
+      case ComicAppBarBackgroundChangedEvent:
+        var castedEvent = event as ComicAppBarBackgroundChangedEvent;
+        yield (state as ComicLoadedState).copyWith(
+          appBarColor: castedEvent.color,
+        );
         break;
     }
   }

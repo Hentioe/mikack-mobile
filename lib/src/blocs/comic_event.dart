@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
 import 'package:mikack/models.dart';
@@ -90,9 +91,20 @@ class ComicChapterColumnsChangedEvent extends ComicEvent {
 class ComicVisibilityUpdateEvent extends ComicEvent {
   final bool showToolBar;
   final bool showFavoriteButton;
+  final bool showAppBarTitle;
 
-  ComicVisibilityUpdateEvent({this.showToolBar, this.showFavoriteButton});
+  ComicVisibilityUpdateEvent(
+      {this.showToolBar, this.showFavoriteButton, this.showAppBarTitle});
 
   @override
-  List<Object> get props => [showToolBar, showFavoriteButton];
+  List<Object> get props => [showToolBar, showFavoriteButton, showAppBarTitle];
+}
+
+class ComicAppBarBackgroundChangedEvent extends ComicEvent {
+  final Color color;
+
+  ComicAppBarBackgroundChangedEvent({@required this.color});
+
+  @override
+  List<Object> get props => [color];
 }

@@ -19,8 +19,8 @@ import '../blocs.dart';
 import '../ext.dart';
 
 const _groupWitchSpacing = 10000;
-const _coverBlurSigma = 3.5;
-const _comicBodyHeight = 180.0;
+const _coverBlurSigma = 8.5;
+const _comicBodyHeight = 250.0;
 const _chapterSpacing = 16.0;
 
 class ComicPage extends StatefulWidget {
@@ -45,22 +45,26 @@ class _ComicPageState extends State<ComicPage> {
   void initState() {
     bloc = ComicBloc(platform: widget.platform, comic: widget.comic);
     bloc.add(ComicRequestEvent());
-    scrollController.addListener(() {
-      if (scrollController.offset <= 30.0)
-        bloc.add(ComicVisibilityUpdateEvent(
-            showToolBar: true, showFavoriteButton: true));
-      else
-        bloc.add(ComicVisibilityUpdateEvent(
-            showToolBar: false, showFavoriteButton: false));
-    });
+    scrollController.addListener(_scrollEvent);
     super.initState();
   }
 
   @override
   void dispose() {
     bloc.close();
+    scrollController.removeListener(_scrollEvent);
     scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollEvent() {
+    if (scrollController.offset >= _comicBodyHeight - kToolbarHeight) {
+      bloc.add(ComicAppBarBackgroundChangedEvent(color: vPrimarySwatch));
+      bloc.add(ComicVisibilityUpdateEvent(showAppBarTitle: true));
+    } else {
+      bloc.add(ComicVisibilityUpdateEvent(showAppBarTitle: false));
+      bloc.add(ComicAppBarBackgroundChangedEvent(color: Colors.white));
+    }
   }
 
   Function(models.Chapter) _handleOpenReadPage(
@@ -210,21 +214,6 @@ class _ComicPageState extends State<ComicPage> {
                   ),
                   fit: BoxFit.fitWidth,
                 ),
-                boxShadow: !stateSnapshot.isShowFavoriteButton
-                    ? [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(40),
-                          blurRadius: 2,
-                          // has the effect of softening the shadow
-                          spreadRadius: 1.5,
-                          // has the effect of extending the shadow
-                          offset: Offset(
-                            0, // horizontal, move right 10
-                            1.5, // vertical, move down 10
-                          ),
-                        )
-                      ]
-                    : null,
               ),
               height: _comicBodyHeight,
               child: ClipRect(
@@ -233,7 +222,7 @@ class _ComicPageState extends State<ComicPage> {
                       sigmaX: _coverBlurSigma, sigmaY: _coverBlurSigma),
                   child: Container(
                     decoration:
-                        BoxDecoration(color: Colors.white.withOpacity(0.4)),
+                        BoxDecoration(color: Colors.white.withOpacity(0.35)),
                   ),
                 ),
               ),
@@ -242,7 +231,10 @@ class _ComicPageState extends State<ComicPage> {
             Container(
               width: double.infinity,
               height: _comicBodyHeight,
-              padding: EdgeInsets.all(20),
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + kToolbarHeight,
+                left: 22,
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -436,17 +428,14 @@ class _ComicPageState extends State<ComicPage> {
         mainAxisSpacing: _chapterSpacing,
         crossAxisSpacing: _chapterSpacing,
       ),
-      controller: scrollController,
-      shrinkWrap: true,
       padding: EdgeInsets.only(
         left: _chapterSpacing,
         bottom: _chapterSpacing,
         right: _chapterSpacing,
       ),
-      itemCount: chapters.length + stateSnapshot.columns,
+      itemCount: chapters.length,
       itemBuilder: (ctx, i) {
-        if (i < stateSnapshot.columns) return Container();
-        var c = chapters[i - stateSnapshot.columns];
+        var c = chapters[i];
         return _ChapterItem(
           chapter: c,
           hasReadMark: stateSnapshot.readHistoryAddresses.contains(c.url),
@@ -475,10 +464,10 @@ class _ComicPageState extends State<ComicPage> {
       icon: Icon(Icons.more_vert),
       onSelected: (value) => _handleMenuSelect(value, latestComic: latestComic),
       itemBuilder: (BuildContext context) => ComicPage.moreMenus.entries
-          .map((entry) => PopupMenuItem(
-                value: entry.value,
-                child: Text(entry.key),
-              ))
+          .map(
+            (entry) =>
+                PopupMenuItem(value: entry.value, child: Text(entry.key)),
+          )
           .toList(),
     );
   }
@@ -513,33 +502,47 @@ class _ComicPageState extends State<ComicPage> {
                 castedState.comic.chapters.length == 1;
             return Scaffold(
               backgroundColor: Colors.white,
-              appBar: AppBar(
-                title: Text(widget.comic.title),
-                elevation: 0,
-                actions: [
-                  ..._buildActions(),
-                  _buildMoreMenu(latestComic: castedState.comic),
-                ],
-              ),
-              body: Stack(
-                children: [
-                  Column(
-                    children: [
-                      _buildComicInfoView(),
-                      Expanded(
-                        child: _buildComicChaptersView(),
+              body: NestedScrollView(
+                controller: scrollController,
+                headerSliverBuilder: (ctx, innerBoxIsScrolled) {
+                  return [
+                    SliverAppBar(
+                      backgroundColor: castedState.appBarColor,
+                      expandedHeight: _comicBodyHeight + 10,
+                      pinned: true,
+                      snap: false,
+                      floating: false,
+                      forceElevated: false,
+                      title: castedState.isShowAppBarTitle
+                          ? Text(castedState.comic.title)
+                          : null,
+                      flexibleSpace: FlexibleSpaceBar(
+                        background: Stack(
+                          children: [
+                            _buildComicInfoView(),
+                            Visibility(
+                              visible: castedState.isShowFavoriteButton,
+                              child: _buildFavoriteView(),
+                            ),
+                            Visibility(
+                              visible: castedState.isShowToolBar,
+                              child: _buildToolbarView(),
+                            )
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                  Visibility(
-                    visible: castedState.isShowFavoriteButton,
-                    child: _buildFavoriteView(),
-                  ),
-                  Visibility(
-                    visible: castedState.isShowToolBar,
-                    child: _buildToolbarView(),
-                  ),
-                ],
+                      actions: [
+                        ..._buildActions(),
+                        _buildMoreMenu(latestComic: castedState.comic),
+                      ],
+                    ),
+                  ];
+                },
+                body: Stack(
+                  children: [
+                    _buildComicChaptersView(),
+                  ],
+                ),
               ),
               floatingActionButton: isShowFloatButton
                   ? FloatingActionButton(
@@ -637,32 +640,33 @@ class _ToggleBar extends StatelessWidget {
           ),
           Row(
             children: items
-                .mapWithIndex((i, item) => GestureDetector(
-                      child: Container(
-                        padding: _spacing,
-                        decoration: BoxDecoration(
-                          color: item.checked
-                              ? vPrimarySwatch
-                              : vPrimarySwatch[100],
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: i == 0 ? _radius : Radius.zero,
-                            bottomRight:
-                                i == (items.length - 1) ? _radius : Radius.zero,
-                          ),
-                        ),
-                        child: Text(
-                          item.text,
-                          style: TextStyle(
-                              color: item.checked
-                                  ? Colors.white
-                                  : vPrimarySwatch[600],
-                              fontSize: 11.5),
+                .mapWithIndex(
+                  (i, item) => GestureDetector(
+                    child: Container(
+                      padding: _spacing,
+                      decoration: BoxDecoration(
+                        color:
+                            item.checked ? vPrimarySwatch : vPrimarySwatch[100],
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: i == 0 ? _radius : Radius.zero,
+                          bottomRight:
+                              i == (items.length - 1) ? _radius : Radius.zero,
                         ),
                       ),
-                      onTap: () {
-                        if (onToggled != null) onToggled(i);
-                      },
-                    ))
+                      child: Text(
+                        item.text,
+                        style: TextStyle(
+                            color: item.checked
+                                ? Colors.white
+                                : vPrimarySwatch[600],
+                            fontSize: 11.5),
+                      ),
+                    ),
+                    onTap: () {
+                      if (onToggled != null) onToggled(i);
+                    },
+                  ),
+                )
                 .toList(),
           ),
         ],
