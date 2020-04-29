@@ -68,8 +68,11 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
         break;
       case ComicLoadedEvent: // 接收装载数据
         var castedEvent = event as ComicLoadedEvent;
-        yield (state as ComicLoadedState)
-            .copyWith(comic: castedEvent.comic, isShowToolBar: true);
+        var chaptersCount = castedEvent.comic?.chapters?.length ?? 0;
+        yield (state as ComicLoadedState).copyWith(
+            comic: castedEvent.comic,
+            isShowToolBar: true,
+            columns: chaptersCount < 3 ? chaptersCount : null);
         break;
       case ComicRetryEvent: // 重试（重新请求远程数据）
         yield (state as ComicLoadedState).copyWith(error: false);
