@@ -14,7 +14,6 @@ import '../models.dart';
 import '../helper/chrome.dart';
 import '../blocs.dart';
 import '../widget/outline_text.dart';
-import '../widget/text_hint.dart';
 
 enum ChapterPreviewDirection { prev, next }
 
@@ -264,6 +263,9 @@ class _ReadPageState extends State<ReadPage> {
   }
 
   final connectingView = const SpinKitPouringHourglass(
+      color: _connectingIndicatorColor, size: _connectionIndicatorSize);
+
+  final loadingView = const SpinKitWave(
       color: _connectingIndicatorColor, size: _connectionIndicatorSize);
 
   final chapterInfoHeaderStyle = TextStyle(
@@ -729,8 +731,8 @@ class _ReadPageState extends State<ReadPage> {
               backgroundColor: _mainBackgroundColor,
               resizeToAvoidBottomInset: castedState.isLoading,
               body: castedState.isLoading
-                  ? Container(
-                      child: TextHint('载入中…'),
+                  ? Center(
+                      child: loadingView,
                     ) // 跳页中
                   : castedState.createIteratorError.error
                       ? _buildRetryView()
