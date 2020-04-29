@@ -105,3 +105,21 @@ class ReadCreatePageIteratorFailedEvent extends ReadEvent {
   @override
   List<Object> get props => [message];
 }
+
+class ReadJumpProgressUpdatedEvent extends ReadEvent {
+  final double value;
+
+  ReadJumpProgressUpdatedEvent({@required this.value});
+
+  @override
+  List<Object> get props => [value];
+}
+
+class ReadForceStoppedJumpingChangedEvent extends ReadEvent {
+  final bool stopped;
+
+  ReadForceStoppedJumpingChangedEvent({@required this.stopped});
+
+  @override
+  List<Object> get props => [];
+}

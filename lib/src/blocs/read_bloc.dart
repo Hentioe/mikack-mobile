@@ -115,9 +115,9 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
           chapter: castedEvent.chapter,
           pageIterator: castedEvent.pageIterator,
         );
-        // 如果存在上次阅读记录，直接跳页
         if (lastReadPage > 1) {
-          // TODO: 跳页
+          // 存在上次阅读记录，直接跳页
+          yield (state as ReadLoadedState).copyWith(continuePage: lastReadPage);
         } else {
           // 载入第一页
           add(ReadNextPageEvent(
@@ -219,6 +219,16 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
             _log.info('Iterator is freed');
           }
         }
+        break;
+      case ReadJumpProgressUpdatedEvent: // 跳页进度更新
+        var castedEvent = event as ReadJumpProgressUpdatedEvent;
+        yield (state as ReadLoadedState)
+            .copyWith(jumpProgress: castedEvent.value);
+        break;
+      case ReadForceStoppedJumpingChangedEvent: // 强制停止跳转
+        var castedEvent = event as ReadForceStoppedJumpingChangedEvent;
+        yield (state as ReadLoadedState)
+            .copyWith(forceStopped: castedEvent.stopped);
         break;
     }
   }

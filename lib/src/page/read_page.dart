@@ -1,4 +1,5 @@
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meta/meta.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mikack/models.dart' as models;
+import 'package:mikack_mobile/src/values.dart';
 import 'package:quiver/iterables.dart';
 
 import '../models.dart';
@@ -89,12 +91,16 @@ class _ReadPageState extends State<ReadPage> {
       _scrollController.jumpTo(offset);
     }
     bloc.add(ReadCurrentPageForceChangedEvent(page: page));
-    if (page > stateSnapshot.preFetchAt) // 非滑动过渡页面，直接跳转页码，自动加载中间空白页面
+
+    if (page > stateSnapshot.preFetchAt) {
+      // 非滑动过渡页面，直接跳转页码，自动加载中间空白页面
+      bloc.add(ReadForceStoppedJumpingChangedEvent(stopped: false));
       for (var i in range(page - stateSnapshot.preFetchAt)) {
         bloc.add(
           ReadMakeUpPageEvent(page: stateSnapshot.preFetchAt + i + 1),
         );
       }
+    }
   }
 
   void _handlePageChange(int page) {
@@ -516,6 +522,64 @@ class _ReadPageState extends State<ReadPage> {
     );
   }
 
+  List<Widget> _buildJumpingView() {
+    var stateSnapshot = bloc.state as ReadLoadedState;
+    var children = <Widget>[];
+    var isJumping = (!(stateSnapshot.forceStopped ?? false)) &&
+        (stateSnapshot.jumpProgress ?? 1.0) < 1.0;
+    if (isJumping)
+      children.add(Positioned(
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: Center(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(200),
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withAlpha(30),
+                  blurRadius: 2.0, // has the effect of softening the shadow
+                  spreadRadius: 2.0, // has the effect of extending the shadow
+                  offset: Offset.zero,
+                )
+              ],
+            ),
+            width: 200,
+            padding: EdgeInsets.only(top: 10, bottom: 10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('跳页中，请稍等', style: TextStyle(fontSize: 16.5)),
+                SizedBox(height: 14),
+                LinearProgressIndicator(value: stateSnapshot.jumpProgress),
+                Row(
+                  children: [
+                    Expanded(
+                      child: MaterialButton(
+                        padding: EdgeInsets.zero,
+                        child: Text('强制结束',
+                            style: TextStyle(
+                                fontSize: 14, color: vPrimarySwatch[800])),
+                        onPressed: () {
+                          bloc.add(ReadForceStoppedJumpingChangedEvent(
+                              stopped: true));
+                        },
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      ));
+    return children;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -561,12 +625,11 @@ class _ReadPageState extends State<ReadPage> {
           ),
           BlocListener<ReadBloc, ReadState>(
             bloc: bloc,
-            // 预缓存图片
+            // 新页面被加载
             condition: (prevState, state) {
               if (prevState != bloc.initialState &&
                   prevState is ReadLoadedState &&
-                  state is ReadLoadedState &&
-                  state.preCaching) {
+                  state is ReadLoadedState) {
                 // 页面数量有变化，但当前页码没变（需剔除直接加载的第一个页面）
                 return prevState.pages.length > 0 &&
                     prevState.pages.length != state.pages.length &&
@@ -576,14 +639,20 @@ class _ReadPageState extends State<ReadPage> {
             },
             listener: (context, state) {
               var stateSnapshot = state as ReadLoadedState;
-              precacheImage(
-                ExtendedImage.network(
-                  stateSnapshot.pages.last,
-                  headers: stateSnapshot.chapter.pageHeaders,
-                  cache: true,
-                ).image,
-                context,
-              );
+              if (stateSnapshot.preCaching)
+                precacheImage(
+                  ExtendedImage.network(
+                    stateSnapshot.pages.last,
+                    headers: stateSnapshot.chapter.pageHeaders,
+                    cache: true,
+                  ).image,
+                  context,
+                );
+              else if (!(stateSnapshot.forceStopped ?? false)) {
+                var jumpProgress =
+                    stateSnapshot.pages.length / stateSnapshot.currentPage;
+                bloc.add(ReadJumpProgressUpdatedEvent(value: jumpProgress));
+              }
             },
           ),
           BlocListener<ReadBloc, ReadState>(
@@ -598,6 +667,36 @@ class _ReadPageState extends State<ReadPage> {
               var stateSnapshot = state as ReadLoadedState;
               Fluttertoast.showToast(
                   msg: stateSnapshot.createIteratorError.message);
+            },
+          ),
+          BlocListener<ReadBloc, ReadState>(
+            bloc: bloc,
+            // 强制停止页面跳转
+            condition: (prevState, state) =>
+                prevState != bloc.initialState &&
+                prevState is ReadLoadedState &&
+                state is ReadLoadedState &&
+                prevState.forceStopped != state.forceStopped &&
+                state.forceStopped,
+
+            listener: (context, state) {
+              var stateSnapshot = state as ReadLoadedState;
+              _handleSliderChange(stateSnapshot.pages.length.toDouble());
+            },
+          ),
+          BlocListener<ReadBloc, ReadState>(
+            bloc: bloc,
+            // 续读，直接跳页
+            condition: (prevState, state) =>
+                prevState is ReadLoadedState &&
+                state is ReadLoadedState &&
+                prevState.continuePage != state.continuePage,
+            listener: (context, state) {
+              var stateSnapshot = state as ReadLoadedState;
+              // TODO: 修正延迟跳页的临时解决方案（因为 PageView 此时还未渲染）
+              Future.delayed(Duration(milliseconds: 300), () {
+                _handleSliderChange(stateSnapshot.continuePage.toDouble());
+              });
             },
           ),
         ],
@@ -632,7 +731,7 @@ class _ReadPageState extends State<ReadPage> {
               body: castedState.isLoading
                   ? Container(
                       child: TextHint('载入中…'),
-                    )
+                    ) // 跳页中
                   : castedState.createIteratorError.error
                       ? _buildRetryView()
                       : GestureDetector(
@@ -642,6 +741,7 @@ class _ReadPageState extends State<ReadPage> {
                               ...infoView,
                               ...paginationSlider,
                               _buildPageInfoView(),
+                              ..._buildJumpingView(),
                             ],
                           ),
                           onTapUp: _handleGlobalTapUp,

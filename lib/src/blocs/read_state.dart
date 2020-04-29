@@ -20,6 +20,9 @@ class ReadLoadedState extends ReadState {
   final int currentPage;
   final List<String> pages;
   final int preFetchAt;
+  final double jumpProgress;
+  final bool forceStopped;
+  final int continuePage;
 
   ReadLoadedState({
     this.createIteratorError = noneError,
@@ -35,6 +38,9 @@ class ReadLoadedState extends ReadState {
     @required this.currentPage,
     @required this.pages,
     this.preFetchAt = 0,
+    this.jumpProgress,
+    this.forceStopped,
+    this.continuePage,
   });
 
   @override
@@ -52,6 +58,9 @@ class ReadLoadedState extends ReadState {
         currentPage,
         pages,
         preFetchAt,
+        jumpProgress,
+        forceStopped,
+        continuePage,
       ];
 
   ReadLoadedState copyWith({
@@ -68,6 +77,9 @@ class ReadLoadedState extends ReadState {
     int currentPage,
     List<String> pages,
     int preFetchAt,
+    double jumpProgress,
+    bool forceStopped,
+    int continuePage,
   }) =>
       ReadLoadedState(
         createIteratorError: createIteratorError ?? this.createIteratorError,
@@ -83,5 +95,8 @@ class ReadLoadedState extends ReadState {
         currentPage: currentPage ?? this.currentPage,
         pages: pages ?? this.pages,
         preFetchAt: preFetchAt ?? this.preFetchAt,
+        jumpProgress: jumpProgress ?? this.jumpProgress,
+        forceStopped: forceStopped ?? this.forceStopped,
+        continuePage: continuePage ?? this.continuePage,
       );
 }
