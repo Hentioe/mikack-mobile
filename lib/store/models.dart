@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:mikack/models.dart';
 
 class Source {
@@ -109,17 +110,19 @@ class History {
   final String address;
   String cover;
   bool displayed;
+  int lastReadPage;
   DateTime insertedAt;
   DateTime updateAt;
 
   History({
     this.id,
-    this.sourceId,
-    this.title,
-    this.homeUrl,
-    this.address,
-    this.cover,
-    this.displayed,
+    @required this.sourceId,
+    @required this.title,
+    @required this.homeUrl,
+    @required this.address,
+    @required this.cover,
+    @required this.displayed,
+    this.lastReadPage,
     this.insertedAt,
     this.updateAt,
   }) {
@@ -140,6 +143,7 @@ class History {
       'address': address,
       'cover': cover,
       'displayed': displayed ? 1 : 0,
+      'last_read_page': lastReadPage,
       'inserted_at': insertedAt.toString(),
       'updated_at': updateAt.toString(),
     };
@@ -154,12 +158,13 @@ class History {
       address: map['address'],
       cover: map['cover'],
       displayed: map['displayed'] == 1 ? true : false,
+      lastReadPage: map['last_read_page'],
       insertedAt: DateTime.parse(map['inserted_at']),
     );
   }
 
   String toString() {
-    return 'History(id: $id, sourceId: $sourceId, title: $title)';
+    return 'History(id: $id, sourceId: $sourceId, title: $title, lastReadPage: $lastReadPage)';
   }
 
   Chapter asChapter() {

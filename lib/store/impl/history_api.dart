@@ -4,9 +4,9 @@ import '../../store.dart';
 import '../models.dart';
 import '../helper.dart';
 
-Future<void> insertHistory(History historiy) async {
+Future<void> insertHistory(History history) async {
   final db = await database();
-  await db.insert(History.tableName, historiy.toMap());
+  await db.insert(History.tableName, history.toMap());
 }
 
 Future<void> insertHistories(List<History> histories) async {
@@ -87,15 +87,15 @@ Future<History> getLastHistory(String homeUrl) async {
   return maps.map((map) => History.fromMap(map)).toList().first;
 }
 
-Future<void> updateHistory(History historiy) async {
+Future<void> updateHistory(History history) async {
   final db = await database();
 
-  historiy.updateAt = DateTime.now();
+  history.updateAt = DateTime.now();
   await db.update(
     History.tableName,
-    historiy.toMap(),
+    history.toMap(),
     where: 'id = ?',
-    whereArgs: [historiy.id],
+    whereArgs: [history.id],
   );
 }
 

@@ -105,6 +105,9 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
         break;
       case ReadChapterLoadedEvent: // 章节数据装载
         var castedEvent = event as ReadChapterLoadedEvent;
+        // 写入阅读历史
+        var history = await writeToHistories(castedEvent.chapter);
+        var lastReadPage = history.lastReadPage ?? 1;
         yield (state as ReadLoadedState).copyWith(
           createIteratorError: noneError,
           isLoading: false,
@@ -112,11 +115,14 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
           chapter: castedEvent.chapter,
           pageIterator: castedEvent.pageIterator,
         );
-        // 载入第一页
-        add(ReadNextPageEvent(
-            page: 1, preLoading: (state as ReadLoadedState).preLoading));
-        // 添加到阅读历史
-        addHistory(castedEvent.chapter);
+        // 如果存在上次阅读记录，直接跳页
+        if (lastReadPage > 1) {
+          // TODO: 跳页
+        } else {
+          // 载入第一页
+          add(ReadNextPageEvent(
+              page: 1, preLoading: (state as ReadLoadedState).preLoading));
+        }
         break;
       case ReadNextPageEvent: // 请求下一页
         var castedEvent = event as ReadNextPageEvent;
@@ -190,7 +196,15 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
             .copyWith(currentPage: castedEvent.page);
         break;
       case ReadFreeEvent: // 释放迭代器
-        clearGestureDetailsCache();
+        clearGestureDetailsCache(); // 清除手势缓存（很重要，否则会造成严重的内存泄漏）
+        // 记录上次阅读页面
+        var history =
+            await getHistory(address: (state as ReadLoadedState).chapter.url);
+        if (history != null) {
+          history.lastReadPage = (state as ReadLoadedState).currentPage;
+          await updateHistory(history);
+        }
+        // 释放迭代器内存
         _pageIteratorIsFreed = true;
         var castedEvent = event as ReadFreeEvent;
         if (castedEvent.pageIterator != null) {
@@ -209,8 +223,8 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
     }
   }
 
-  // 添加阅读历史
-  Future<void> addHistory(models.Chapter chapter) async {
+  // 添加或更新阅读历史
+  Future<History> writeToHistories(models.Chapter chapter) async {
     var history = await getHistory(address: chapter.url);
     if (history != null) {
       // 如果存在阅读历史，仅更新（并强制可见）
@@ -222,7 +236,7 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
     } else {
       // 创建阅读历史
       var source = await platform.toSavedSource();
-      var history = History(
+      history = History(
         sourceId: source.id,
         title: chapter.title,
         homeUrl: comic.url,
@@ -232,6 +246,8 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
       );
       await insertHistory(history);
     }
+
+    return history;
   }
 
   Future<Tuple2<ValuePageIterator, models.Chapter>> _createPageIterator(

@@ -23,6 +23,7 @@ const latestHistoryTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
     'displayed INTEGER NOT NULL,' // 显示状态
     'inserted_at TEXT NOT NULL,' // 插入时间
     'updated_at TEXT NOT NULL,' // 更新时间
+    'last_read_page INTEGER,' // 上次阅读页面（页码）
     'CHECK (displayed IN (0,1)),' // 确保 `显示状态` 为布尔值
     'FOREIGN KEY(source_id) REFERENCES sources(id)';
 
@@ -51,8 +52,6 @@ List<String> tableStructureMigrationSqlGen(
   var newTableName = '${tableName}_new_tmp_name';
   var columnsStr = columns.join(',');
   return [
-    // 关闭外键
-    'PRAGMA foreign_keys=OFF;',
     // 创建最新结构的临时表（包含检查约束）
     'CREATE TABLE $newTableName($tableStructure);',
     // 复制数据
@@ -61,8 +60,6 @@ List<String> tableStructureMigrationSqlGen(
     'DROP TABLE $tableName;',
     // 更新临时表名
     'ALTER TABLE $newTableName RENAME TO $tableName;',
-    // 开启外键
-    'PRAGMA foreign_keys=ON;',
   ];
 }
 
@@ -77,9 +74,6 @@ Future<Database> database() async {
   var databasePath = await getDatabasesPath();
   return openDatabase(
     join(databasePath, dbFile),
-    onConfigure: (db) async {
-//      await db.execute('PRAGMA foreign_keys=ON;'); // 启用外键
-    },
     onCreate: (db, version) async {
       await db.transaction((tnx) async {
         await multiExecInTrans(tnx, [
@@ -181,9 +175,13 @@ Future<Database> database() async {
             ]);
           });
           break;
+        case 7:
+          // 给阅读历史添加上次阅读页面
+          await db.execute('ALTER TABLE histories ADD last_read_page INTEGER;');
+          break;
       }
     },
-    version: 7,
+    version: 8,
   );
 }
 
