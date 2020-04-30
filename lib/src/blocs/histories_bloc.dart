@@ -32,7 +32,7 @@ class HistoriesBloc extends Bloc<HistoriesEvent, HistoriesState> {
     for (History history in histories) {
       var source = await getSource(id: history.sourceId);
       if (source == null) {
-        source = Source(name: '已失效的图源');
+        source = Source(name: '已失效的来源');
       } else {
         var platform =
             platformList.firstWhere((p) => p.domain == source.domain);

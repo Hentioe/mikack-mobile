@@ -53,7 +53,7 @@ class BookshelfFragment2 extends StatelessWidget {
         }
         var source = await getSource(id: favorite.sourceId);
         if (source == null) {
-          Fluttertoast.showToast(msg: '图源已不存在了');
+          Fluttertoast.showToast(msg: '来源已不存在了');
           return;
         }
         var platform =

@@ -283,7 +283,7 @@ class _ComicPageState extends State<ComicPage> {
                                 ? '未知'
                                 : stateSnapshot.comic.chapters.length),
                         SizedBox(height: 10),
-                        _ComicProperty('图源', widget.platform.name),
+                        _ComicProperty('来源', widget.platform.name),
                         SizedBox(height: 20),
                         Text(
                             stateSnapshot.comic.chapters != null

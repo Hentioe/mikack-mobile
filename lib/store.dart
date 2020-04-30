@@ -6,7 +6,7 @@ export './store/models.dart';
 
 const dbFile = 'mikack.db';
 
-// 图源表结构
+// 来源表结构
 const latestSourceTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
     'domain TEXT NOT NULL,' // 域名
     'name TEXT NOT NULL,' // 名称
@@ -15,7 +15,7 @@ const latestSourceTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
 
 // 阅读历史表结构
 const latestHistoryTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
-    'source_id INTEGER NOT NULL,' // 图源 ID
+    'source_id INTEGER NOT NULL,' // 来源 ID
     'title TEXT NOT NULL,' // 标题
     'home_url TEXT NOT NULL,' // 主页链接
     'address TEXT NOT NULL,' // 地址
@@ -29,7 +29,7 @@ const latestHistoryTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
 
 // 书架收藏表结构
 const latestFavoriteTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
-    'source_id INTEGER NOT NULL,' // 图源 ID
+    'source_id INTEGER NOT NULL,' // 来源 ID
     'name TEXT NOT NULL,' // 名称（章节标题）
     'address TEXT NOT NULL,' // 地址
     'cover TEXT,' // 封面
@@ -77,9 +77,9 @@ Future<Database> database() async {
     onCreate: (db, version) async {
       await db.transaction((tnx) async {
         await multiExecInTrans(tnx, [
-          // 创建图源表
+          // 创建来源表
           'CREATE TABLE sources($latestSourceTableStructure);',
-          // 创建图源表字段索引
+          // 创建来源表字段索引
           'CREATE UNIQUE INDEX sources_domain_idx ON sources (domain);',
           // 创建阅读历史表
           'CREATE TABLE histories($latestHistoryTableStructure);',
@@ -162,7 +162,7 @@ Future<Database> database() async {
           });
           break;
         case 6:
-          // 给图源添加“是否固定”字段，并将已存在的数据设为否（值为 0）
+          // 给来源添加“是否固定”字段，并将已存在的数据设为否（值为 0）
           await db.transaction((tnx) async {
             await multiExecInTrans(tnx, [
               // 添加`显示状态`列

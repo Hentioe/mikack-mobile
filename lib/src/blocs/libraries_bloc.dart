@@ -24,10 +24,10 @@ class LibrariesBloc extends Bloc<LibrariesEvent, LibrariesState> {
         );
         if (state is LibrariesGroupedListState) {
           var castedState = state as LibrariesGroupedListState;
-          // 如果固定列表为空，查询图源
+          // 如果固定列表为空，查询来源
           List<Platform> fixedList = [...castedState.fixedList];
           if (fixedList.length == 0) {
-            // 从数据库查找已固定的图源列表
+            // 从数据库查找已固定的来源列表
             var fixedSources = await findSources(isFixed: true);
             // 从全部平台中匹配对应的数据
             fixedList = platformList
