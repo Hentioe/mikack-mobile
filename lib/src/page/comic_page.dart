@@ -472,6 +472,31 @@ class _ComicPageState extends State<ComicPage> {
     );
   }
 
+  Widget _buildFloatingActionButton() {
+    var stateSnapshot = bloc.state as ComicLoadedState;
+    if (stateSnapshot.comic.chapters == null ||
+        stateSnapshot.comic.chapters.isEmpty) return null;
+    var lastReadChapter = stateSnapshot.comic.chapters
+        .where((c) => c.url == stateSnapshot.lastReadAt);
+    if (lastReadChapter.isNotEmpty) {
+      return FloatingActionButton(
+        heroTag: 'continue-reading',
+        tooltip: '继续阅读',
+        child: Icon(Icons.restore),
+        onPressed: () => _handleOpenReadPage(context, stateSnapshot.comic)(
+            lastReadChapter.first),
+      );
+    } else {
+      return FloatingActionButton(
+        heroTag: 'start-reading',
+        tooltip: '开始阅读',
+        child: Icon(Icons.play_arrow),
+        onPressed: () => _handleOpenReadPage(context, stateSnapshot.comic)(
+            stateSnapshot.comic.chapters.first),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SeriesSystemUI(
@@ -498,8 +523,6 @@ class _ComicPageState extends State<ComicPage> {
           bloc: bloc,
           builder: (context, state) {
             var castedState = state as ComicLoadedState;
-            var isShowFloatButton = castedState.comic.chapters != null &&
-                castedState.comic.chapters.length == 1;
             return Scaffold(
               backgroundColor: Colors.white,
               body: NestedScrollView(
@@ -544,16 +567,7 @@ class _ComicPageState extends State<ComicPage> {
                   ],
                 ),
               ),
-              floatingActionButton: isShowFloatButton
-                  ? FloatingActionButton(
-                      heroTag: 'startReaddingFab',
-                      tooltip: '开始阅读',
-                      child: Icon(Icons.play_arrow),
-                      onPressed: () =>
-                          _handleOpenReadPage(context, castedState.comic)(
-                              castedState.comic.chapters.first),
-                    )
-                  : null,
+              floatingActionButton: _buildFloatingActionButton(),
             );
           },
         ),
