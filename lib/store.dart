@@ -35,8 +35,11 @@ const latestFavoriteTableStructure = 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
     'cover TEXT,' // 封面
     'latest_chapters_count INTEGER NOT NULL DEFAULT 0,' // 最新章节数量
     'last_read_time TEXT NOT NULL,' // 上次阅读时间
+    'layout_columns INTEGER,' // 章节排列布局（列数）
+    'is_reverse_order INTEGER,' // 是否反转排序
     'inserted_at TEXT NOT NULL,' // 插入时间
     'updated_at TEXT NOT NULL,' // 更新时间
+    'CHECK (is_reverse_order IN (NULL,0,1)),' // 确保 `反转排序` 为布尔值
     'FOREIGN KEY(source_id) REFERENCES sources(id)';
 
 // 章节更新表结构
@@ -179,9 +182,37 @@ Future<Database> database() async {
           // 给阅读历史添加上次阅读页面
           await db.execute('ALTER TABLE histories ADD last_read_page INTEGER;');
           break;
+        case 8:
+          await db.transaction((tnx) async {
+            await multiExecInTrans(tnx, [
+              // 添加`章节排列布局`列
+              'ALTER TABLE favorites ADD layout_columns INTEGER NULL;',
+              // 添加`是否倒序`列
+              'ALTER TABLE favorites ADD is_reverse_order INTEGER NULL;',
+              // 迁移收藏表结构（包含检查约束）
+              ...tableStructureMigrationSqlGen(
+                'favorites',
+                latestFavoriteTableStructure,
+                columns: [
+                  'id',
+                  'source_id',
+                  'name',
+                  'address',
+                  'cover',
+                  'latest_chapters_count',
+                  'last_read_time',
+                  'layout_columns',
+                  'is_reverse_order',
+                  'inserted_at',
+                  'updated_at',
+                ],
+              ),
+            ]);
+          });
+          break;
       }
     },
-    version: 8,
+    version: 9,
   );
 }
 

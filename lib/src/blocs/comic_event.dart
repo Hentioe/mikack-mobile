@@ -80,12 +80,12 @@ class ComicReadingMarkCleanRequestEvent extends ComicEvent {
 }
 
 class ComicChapterColumnsChangedEvent extends ComicEvent {
-  final int columns;
+  final int layoutColumns;
 
-  ComicChapterColumnsChangedEvent({@required this.columns});
+  ComicChapterColumnsChangedEvent({@required this.layoutColumns});
 
   @override
-  List<Object> get props => [columns];
+  List<Object> get props => [layoutColumns];
 }
 
 class ComicVisibilityUpdateEvent extends ComicEvent {

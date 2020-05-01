@@ -23,7 +23,7 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
         tabIndex: 0,
         comic: comic,
         isFavorite: false,
-        columns: defaultChaptersGridColumns,
+        layoutColumns: defaultChaptersLayoutColumns,
         isShowToolBar: false,
         isShowFavoriteButton: true,
         isShowAppBarTitle: false,
@@ -34,20 +34,24 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
   Stream<ComicState> mapEventToState(ComicEvent event) async* {
     switch (event.runtimeType) {
       case ComicRequestEvent: // 请求漫画信息
-        var castedState = state as ComicLoadedState;
-        // 读取：是否反转排序
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        var reversed = prefs.getBool(kChaptersReversed);
-        if (reversed == null) reversed = false;
-        // 读取：已读历史记录
-        var readHistories = await findHistories(
-            forceDisplayed: false, homeUrl: castedState.comic.url);
-        var readHistoryAddresses = readHistories.map((h) => h.address).toList();
         // 读取：是否收藏
         var favorite = await getFavorite(address: comic.url);
         var isFavorite = favorite != null;
         if (favorite != null) // 更新最后阅读时间
           await updateFavorite(favorite..lastReadTime = DateTime.now());
+        var reversed = favorite?.isReverseOrder;
+        var castedState = state as ComicLoadedState;
+        // 读取：是否反转排序
+        if (reversed == null) {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          reversed = prefs.getBool(kChaptersReversed) ?? false;
+        }
+        // 读取：章节布局（列数）
+        var layoutColumns = favorite?.layoutColumns;
+        // 读取：已读历史记录
+        var readHistories = await findHistories(
+            forceDisplayed: false, homeUrl: castedState.comic.url);
+        var readHistoryAddresses = readHistories.map((h) => h.address).toList();
         // 读取：上次阅读位置
         var lastReadHistory = await getLastHistory(comic.url);
         var lastReadChapterAddress = lastReadHistory?.address;
@@ -58,6 +62,7 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
           reversed: reversed,
           readHistoryAddresses: readHistoryAddresses,
           lastReadAt: lastReadAt,
+          layoutColumns: layoutColumns,
         );
         // 通过事件响应状态延迟数据（来自远程）
         fetchComic().then((fetchedComic) {
@@ -72,7 +77,7 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
         yield (state as ComicLoadedState).copyWith(
             comic: castedEvent.comic,
             isShowToolBar: true,
-            columns: chaptersCount < 3 ? chaptersCount : null);
+            layoutColumns: chaptersCount < 3 ? chaptersCount : null);
         break;
       case ComicRetryEvent: // 重试（重新请求远程数据）
         yield (state as ComicLoadedState).copyWith(error: false);
@@ -91,6 +96,10 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
         break;
       case ComicReverseEvent: // 反转章节列表排序
         var castedState = state as ComicLoadedState;
+        var favorite = await getFavorite(address: castedState.comic.url);
+        if (favorite != null) // 如果已收藏，持久化存储设置
+          await updateFavorite(
+              favorite..isReverseOrder = !castedState.reversed);
         yield castedState.copyWith(reversed: !castedState.reversed);
         break;
       case ComicReadingMarkCleanRequestEvent: // 清空阅读标记
@@ -191,10 +200,15 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
             break;
         }
         break;
-      case ComicChapterColumnsChangedEvent:
+      case ComicChapterColumnsChangedEvent: // 章节布局变化（列数）
         var castedEvent = event as ComicChapterColumnsChangedEvent;
+        var castedState = state as ComicLoadedState;
+        var favorite = await getFavorite(address: castedState.comic.url);
+        if (favorite != null) // 如果已收藏，持久化存储设置
+          await updateFavorite(
+              favorite..layoutColumns = castedEvent.layoutColumns);
         yield (state as ComicLoadedState)
-            .copyWith(columns: castedEvent.columns);
+            .copyWith(layoutColumns: castedEvent.layoutColumns);
         break;
       case ComicVisibilityUpdateEvent:
         var castedEvent = event as ComicVisibilityUpdateEvent;

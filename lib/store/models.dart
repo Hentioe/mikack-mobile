@@ -42,6 +42,8 @@ class Favorite {
   String cover;
   int latestChaptersCount;
   DateTime lastReadTime;
+  int layoutColumns;
+  bool isReverseOrder;
   DateTime insertedAt;
   DateTime updatedAt;
 
@@ -49,12 +51,14 @@ class Favorite {
 
   Favorite({
     this.id,
-    this.sourceId,
-    this.name,
-    this.address,
-    this.cover,
+    @required this.sourceId,
+    @required this.name,
+    @required this.address,
+    @required this.cover,
     this.latestChaptersCount = 0,
     this.lastReadTime,
+    this.layoutColumns,
+    this.isReverseOrder,
     this.insertedAt,
     this.updatedAt,
   }) {
@@ -72,6 +76,9 @@ class Favorite {
       'cover': cover,
       'latest_chapters_count': latestChaptersCount,
       'last_read_time': lastReadTime.toString(),
+      'layout_columns': layoutColumns,
+      'is_reverse_order':
+          isReverseOrder != null ? isReverseOrder ? 1 : 0 : null,
       'inserted_at': insertedAt.toString(),
       'updated_at': updatedAt.toString(),
     };
@@ -80,6 +87,9 @@ class Favorite {
   Source source;
 
   factory Favorite.fromMap(Map<String, dynamic> map) {
+    final isReverseOrderColumnData = map['is_reverse_order'];
+    final isReverseOrder =
+        isReverseOrderColumnData != null ? isReverseOrderColumnData == 1 : null;
     return Favorite(
       id: map['id'],
       sourceId: map['source_id'],
@@ -88,6 +98,8 @@ class Favorite {
       cover: map['cover'],
       latestChaptersCount: map['latest_chapters_count'],
       lastReadTime: DateTime.parse(map['last_read_time']),
+      layoutColumns: map['layout_columns'],
+      isReverseOrder: isReverseOrder,
       insertedAt: DateTime.parse(map['inserted_at']),
       updatedAt: DateTime.parse(map['updated_at']),
     );

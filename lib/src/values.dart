@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 const defaultPreLoading = 3;
-const defaultChaptersGridColumns = 3;
+const defaultChaptersLayoutColumns = 3;
 
 const vPrimarySwatch = Colors.deepOrange; // 0xFFFF5722
 const vNsfwTagIntValue = 4;

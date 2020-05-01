@@ -14,7 +14,7 @@ class ComicLoadedState extends ComicState {
   final Comic comic;
   final bool isFavorite;
   final bool reversed;
-  final int columns;
+  final int layoutColumns;
   final List<String> readHistoryAddresses;
   final String lastReadAt;
   final bool isShowToolBar;
@@ -28,7 +28,7 @@ class ComicLoadedState extends ComicState {
     @required this.comic,
     @required this.isFavorite,
     this.reversed = false,
-    @required this.columns,
+    @required this.layoutColumns,
     this.readHistoryAddresses = const <String>[],
     this.lastReadAt,
     @required this.isShowToolBar,
@@ -44,7 +44,7 @@ class ComicLoadedState extends ComicState {
         comic,
         isFavorite,
         reversed,
-        columns,
+        layoutColumns,
         readHistoryAddresses,
         lastReadAt,
         isShowToolBar,
@@ -59,7 +59,7 @@ class ComicLoadedState extends ComicState {
     Comic comic,
     bool isFavorite,
     bool reversed,
-    int columns,
+    int layoutColumns,
     List<String> readHistoryAddresses,
     String lastReadAt,
     bool isShowToolBar,
@@ -73,7 +73,7 @@ class ComicLoadedState extends ComicState {
       comic: comic ?? this.comic,
       isFavorite: isFavorite ?? this.isFavorite,
       reversed: reversed ?? this.reversed,
-      columns: columns ?? this.columns,
+      layoutColumns: layoutColumns ?? this.layoutColumns,
       readHistoryAddresses: readHistoryAddresses ?? this.readHistoryAddresses,
       lastReadAt: lastReadAt ?? this.lastReadAt,
       isShowToolBar: isShowToolBar ?? this.isShowToolBar,

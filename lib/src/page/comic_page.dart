@@ -333,13 +333,13 @@ class _ComicPageState extends State<ComicPage> {
   void _handleColumnsLayoutToggled(int itemIndex) {
     switch (itemIndex) {
       case 0:
-        bloc.add(ComicChapterColumnsChangedEvent(columns: 1));
+        bloc.add(ComicChapterColumnsChangedEvent(layoutColumns: 1));
         break;
       case 1:
-        bloc.add(ComicChapterColumnsChangedEvent(columns: 3));
+        bloc.add(ComicChapterColumnsChangedEvent(layoutColumns: 3));
         break;
       case 2:
-        bloc.add(ComicChapterColumnsChangedEvent(columns: 2));
+        bloc.add(ComicChapterColumnsChangedEvent(layoutColumns: 2));
         break;
       default:
         break;
@@ -352,7 +352,7 @@ class _ComicPageState extends State<ComicPage> {
 
   double _buildGridAspectRatio() {
     var stateSnapshot = bloc.state as ComicLoadedState;
-    switch (stateSnapshot.columns) {
+    switch (stateSnapshot.layoutColumns) {
       case 1:
         return 14;
       case 2:
@@ -377,10 +377,12 @@ class _ComicPageState extends State<ComicPage> {
             items: [
               _ToggleItem(
                 text: '单行',
-                checked: stateSnapshot.columns == 1,
+                checked: stateSnapshot.layoutColumns == 1,
               ),
-              _ToggleItem(text: '紧凑', checked: stateSnapshot.columns == 3),
-              _ToggleItem(text: '宽松', checked: stateSnapshot.columns == 2),
+              _ToggleItem(
+                  text: '紧凑', checked: stateSnapshot.layoutColumns == 3),
+              _ToggleItem(
+                  text: '宽松', checked: stateSnapshot.layoutColumns == 2),
             ],
             onToggled: _handleColumnsLayoutToggled,
           ),
@@ -423,7 +425,7 @@ class _ComicPageState extends State<ComicPage> {
       chapters = reverseByGroup(chapters);
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: stateSnapshot.columns,
+        crossAxisCount: stateSnapshot.layoutColumns,
         childAspectRatio: _buildGridAspectRatio(),
         mainAxisSpacing: _chapterSpacing,
         crossAxisSpacing: _chapterSpacing,
