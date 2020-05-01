@@ -39,12 +39,14 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
         isLeftHandMode: false,
         isShowToolbar: false,
         isLoading: true,
-        preCaching: true,
+        preCaching: defaultPreCaching,
         preLoading: defaultPreLoading,
         chapterReadAt: chapterReadAt,
         currentPage: 0,
         pages: const [],
       );
+
+  bool initialPreCaching;
 
   ReceivePort _nextPageResultPort; // 留下 port 用以通信释放迭代器
   bool _pageIteratorIsFreed = false;
@@ -63,6 +65,7 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
         var preLoading = prefs.getInt(kPreLoading);
         // 读取：预缓存图片
         var preCaching = prefs.getBool(kPreCaching);
+        initialPreCaching = preCaching ?? defaultPreCaching;
         // 读取：是否启用左手模式
         var isLeftHandMode = prefs.getBool(kLeftHandMode);
         yield (state as ReadLoadedState).copyWith(
@@ -159,7 +162,7 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
         var stateSnapshot = state as ReadLoadedState;
         // 载入下一页
         if (stateSnapshot.preFetchAt < castedEvent.page) {
-          var isMakeUp = castedEvent.page != stateSnapshot.currentPage;
+          var isMakeUp = castedEvent.page <= stateSnapshot.currentPage;
           _fetchNextPage(stateSnapshot.pageIterator).then((address) {
             add(ReadPageLoadedEvent(
                 pageNum: castedEvent.page, page: address, isMakeUp: isMakeUp));
@@ -178,7 +181,7 @@ class ReadBloc extends Bloc<ReadEvent, ReadState> {
       case ReadPageLoadedEvent: // 页面数据装载
         var castedEvent = event as ReadPageLoadedEvent;
         var castedState = state as ReadLoadedState;
-        bool preCaching;
+        bool preCaching = initialPreCaching;
         if (castedEvent.isMakeUp ?? false)
           preCaching = false; // 如果是弥补空缺页面则不进行预缓存
         yield castedState.copyWith(
