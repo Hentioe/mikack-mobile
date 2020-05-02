@@ -77,7 +77,8 @@ class ComicBloc extends Bloc<ComicEvent, ComicState> {
         yield (state as ComicLoadedState).copyWith(
             comic: castedEvent.comic,
             isShowToolBar: true,
-            layoutColumns: chaptersCount < 3 ? chaptersCount : null);
+            layoutColumns:
+                chaptersCount < 3 && chaptersCount > 0 ? chaptersCount : null);
         break;
       case ComicRetryEvent: // 重试（重新请求远程数据）
         yield (state as ComicLoadedState).copyWith(error: false);
