@@ -376,7 +376,7 @@ class _ComicPageState extends State<ComicPage> {
             headerText: '章节布局',
             items: [
               _ToggleItem(
-                text: '单行',
+                text: '单列',
                 checked: stateSnapshot.layoutColumns == 1,
               ),
               _ToggleItem(
