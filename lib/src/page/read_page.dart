@@ -168,6 +168,7 @@ class _ReadPageState extends State<ReadPage> {
       bloc.add(ReadToolbarDisplayStatusChangedEvent());
       return;
     }
+    if (isJumping()) return; // 如果在跳页，避免触摸翻页
     // 切换页面
     if (centerX > x) {
       // 左屏幕（默认上一页，左手模式相反）
@@ -524,21 +525,27 @@ class _ReadPageState extends State<ReadPage> {
     );
   }
 
+  bool isJumping() {
+    var stateSnapshot = bloc.state as ReadLoadedState;
+    return (!(stateSnapshot.forceStopped ?? false)) &&
+        (stateSnapshot.jumpProgress ?? 1.0) < 1.0;
+  }
+
   List<Widget> _buildJumpingView() {
     var stateSnapshot = bloc.state as ReadLoadedState;
     var children = <Widget>[];
-    var isJumping = (!(stateSnapshot.forceStopped ?? false)) &&
-        (stateSnapshot.jumpProgress ?? 1.0) < 1.0;
-    if (isJumping)
+    if (isJumping())
       children.add(Positioned(
         top: 0,
         bottom: 0,
         left: 0,
         right: 0,
-        child: Center(
+        child: Container(
+          alignment: Alignment.center,
+          color: Colors.transparent,
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withAlpha(200),
+              color: Colors.grey[200].withAlpha(200),
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
