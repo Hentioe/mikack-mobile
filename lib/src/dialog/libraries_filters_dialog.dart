@@ -8,7 +8,6 @@ import '../widget/tag.dart';
 import '../values.dart';
 
 const _librariesFilterTagFontSize = 10.8;
-const _allowNsfwHint = '未在设置中允许 NSFW 内容';
 
 Future<Tuple2<List<int>, List<int>>> openLibrariesFiltersDialog(
   BuildContext context, {
@@ -26,7 +25,7 @@ Future<Tuple2<List<int>, List<int>>> openLibrariesFiltersDialog(
             stateful: true,
             selected: includes.contains(t.value),
             stateFixed: !allowNsfw && t.value == vNsfwTagIntValue,
-            stateFixedReason: _allowNsfwHint,
+            stateFixedReason: vAllowNsfwHint,
             onTap: (value, selected) =>
                 selected ? includes.add(value) : includes.remove(value),
           ))
@@ -39,7 +38,7 @@ Future<Tuple2<List<int>, List<int>>> openLibrariesFiltersDialog(
             stateful: true,
             selected: excludes.contains(t.value),
             stateFixed: !allowNsfw && t.value == vNsfwTagIntValue,
-            stateFixedReason: _allowNsfwHint,
+            stateFixedReason: vAllowNsfwHint,
             onTap: (value, selected) =>
                 selected ? excludes.add(value) : excludes.remove(value),
           ))

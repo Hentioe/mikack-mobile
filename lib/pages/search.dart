@@ -21,8 +21,6 @@ import 'package:tuple/tuple.dart';
 import '../src/values.dart';
 import '../src/page/comic_page.dart';
 
-const _allowNsfwHint = '未在设置中允许 NSFW 内容';
-
 const searchResultCoverHeight = 210.0;
 const searchResultCoverWidth = vCoverRatio * searchResultCoverHeight;
 
@@ -115,7 +113,7 @@ class _SearchPageState extends State<SearchPage> {
               stateful: true,
               selected: includes.contains(t.value),
               stateFixed: !_allowNsfw && t.value == vNsfwTagIntValue,
-              stateFixedReason: _allowNsfwHint,
+              stateFixedReason: vAllowNsfwHint,
               onTap: (value, selected) {
                 selected ? includes.add(value) : includes.remove(value);
                 updatePlatforms();
@@ -130,7 +128,7 @@ class _SearchPageState extends State<SearchPage> {
               stateful: true,
               selected: excludes.contains(t.value),
               stateFixed: !_allowNsfw && t.value == vNsfwTagIntValue,
-              stateFixedReason: _allowNsfwHint,
+              stateFixedReason: vAllowNsfwHint,
               onTap: (value, selected) {
                 selected ? excludes.add(value) : excludes.remove(value);
                 updatePlatforms();
