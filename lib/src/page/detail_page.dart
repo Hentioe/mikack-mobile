@@ -128,7 +128,7 @@ class DetailPage extends StatelessWidget {
           icon: Icon(Icons.keyboard_backspace),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('平台信息'),
+        title: Text('来源信息'),
       ),
       body: _buildBody(),
     );

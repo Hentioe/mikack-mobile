@@ -22,3 +22,6 @@ export 'blocs/index_state.dart';
 export 'blocs/read_bloc.dart';
 export 'blocs/read_event.dart';
 export 'blocs/read_state.dart';
+export 'blocs/filters_bloc.dart';
+export 'blocs/filters_event.dart';
+export 'blocs/filters_state.dart';

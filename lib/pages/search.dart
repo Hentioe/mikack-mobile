@@ -265,7 +265,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget _buildResultView() {
     var participantsCount = _platforms.length - _excludesPlatformDomains.length;
     if (participantsCount == 0) // 没选择平台
-      return TextHint('未选择任何平台');
+      return TextHint('未选择任何来源');
     if (_groupedItems.length == 0) // 载入中（零结果）
       return Center(child: CircularProgressIndicator());
     List<Widget> searchingIndicator = []; // 搜索进度指示器

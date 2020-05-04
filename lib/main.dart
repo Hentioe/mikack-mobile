@@ -17,8 +17,8 @@ import 'src/fragments.dart';
 import 'src/blocs.dart';
 import 'src/models.dart';
 import 'src/values.dart';
-import 'src/dialog/libraries_filters_dialog.dart';
 import 'src/widget/updates_sheet.dart';
+import 'src/widget/filters_sheet.dart';
 
 const bookshelfSortByKey = 'bookshelf_sort_by';
 
@@ -82,6 +82,9 @@ class MyApp extends StatelessWidget {
           BlocProvider<HistoriesBloc>(
             create: (_) => HistoriesBloc(),
           ),
+          BlocProvider<FiltersBloc>(
+            create: (_) => FiltersBloc(),
+          ),
         ],
         child: MyHomePage(drawerIndex: drawerIndex),
       ),
@@ -123,15 +126,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int _drawerIndex;
   List<DrawerItem> _drawerItems = [];
-  List<int> _includeTags = [];
-  List<int> _excludesTags = [vNsfwTagIntValue];
-  bool allowNsfw = false;
   List<Release> _updates;
 
   @override
   void initState() {
     initDrawerItems();
-    fetchAllowNsfw();
     checkPermAccept();
     sendFragmentEvent();
     checkNewVersion();
@@ -162,6 +161,10 @@ class _MyHomePageState extends State<MyHomePage> {
       case HistoriesFragment2:
         BlocProvider.of<HistoriesBloc>(context).add(HistoriesRequestEvent());
         break;
+      case LibrariesFragment2:
+        BlocProvider.of<FiltersBloc>(context).add(
+            FiltersRequestEvent(historiesBloc: context.bloc<LibrariesBloc>()));
+        break;
     }
   }
 
@@ -171,28 +174,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (versionStr == null)
       Navigator.push(context,
           MaterialPageRoute(builder: (_) => TermsPage(readOnly: false)));
-  }
-
-  void fetchAllowNsfw() async {
-    var prefs = await SharedPreferences.getInstance();
-    var isAllow = prefs.getBool(kAllowNsfw);
-    if (isAllow == null) isAllow = false;
-    allowNsfw = isAllow;
-    if (isAllow) {
-      // 如果启用，则排除并重写载入
-      if (_excludesTags.contains(vNsfwTagIntValue)) {
-        _excludesTags.remove(vNsfwTagIntValue);
-      }
-    } else {
-      // 没启用，添加排除标签并删除包含标签
-      if (!_excludesTags.contains(vNsfwTagIntValue)) {
-        _excludesTags.add(vNsfwTagIntValue);
-        if (_includeTags.contains(vNsfwTagIntValue))
-          _includeTags.remove(vNsfwTagIntValue);
-      }
-    }
-    BlocProvider.of<LibrariesBloc>(context).add(LibrariesFiltersUpdatedEvent(
-        includes: _includeTags, excludes: _excludesTags));
   }
 
   final _header = DrawerHeader(
@@ -216,21 +197,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _handleLibrariesFilter() {
-    openLibrariesFiltersDialog(context,
-            includes: _includeTags,
-            excludes: _excludesTags,
-            allowNsfw: allowNsfw)
-        .then((filters) {
-      var includes = filters.item1;
-      var excludes = filters.item2;
-
-      setState(() {
-        _includeTags = includes;
-        _excludesTags = excludes;
-      });
-      BlocProvider.of<LibrariesBloc>(context).add(
-          LibrariesFiltersUpdatedEvent(includes: includes, excludes: excludes));
-    });
+    showModalBottomSheet(
+        context: context, builder: (ctx) => FiltersSheet(appContext: context));
   }
 
   Widget _buildBookshelfSortMenuView() {
@@ -381,7 +349,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (_) => SettingsPage2(appContext: context)),
-                ).then((_) => fetchAllowNsfw()), // 设置页面返回后刷新可能变更的数据
+                ),
               ),
               ..._buildNewVersionFound(),
             ],

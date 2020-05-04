@@ -7,19 +7,7 @@ const defaultTagPadding =
     EdgeInsets.only(left: 10, right: 10, top: 0.5, bottom: 0.5);
 const defaultFixedStateTagReason = '标签状态被锁定，不可更改';
 
-class _Tag extends StatefulWidget {
-  _Tag(
-    this.value,
-    this.text, {
-    this.fontSize,
-    this.color,
-    this.selected,
-    this.stateful,
-    this.stateFixed,
-    this.stateFixedReason,
-    this.onTap,
-  });
-
+class Tag extends StatefulWidget {
   final double fontSize;
   final int value;
   final String text;
@@ -30,11 +18,23 @@ class _Tag extends StatefulWidget {
   final String stateFixedReason;
   final void Function(int, bool) onTap;
 
+  Tag(
+    this.value,
+    this.text, {
+    this.fontSize = 10.0,
+    this.color = defaultSelectedTagColor,
+    this.selected = false,
+    this.stateful = false,
+    this.stateFixed = false,
+    this.stateFixedReason,
+    this.onTap,
+  });
+
   @override
   State<StatefulWidget> createState() => _TagState();
 }
 
-class _TagState extends State<_Tag> with TickerProviderStateMixin {
+class _TagState extends State<Tag> with TickerProviderStateMixin {
   var _selected;
 
   @override
@@ -46,11 +46,6 @@ class _TagState extends State<_Tag> with TickerProviderStateMixin {
     if (widget.stateful) {
       if (widget.stateFixed) {
         if (_selected == null) _selected = widget.selected;
-        Fluttertoast.showToast(
-          msg: widget.stateFixedReason != null
-              ? widget.stateFixedReason
-              : defaultFixedStateTagReason,
-        );
       } else {
         setState(() {
           if (_selected == null)
@@ -60,8 +55,14 @@ class _TagState extends State<_Tag> with TickerProviderStateMixin {
         });
       }
     }
-    if (widget.onTap != null && !widget.stateFixed)
-      widget.onTap(value, _selected);
+    if (widget.stateFixed)
+      Fluttertoast.showToast(
+        msg: widget.stateFixedReason != null
+            ? widget.stateFixedReason
+            : defaultFixedStateTagReason,
+      );
+    else if (widget.onTap != null && !widget.stateFixed)
+      widget.onTap(value, _selected ?? !widget.selected);
   }
 
   @override
@@ -92,41 +93,4 @@ class _TagState extends State<_Tag> with TickerProviderStateMixin {
         ),
         onTap: () => handleTap(widget.value));
   }
-}
-
-class Tag extends StatelessWidget {
-  Tag(
-    this.value,
-    this.text, {
-    this.fontSize = 10.0,
-    this.color = defaultSelectedTagColor,
-    this.selected = false,
-    this.stateful = false,
-    this.stateFixed = false,
-    this.stateFixedReason,
-    this.onTap,
-  });
-
-  final double fontSize;
-  final int value;
-  final String text;
-  final Color color;
-  final bool selected;
-  final bool stateful;
-  final bool stateFixed;
-  final String stateFixedReason;
-  final void Function(int, bool) onTap;
-
-  @override
-  Widget build(BuildContext context) => _Tag(
-        value,
-        text,
-        fontSize: fontSize,
-        color: color,
-        selected: selected,
-        stateful: stateful,
-        stateFixed: stateFixed,
-        stateFixedReason: stateFixedReason,
-        onTap: onTap,
-      );
 }

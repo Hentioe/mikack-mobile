@@ -237,10 +237,21 @@ class _SettingsPageState extends State<SettingsPage2> {
                         subtitle: '可能包含令人不适的成人内容',
                         trailing:
                             _SettingsCheckBoxIcon(value: castedState.allowNsfw),
-                        onTap: _handleSwitchTap(
-                            context,
-                            SettingsSwitchType.allowNsfw,
-                            !castedState.allowNsfw),
+                        onTap: () {
+                          // 切换开关状态
+                          _handleSwitchTap(
+                              context,
+                              SettingsSwitchType.allowNsfw,
+                              !castedState.allowNsfw)();
+                          // 更新过滤条件
+                          widget.appContext
+                              .bloc<FiltersBloc>()
+                              .add(FiltersAllowNsfwUpdatedEvent(
+                                isAllow: !castedState.allowNsfw,
+                                historiesBloc:
+                                    widget.appContext?.bloc<LibrariesBloc>(),
+                              ));
+                        },
                       ),
                       _SettingItem(
                         '倒序排列章节',

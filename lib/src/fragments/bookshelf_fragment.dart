@@ -59,7 +59,7 @@ class BookshelfFragment2 extends StatelessWidget {
         var platform =
             platformList.firstWhere((p) => p.domain == source.domain);
         if (platform == null) {
-          Fluttertoast.showToast(msg: '已不支持这个平台了哦');
+          Fluttertoast.showToast(msg: '已不支持这个来源了哦');
           return;
         }
         comic.headers = platform.buildBaseHeaders();
