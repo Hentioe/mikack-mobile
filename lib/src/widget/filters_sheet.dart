@@ -7,7 +7,7 @@ import '../blocs.dart';
 import '../widget/tag.dart';
 import '../values.dart';
 
-const _tagFontSize = 10.8;
+const _tagFontSize = 11.5;
 
 class FiltersSheet extends StatelessWidget {
   final BuildContext appContext;
@@ -78,7 +78,8 @@ class FiltersSheet extends StatelessWidget {
             children: [
               Container(
                 padding: EdgeInsets.all(6),
-                child: Text('来源过滤', style: TextStyle(color: Colors.black)),
+                child: Text('来源过滤',
+                    style: TextStyle(color: Colors.black, fontSize: 15.5)),
               ),
               // 标签过滤
               Container(
@@ -116,7 +117,7 @@ class FiltersSheet extends StatelessWidget {
               ),
               Center(
                 child: Text('部分来源可能存在多个标签',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[400])),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500])),
               ),
               SizedBox(height: 10),
             ],
