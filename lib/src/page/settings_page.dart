@@ -13,6 +13,7 @@ import '../values.dart';
 import '../widget/updates_sheet.dart';
 import '../models.dart';
 import '../helper/update_checker.dart';
+import '../page/chaneglog_page.dart';
 
 const _settingsItemSpacing = 16.0;
 const _settingsPadding = 18.0;
@@ -354,6 +355,10 @@ class _SettingsPageState extends State<SettingsPage2> {
                               : '获取中…',
                           onTap: _handleCheckUpdate(
                               context, castedState.packageInfo)),
+                      _SettingItem('更新日志',
+                          onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) => ChangelogPage()))),
                       _SettingItem(
                         '使用条款',
                         onTap: () => Navigator.push(

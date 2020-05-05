@@ -670,7 +670,7 @@ class _ReadPageState extends State<ReadPage> {
             condition: (prevState, state) {
               return prevState is ReadLoadedState &&
                   state is ReadLoadedState &&
-                  state.createIteratorError.error;
+                  state.createIteratorError.failed;
             },
             listener: (context, state) {
               var stateSnapshot = state as ReadLoadedState;
@@ -741,7 +741,7 @@ class _ReadPageState extends State<ReadPage> {
                   ? Center(
                       child: loadingView,
                     ) // 跳页中
-                  : castedState.createIteratorError.error
+                  : castedState.createIteratorError.failed
                       ? _buildRetryView()
                       : GestureDetector(
                           child: Stack(

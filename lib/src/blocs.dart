@@ -25,3 +25,6 @@ export 'blocs/read_state.dart';
 export 'blocs/filters_bloc.dart';
 export 'blocs/filters_event.dart';
 export 'blocs/filters_state.dart';
+export 'blocs/changelog_bloc.dart';
+export 'blocs/changelog_event.dart';
+export 'blocs/changelog_state.dart';

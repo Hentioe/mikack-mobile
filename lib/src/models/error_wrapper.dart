@@ -1,19 +1,19 @@
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
 
-const noneError = ErrorWrapper(error: false);
+const noneError = ErrorWrapper(failed: false);
 
 class ErrorWrapper extends Equatable {
-  final bool error;
+  final bool failed;
   final String message;
 
-  const ErrorWrapper({@required this.error, this.message});
+  const ErrorWrapper({@required this.failed, this.message});
 
   @override
-  List<Object> get props => [error, message];
+  List<Object> get props => [failed, message];
 
-  factory ErrorWrapper.none() => const ErrorWrapper(error: false);
+  factory ErrorWrapper.none() => const ErrorWrapper(failed: false);
 
   factory ErrorWrapper.message(String message) =>
-      ErrorWrapper(error: true, message: message);
+      ErrorWrapper(failed: true, message: message);
 }
