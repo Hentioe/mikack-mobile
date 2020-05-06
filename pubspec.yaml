@@ -50,6 +50,7 @@ dependencies:
   dio: ^3.0.9
   path_provider: ^1.6.5
   flutter_install_apk: ^0.0.1
+  intl: ^0.16.1
 
 #dev_dependencies:
 #  flutter_test:

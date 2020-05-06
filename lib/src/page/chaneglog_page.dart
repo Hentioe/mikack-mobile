@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 import '../widget/series_system_ui.dart';
 import '../blocs.dart';
@@ -29,6 +30,7 @@ class _ChangelogPageState extends State<ChangelogPage> {
 
   @override
   Widget build(BuildContext context) {
+    final subtitleStyle = TextStyle(color: Colors.grey[600], fontSize: 13.5);
     return SeriesSystemUI(
       child: Scaffold(
         appBar: AppBar(
@@ -62,24 +64,27 @@ class _ChangelogPageState extends State<ChangelogPage> {
                 );
               return Scrollbar(
                 child: ListView(
-                  children: castedState.changelog
-                      .map((c) => ExpansionTile(
-                            title: Text(c.release.tagName),
-                            subtitle: c.isNewVersion
-                                ? Text('发现新版')
-                                : c.release.tagName ==
-                                        castedState.currentVersion
-                                    ? Text('当前版本')
-                                    : Text('历史版本'),
-                            children: [
-                              Markdown(
-                                data: c.release.body,
-                                shrinkWrap: true,
-                                physics: ClampingScrollPhysics(),
-                              )
-                            ],
-                          ))
-                      .toList(),
+                  children: castedState.changelog.map((c) {
+                    return ExpansionTile(
+                      title: Text(
+                        c.release.tagName,
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      subtitle: Text(
+                          DateFormat('yyyy年MM月dd日').format(c.release.createdAt),
+                          style: subtitleStyle),
+                      children: [
+                        Markdown(
+                          data: c.release.body,
+                          shrinkWrap: true,
+                          physics: ClampingScrollPhysics(),
+                          styleSheet: MarkdownStyleSheet(
+                            p: TextStyle(fontSize: 12.5, color: Colors.black),
+                          ),
+                        )
+                      ],
+                    );
+                  }).toList(),
                 ),
               );
             },
