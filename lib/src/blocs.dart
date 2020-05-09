@@ -28,3 +28,6 @@ export 'blocs/filters_state.dart';
 export 'blocs/changelog_bloc.dart';
 export 'blocs/changelog_event.dart';
 export 'blocs/changelog_state.dart';
+export 'blocs/search_bloc.dart';
+export 'blocs/search_event.dart';
+export 'blocs/search_state.dart';

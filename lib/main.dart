@@ -9,10 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'src/helper/update_checker.dart';
 import 'src/logging.dart';
-import 'pages/search.dart';
+import 'src/page/search_page.dart';
 import 'src/page/terms_page.dart';
-import 'src/widget/series_system_ui.dart';
 import 'src/page/settings_page.dart';
+import 'src/widget/series_system_ui.dart';
 import 'src/fragments.dart';
 import 'src/blocs.dart';
 import 'src/models.dart';
@@ -263,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return PageRouteBuilder(
       barrierColor: Colors.white,
       pageBuilder: (_, animation, secondaryAnimation) =>
-          SearchPage(appContext: context),
+          SearchPage2(appContext: context),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = Offset(0.0, 1.0);
         var end = Offset.zero;
