@@ -9,6 +9,8 @@ const vNsfwTagIntValue = 4;
 
 const vAllowNsfwHint = '未在设置中解锁 NSFW 来源';
 
+const vInitOpeInc = 0;
+
 /// 封面比例
 /// 长:宽大约为 1.3，是常见漫画网站的封面标准
 /// 注意：此处的值是宽/长
