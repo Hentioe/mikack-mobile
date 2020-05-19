@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mikack/models.dart';
+import 'package:mikack_mobile/src/values.dart';
 
 import '../blocs.dart';
 import '../platform_list.dart';
@@ -14,20 +15,19 @@ import '../../store.dart';
 import '../ext.dart';
 import '../widget/text_hint.dart';
 
-final _defaultTextStyle = TextStyle(fontSize: 15.5, color: Colors.grey[400]);
 const _hintTextFontSize = 14.5;
 const _hintButtonFontWeight = FontWeight.bold;
 final _hintTextStyle =
-    TextStyle(fontSize: _hintTextFontSize, color: Colors.grey[500]);
+    TextStyle(fontSize: _hintTextFontSize, color: Colors.grey);
 final _librariesHintButtonTextStyle = TextStyle(
   fontSize: _hintTextFontSize,
-  color: Colors.grey[500],
+  color: vPrimarySwatch[300],
   fontWeight: _hintButtonFontWeight,
   decoration: TextDecoration.underline,
 );
 final _globalSearchHintButtonTextStyle = TextStyle(
   fontSize: _hintTextFontSize,
-  color: Colors.grey[500],
+  color: vPrimarySwatch[300],
   fontWeight: _hintButtonFontWeight,
   decoration: TextDecoration.underline,
 );
@@ -86,12 +86,16 @@ class BookshelfFragment2 extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SvgPicture.asset('assets/empty_box.svg',
-                    width: 104, color: Colors.grey[400]),
+                    width: 104, color: vPrimarySwatch),
+                SizedBox(height: 14),
                 Text(
                   '收藏是空的耶',
-                  style: _defaultTextStyle,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                Divider(color: Colors.grey[400], indent: 120, endIndent: 120),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
