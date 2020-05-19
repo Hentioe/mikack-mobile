@@ -32,11 +32,11 @@ final _globalSearchHintButtonTextStyle = TextStyle(
   decoration: TextDecoration.underline,
 );
 
-class BookshelfFragment2 extends StatelessWidget {
+class BookshelvesFragment extends StatelessWidget {
   final void Function() openLibrariesPage;
   final void Function() openGlobalSearchPage;
 
-  BookshelfFragment2({
+  BookshelvesFragment({
     @required this.openLibrariesPage,
     @required this.openGlobalSearchPage,
   });
@@ -68,15 +68,15 @@ class BookshelfFragment2 extends StatelessWidget {
           MaterialPageRoute(
             builder: (_) => ComicPage(platform: platform, comic: comic),
           ),
-        ).then((_) => BlocProvider.of<BookshelfBloc>(context)
-            .add(BookshelfRequestEvent.sortByDefault()));
+        ).then((_) => BlocProvider.of<BookshelvesBloc>(context)
+            .add(BookshelvesRequestEvent.sortByDefault()));
       };
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BookshelfBloc, BookshelfState>(
+    return BlocBuilder<BookshelvesBloc, BookshelvesState>(
         builder: (context, state) {
-      var loadedState = state as BookshelfLoadedState;
+      var loadedState = state as BookshelvesLoadedState;
 
       if (loadedState.viewItems.length == 0) {
         if (loadedState.sortBy != null)
@@ -85,8 +85,6 @@ class BookshelfFragment2 extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SvgPicture.asset('assets/empty_box.svg',
-                    width: 104, color: vPrimarySwatch),
                 SizedBox(height: 14),
                 Text(
                   '收藏是空的耶',

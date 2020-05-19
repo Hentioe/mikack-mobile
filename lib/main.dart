@@ -20,14 +20,14 @@ import 'src/values.dart';
 import 'src/widget/updates_sheet.dart';
 import 'src/widget/filters_sheet.dart';
 
-const bookshelfSortByKey = 'bookshelf_sort_by';
+const bookshelvesSortByKey = 'bookshelves_sort_by';
 
 final drawerItems = LinkedHashMap.from({
-  'default': '系统默认',
-  'bookshelf': '我的书架',
-  'books_update': '书架更新',
-  'libraries': '图书仓库',
-  'histories': '浏览历史',
+  kDefaultPage: '系统默认',
+  kBookshelvesPage: '我的书架',
+  kBooksUpdatePage: '书架更新',
+  kLibrariesPage: '图书仓库',
+  kHistoriesPage: '浏览历史',
 });
 
 const defaultDrawerIndex = 0;
@@ -70,8 +70,8 @@ class MyApp extends StatelessWidget {
       ),
       home: MultiBlocProvider(
         providers: [
-          BlocProvider<BookshelfBloc>(
-            create: (_) => BookshelfBloc(),
+          BlocProvider<BookshelvesBloc>(
+            create: (_) => BookshelvesBloc(),
           ),
           BlocProvider<UpdatesBloc>(
             create: (_) => UpdatesBloc(),
@@ -154,9 +154,9 @@ class _MyHomePageState extends State<MyHomePage> {
       case UpdatesFragment2:
         BlocProvider.of<UpdatesBloc>(context).add(UpdatesRequestEvent.local());
         break;
-      case BookshelfFragment2:
-        BlocProvider.of<BookshelfBloc>(context)
-            .add(BookshelfRequestEvent.sortByDefault());
+      case BookshelvesFragment:
+        BlocProvider.of<BookshelvesBloc>(context)
+            .add(BookshelvesRequestEvent.sortByDefault());
         break;
       case HistoriesFragment2:
         BlocProvider.of<HistoriesBloc>(context).add(HistoriesRequestEvent());
@@ -201,26 +201,26 @@ class _MyHomePageState extends State<MyHomePage> {
         context: context, builder: (ctx) => FiltersSheet(appContext: context));
   }
 
-  Widget _buildBookshelfSortMenuView() {
-    return BlocBuilder<BookshelfBloc, BookshelfState>(
+  Widget _buildBookshelvesSortMenuView() {
+    return BlocBuilder<BookshelvesBloc, BookshelvesState>(
       builder: (context, state) {
-        var castedState = state as BookshelfLoadedState;
-        return PopupMenuButton<BookshelfSort>(
+        var castedState = state as BookshelvesLoadedState;
+        return PopupMenuButton<BookshelvesSort>(
           tooltip: '修改排序方式',
           icon: Icon(Icons.sort),
-          onSelected: (sortBy) => BlocProvider.of<BookshelfBloc>(context)
-              .add(BookshelfRequestEvent(sortBy: sortBy)),
+          onSelected: (sortBy) => BlocProvider.of<BookshelvesBloc>(context)
+              .add(BookshelvesRequestEvent(sortBy: sortBy)),
           itemBuilder: (BuildContext context) => [
             CheckedPopupMenuItem(
-              checked: castedState.sortBy == BookshelfSort.readAt,
-              enabled: castedState.sortBy != BookshelfSort.readAt,
-              value: BookshelfSort.readAt,
+              checked: castedState.sortBy == BookshelvesSort.readAt,
+              enabled: castedState.sortBy != BookshelvesSort.readAt,
+              value: BookshelvesSort.readAt,
               child: Text('上次阅读时间'),
             ),
             CheckedPopupMenuItem(
-              checked: castedState.sortBy == BookshelfSort.insertedAt,
-              enabled: castedState.sortBy != BookshelfSort.insertedAt,
-              value: BookshelfSort.insertedAt,
+              checked: castedState.sortBy == BookshelvesSort.insertedAt,
+              enabled: castedState.sortBy != BookshelvesSort.insertedAt,
+              value: BookshelvesSort.insertedAt,
               child: Text('最近添加时间'),
             ),
           ],
@@ -237,10 +237,15 @@ class _MyHomePageState extends State<MyHomePage> {
       DrawerItem(
         '我的书架',
         Icons.class_,
-        BookshelfFragment2(
-            openLibrariesPage: () => setState(() => _drawerIndex = 2),
+        BookshelvesFragment(
+            openLibrariesPage: () {
+              // 初始化仓库列表
+              BlocProvider.of<FiltersBloc>(context).add(FiltersRequestEvent(
+                  historiesBloc: context.bloc<LibrariesBloc>()));
+              setState(() => _drawerIndex = 2);
+            },
             openGlobalSearchPage: openGlobalSearchPage),
-        actions: [_buildBookshelfSortMenuView()],
+        actions: [_buildBookshelvesSortMenuView()],
       ),
       DrawerItem('书架更新', Icons.fiber_new, UpdatesFragment2()),
       DrawerItem(

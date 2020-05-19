@@ -27,7 +27,7 @@ final _readingModeItems = [
 
 final _startPageItems = [
   StartPageItem(kDefaultPage),
-  StartPageItem(kBookshelfPage),
+  StartPageItem(kBookshelvesPage),
   StartPageItem(kBooksUpdatePage),
   StartPageItem(kLibrariesPage),
   StartPageItem(kHistoriesPage),
@@ -210,8 +210,8 @@ class _SettingsPageState extends State<SettingsPage2> {
                   msg: '书架已清空',
                 );
                 widget.appContext
-                    ?.bloc<BookshelfBloc>()
-                    ?.add(BookshelfRequestEvent.sortByDefault());
+                    ?.bloc<BookshelvesBloc>()
+                    ?.add(BookshelvesRequestEvent.sortByDefault());
               },
             ),
           ],

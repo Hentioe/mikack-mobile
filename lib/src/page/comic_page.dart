@@ -518,8 +518,8 @@ class _ComicPageState extends State<ComicPage> {
           Fluttertoast.showToast(msg: msg);
           // 刷新收藏列表
           widget.appContext
-              ?.bloc<BookshelfBloc>()
-              ?.add(BookshelfRequestEvent.sortByDefault());
+              ?.bloc<BookshelvesBloc>()
+              ?.add(BookshelvesRequestEvent.sortByDefault());
         },
         child: BlocBuilder<ComicBloc, ComicState>(
           bloc: bloc,

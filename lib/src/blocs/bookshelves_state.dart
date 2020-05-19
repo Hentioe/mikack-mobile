@@ -5,17 +5,17 @@ import '../widget/comics_view.dart' show ComicViewItem;
 import '../../store/models.dart';
 import '../models.dart';
 
-abstract class BookshelfState extends Equatable {
+abstract class BookshelvesState extends Equatable {
   @override
   List<Object> get props => [];
 }
 
-class BookshelfLoadedState extends BookshelfState {
+class BookshelvesLoadedState extends BookshelvesState {
   final List<Favorite> favorites;
   final List<ComicViewItem> viewItems;
-  final BookshelfSort sortBy;
+  final BookshelvesSort sortBy;
 
-  BookshelfLoadedState({
+  BookshelvesLoadedState({
     @required this.favorites,
     @required this.viewItems,
     @required this.sortBy,

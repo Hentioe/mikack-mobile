@@ -9,7 +9,7 @@ class StartPageItem extends Equatable {
   StartPageItem(this.key)
       : assert(
           key == kDefaultPage ||
-              key == kBookshelfPage ||
+              key == kBookshelvesPage ||
               key == kBooksUpdatePage ||
               key == kLibrariesPage ||
               key == kHistoriesPage,
@@ -23,7 +23,7 @@ class StartPageItem extends Equatable {
     switch (key) {
       case kDefaultPage:
         return '系统默认';
-      case kBookshelfPage:
+      case kBookshelvesPage:
         return '我的书架';
       case kBooksUpdatePage:
         return '书架更新';

@@ -25,7 +25,7 @@ const vGroupUrl = 'https://t.me/mikack';
 /// 基本设置
 const kStartPageKey = 'start_page';
 const kDefaultPage = 'default';
-const kBookshelfPage = 'bookshelf';
+const kBookshelvesPage = 'bookshelves';
 const kBooksUpdatePage = 'books_update';
 const kLibrariesPage = 'libraries';
 const kHistoriesPage = 'histories';

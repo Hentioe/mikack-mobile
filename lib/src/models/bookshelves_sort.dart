@@ -1,14 +1,14 @@
-enum BookshelfSort { readAt, insertedAt }
+enum BookshelvesSort { readAt, insertedAt }
 
 const _readAt = 'read_at';
 const _insertedAt = 'inserted_at';
 
-extension BookshelfSortByExt on BookshelfSort {
+extension BookshelvesSortByExt on BookshelvesSort {
   String value() {
     switch (this) {
-      case BookshelfSort.readAt:
+      case BookshelvesSort.readAt:
         return _readAt;
-      case BookshelfSort.insertedAt:
+      case BookshelvesSort.insertedAt:
         return _insertedAt;
       default:
         return _readAt;
@@ -16,15 +16,15 @@ extension BookshelfSortByExt on BookshelfSort {
   }
 }
 
-parseBookshelfSort(
+parseBookshelvesSort(
   String value, {
-  BookshelfSort orValue = BookshelfSort.readAt,
+  BookshelvesSort orValue = BookshelvesSort.readAt,
 }) {
   switch (value) {
     case _readAt:
-      return BookshelfSort.readAt;
+      return BookshelvesSort.readAt;
     case _insertedAt:
-      return BookshelfSort.insertedAt;
+      return BookshelvesSort.insertedAt;
     default:
       return orValue;
   }
