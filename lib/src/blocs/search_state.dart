@@ -10,6 +10,7 @@ import '../values.dart';
 abstract class SearchState extends Equatable {}
 
 class SearchLoadedState extends SearchState {
+  final String keywords;
   final bool isResultView;
   final Set<int> includesTags;
   final Set<int> excludesTags;
@@ -19,6 +20,7 @@ class SearchLoadedState extends SearchState {
   final int clearKeywordsOpeInc;
 
   SearchLoadedState({
+    this.keywords,
     @required this.isResultView,
     @required this.includesTags,
     @required this.excludesTags,
@@ -30,15 +32,18 @@ class SearchLoadedState extends SearchState {
 
   @override
   List<Object> get props => [
+        keywords,
         isResultView,
         includesTags,
         excludesTags,
         filteredSources,
         groupedResult,
         excludesSources,
+        clearKeywordsOpeInc,
       ];
 
   SearchLoadedState copyWith({
+    String keywords,
     bool isResultView,
     Set<int> includesTags,
     Set<int> excludesTags,
@@ -48,6 +53,7 @@ class SearchLoadedState extends SearchState {
     int clearKeywordsOpeInc,
   }) =>
       SearchLoadedState(
+        keywords: keywords ?? this.keywords,
         isResultView: isResultView ?? this.isResultView,
         includesTags: includesTags ?? this.includesTags,
         excludesTags: excludesTags ?? this.excludesTags,

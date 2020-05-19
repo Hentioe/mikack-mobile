@@ -18,6 +18,7 @@ class _SearchPageState extends State<SearchPage2> {
 
   @override
   void initState() {
+    bloc.add(SearchInitEvent());
     super.initState();
   }
 
