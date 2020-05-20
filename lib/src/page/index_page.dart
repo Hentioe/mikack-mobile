@@ -183,11 +183,7 @@ class _IndexPageState extends State<IndexPage2> {
                       autofocus: true,
                       controller: editingController,
                       onSubmitted: _handleSearchKeywordsSubmit,
-                      decoration: InputDecoration(
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white, width: 2),
-                        ),
-                      ),
+                      decoration: InputDecoration(hintText: '搜索'),
                     )
                   // 标题
                   : Text(widget.platform.name),
