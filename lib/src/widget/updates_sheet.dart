@@ -71,8 +71,12 @@ class _UpdatesSheetState extends State<UpdatesSheet> {
   }
 
   void _scheduleDownloadTask(String url) async {
-    var tempDir = (await getExternalCacheDirectories()).first.path;
-    var file = File('$tempDir/${widget.releases.first.tagName}.apk');
+    var tempDir = (await getExternalStorageDirectory()).path;
+    var updatesPath = '$tempDir/updates';
+    var updatesDir = Directory(updatesPath);
+    if (!(await updatesDir.exists())) await updatesDir.create();
+    var file = File(
+        '$updatesPath/${widget.releases.first.tagName}_${widget.releases.first.assets.first.id}.apk');
 
     if (!await file.exists()) {
       _initProgressDialogWithShow();
