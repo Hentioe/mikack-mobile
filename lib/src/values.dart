@@ -4,7 +4,7 @@ const defaultPreLoading = 3;
 const defaultChaptersLayoutColumns = 3;
 const defaultPreCaching = true;
 
-const vPrimarySwatch = Colors.deepOrange; // 0xFFFF5722
+const vPrimarySwatch = Colors.pink;
 const vNsfwTagIntValue = 4;
 
 const vAllowNsfwHint = '未在设置中解锁 NSFW 来源';
