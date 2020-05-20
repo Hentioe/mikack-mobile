@@ -367,28 +367,30 @@ class _ReadPageState extends State<ReadPage> {
             ),
           ),
           SizedBox(width: 10),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.comic.title.isEmpty ? '历史阅读' : widget.comic.title,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.comic.title.isEmpty ? '历史阅读' : widget.comic.title,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.fade,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.fade,
-              ),
-              SizedBox(height: 4),
-              Text(
-                chapter.title,
-                style: TextStyle(color: Colors.grey[300], fontSize: 14),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+                SizedBox(height: 4),
+                Text(
+                  chapter.title,
+                  style: TextStyle(color: Colors.grey[300], fontSize: 14),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),
